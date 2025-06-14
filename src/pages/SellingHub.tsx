@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -187,10 +188,11 @@ const SellingHub = () => {
       const totalSold = completedSales.length;
       const totalRevenue = completedSales.reduce((sum, conv) => {
         const ticket = conv.tickets;
-        if (Array.isArray(ticket) && ticket.length > 0 && ticket[0]) {
-          return sum + (ticket[0].selling_price || 0);
-        } else if (ticket && ticket !== null && typeof ticket === 'object' && 'selling_price' in ticket && ticket.selling_price) {
-          return sum + ticket.selling_price;
+        if (Array.isArray(ticket) && ticket.length > 0 && ticket[0] && ticket[0].selling_price) {
+          return sum + ticket[0].selling_price;
+        } else if (ticket && ticket !== null && typeof ticket === 'object' && 'selling_price' in ticket) {
+          const sellingPrice = (ticket as any).selling_price;
+          return sum + (sellingPrice || 0);
         }
         return sum;
       }, 0);
@@ -217,10 +219,9 @@ const SellingHub = () => {
     );
   }
 
-  // Filter tickets based on actual transaction status
+  // Filter tickets based on actual transaction status - completed transactions go to history
   const currentListings = tickets.filter(ticket => 
-    ticket.status === 'available' || 
-    (ticket.conversation && ticket.conversation.transaction_status !== 'completed')
+    !ticket.conversation || ticket.conversation.transaction_status !== 'completed'
   );
   
   const sellingHistory = tickets.filter(ticket => 
@@ -295,7 +296,7 @@ const SellingHub = () => {
                       <TicketCard 
                         key={ticket.id} 
                         ticket={ticket} 
-                        showEditButton 
+                        showEditButton={!ticket.conversation}
                         onEdit={handleEditTicket}
                         onView={handleViewTransaction}
                       />
