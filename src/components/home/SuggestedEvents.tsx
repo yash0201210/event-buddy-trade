@@ -36,8 +36,8 @@ export const SuggestedEvents = () => {
 
   if (isLoading) {
     return (
-      <section className="py-8 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-4 bg-white">
+        <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Suggested Events
@@ -69,8 +69,8 @@ export const SuggestedEvents = () => {
 
   if (events.length === 0) {
     return (
-      <section className="py-8 bg-white">
-        <div className="container mx-auto px-4">
+      <section className="py-4 bg-white">
+        <div className="max-w-4xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Suggested Events
@@ -90,8 +90,8 @@ export const SuggestedEvents = () => {
   }
 
   return (
-    <section className="py-8 bg-white">
-      <div className="container mx-auto px-4">
+    <section className="py-4 bg-white">
+      <div className="max-w-4xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
             Suggested Events
