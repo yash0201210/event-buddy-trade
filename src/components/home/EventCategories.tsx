@@ -142,7 +142,7 @@ export const EventCategories = () => {
   if (isLoading) {
     return (
       <section className="py-4 bg-white">
-        <div className="max-w-4xl mx-auto px-4">
+        <div className="max-w-5xl mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Browse by University
@@ -167,7 +167,7 @@ export const EventCategories = () => {
 
   return (
     <section className="py-4 bg-white">
-      <div className="max-w-4xl mx-auto px-4">
+      <div className="max-w-5xl mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
             Browse by University
