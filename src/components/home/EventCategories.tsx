@@ -2,10 +2,11 @@
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, ArrowRight } from 'lucide-react';
+import { GraduationCap, ArrowRight, Pin, PinOff } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 interface University {
   id: string;
@@ -13,7 +14,17 @@ interface University {
   city: string;
 }
 
+interface UniversityPin {
+  id: string;
+  user_id: string;
+  university_id: string;
+  created_at: string;
+}
+
 export const EventCategories = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+
   const { data: universities = [], isLoading } = useQuery({
     queryKey: ['universities'],
     queryFn: async () => {
@@ -25,6 +36,23 @@ export const EventCategories = () => {
       if (error) throw error;
       return data as University[];
     },
+  });
+
+  // Get user's pinned universities
+  const { data: pinnedUniversities = [] } = useQuery({
+    queryKey: ['user-pinned-universities', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      const { data, error } = await supabase
+        .from('user_university_pins')
+        .select('*')
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+      return data as UniversityPin[];
+    },
+    enabled: !!user,
   });
 
   // Get event count for each university
@@ -48,16 +76,89 @@ export const EventCategories = () => {
     },
   });
 
+  // Pin university mutation
+  const pinUniversityMutation = useMutation({
+    mutationFn: async (universityId: string) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('user_university_pins')
+        .insert({
+          user_id: user.id,
+          university_id: universityId,
+        });
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-pinned-universities'] });
+    },
+  });
+
+  // Unpin university mutation
+  const unpinUniversityMutation = useMutation({
+    mutationFn: async (universityId: string) => {
+      if (!user) throw new Error('User not authenticated');
+      
+      const { error } = await supabase
+        .from('user_university_pins')
+        .delete()
+        .eq('user_id', user.id)
+        .eq('university_id', universityId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-pinned-universities'] });
+    },
+  });
+
+  const isPinned = (universityId: string) => {
+    return pinnedUniversities.some(pin => pin.university_id === universityId);
+  };
+
+  const handlePinToggle = (universityId: string, event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    
+    if (!user) return;
+
+    if (isPinned(universityId)) {
+      unpinUniversityMutation.mutate(universityId);
+    } else {
+      pinUniversityMutation.mutate(universityId);
+    }
+  };
+
+  // Sort universities: pinned first, then alphabetically
+  const sortedUniversities = React.useMemo(() => {
+    if (!user) return universities;
+
+    const pinned = universities.filter(uni => isPinned(uni.id));
+    const unpinned = universities.filter(uni => !isPinned(uni.id));
+    
+    return [...pinned, ...unpinned];
+  }, [universities, pinnedUniversities, user]);
+
   if (isLoading) {
     return (
-      <section className="py-12">
+      <section className="py-12 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Browse by University
             </h2>
           </div>
-          <div className="overflow-x-auto scrollbar-hide">
+          <div 
+            className="overflow-x-auto scrollbar-hide"
+            style={{
+              overflowX: 'auto',
+              scrollBehavior: 'smooth',
+            }}
+            onWheel={(e) => {
+              e.currentTarget.scrollLeft += e.deltaY;
+            }}
+          >
             <div className="flex space-x-6 pb-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex-none w-48 animate-pulse">
@@ -75,7 +176,7 @@ export const EventCategories = () => {
   }
 
   return (
-    <section className="py-12">
+    <section className="py-12 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
@@ -89,11 +190,20 @@ export const EventCategories = () => {
           </Link>
         </div>
         
-        <div className="overflow-x-auto scrollbar-hide">
+        <div 
+          className="overflow-x-auto scrollbar-hide"
+          style={{
+            overflowX: 'auto',
+            scrollBehavior: 'smooth',
+          }}
+          onWheel={(e) => {
+            e.currentTarget.scrollLeft += e.deltaY;
+          }}
+        >
           <div className="flex space-x-6 pb-4">
-            {universities.map((university, index) => {
+            {sortedUniversities.map((university) => {
               const eventCount = eventCounts[university.id] || 0;
-              const isPinned = index === 0; // First university is pinned for demo
+              const isUniversityPinned = isPinned(university.id);
               
               return (
                 <div key={university.id} className="flex-none w-48">
@@ -101,7 +211,7 @@ export const EventCategories = () => {
                     <div className="text-center">
                       {/* Circular University Image */}
                       <div className={`w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 ${
-                        isPinned ? 'border-orange-500' : 'border-blue-400'
+                        isUniversityPinned ? 'border-orange-500' : 'border-blue-400'
                       } shadow-lg hover:shadow-xl transition-shadow`}>
                         <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
                           <GraduationCap className="h-12 w-12 text-blue-600" />
@@ -119,16 +229,40 @@ export const EventCategories = () => {
                       </p>
                       
                       {/* Pin/Unpin Button */}
-                      <Button 
-                        size="sm" 
-                        className={`rounded-full px-4 ${
-                          isPinned 
-                            ? 'bg-orange-500 hover:bg-orange-600 text-white' 
-                            : 'bg-orange-500 hover:bg-orange-600 text-white'
-                        }`}
-                      >
-                        {isPinned ? 'Pinned' : 'Pin University'}
-                      </Button>
+                      {user && (
+                        <Button 
+                          size="sm" 
+                          className={`rounded-full px-4 ${
+                            isUniversityPinned 
+                              ? 'bg-orange-500 hover:bg-orange-600 text-white' 
+                              : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
+                          }`}
+                          onClick={(e) => handlePinToggle(university.id, e)}
+                        >
+                          {isUniversityPinned ? (
+                            <>
+                              <PinOff className="h-3 w-3 mr-1" />
+                              Unpin
+                            </>
+                          ) : (
+                            <>
+                              <Pin className="h-3 w-3 mr-1" />
+                              Pin
+                            </>
+                          )}
+                        </Button>
+                      )}
+                      
+                      {!user && (
+                        <Button 
+                          size="sm" 
+                          className="rounded-full px-4 bg-gray-200 hover:bg-gray-300 text-gray-700"
+                          disabled
+                        >
+                          <Pin className="h-3 w-3 mr-1" />
+                          Pin University
+                        </Button>
+                      )}
                     </div>
                   </Link>
                 </div>
