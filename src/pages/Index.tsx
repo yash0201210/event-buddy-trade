@@ -35,7 +35,6 @@ interface TicketWithEvent {
 }
 
 const Index = () => {
-  const [selectedCategory, setSelectedCategory] = useState('all');
   const navigate = useNavigate();
 
   const { data: recentTickets = [], isLoading } = useQuery({
@@ -71,10 +70,7 @@ const Index = () => {
       
       <main>
         <HeroSection />
-        <EventCategories 
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-        />
+        <EventCategories />
         <SuggestedEvents />
 
         {/* Recent Tickets */}
