@@ -16,7 +16,7 @@ export const HeroSection = () => {
       <div className="absolute inset-0 bg-black/10"></div>
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-5xl md:text-7xl font-bold mb-6 tracking-wide">
+          <h1 className="font-passion text-5xl md:text-7xl font-bold mb-6 tracking-wide">
             SECURE. SELL. SOCIAL.
           </h1>
           <p className="text-xl md:text-2xl mb-12 text-white/90 font-medium">
