@@ -223,7 +223,7 @@ const Event = () => {
                         {venue?.name || event.venue}
                       </Link>
                     ) : (
-                      event.venue
+                      <span>{event.venue}</span>
                     )}
                     , {event.city}
                   </span>
