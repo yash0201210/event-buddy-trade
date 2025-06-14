@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -20,10 +19,25 @@ interface Event {
   description?: string;
   image_url?: string;
   ticket_types?: string[];
+  university_id?: string;
+  venue_id?: string;
+}
+
+interface University {
+  id: string;
+  name: string;
+}
+
+interface Venue {
+  id: string;
+  name: string;
+  city: string;
 }
 
 const AdminEvents = () => {
   const [events, setEvents] = useState<Event[]>([]);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [venues, setVenues] = useState<Venue[]>([]);
   const [loading, setLoading] = useState(false);
   const [editingEvent, setEditingEvent] = useState<Event | null>(null);
   const [showForm, setShowForm] = useState(false);
@@ -35,7 +49,9 @@ const AdminEvents = () => {
     category: '',
     description: '',
     image_url: '',
-    ticket_types: [] as string[]
+    ticket_types: [] as string[],
+    university_id: '',
+    venue_id: ''
   });
   const [newTicketType, setNewTicketType] = useState('');
   
@@ -43,13 +59,19 @@ const AdminEvents = () => {
 
   useEffect(() => {
     fetchEvents();
+    fetchUniversities();
+    fetchVenues();
   }, []);
 
   const fetchEvents = async () => {
     try {
       const { data, error } = await supabase
         .from('events')
-        .select('*')
+        .select(`
+          *,
+          universities(name),
+          venues(name, city)
+        `)
         .order('event_date', { ascending: true });
 
       if (error) throw error;
@@ -58,6 +80,42 @@ const AdminEvents = () => {
       toast({
         title: "Error",
         description: "Failed to fetch events",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const fetchUniversities = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('universities')
+        .select('id, name')
+        .order('name');
+
+      if (error) throw error;
+      setUniversities(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch universities",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const fetchVenues = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('venues')
+        .select('id, name, city')
+        .order('name');
+
+      if (error) throw error;
+      setVenues(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch venues",
         variant: "destructive"
       });
     }
@@ -85,10 +143,16 @@ const AdminEvents = () => {
     setLoading(true);
 
     try {
+      const eventData = {
+        ...formData,
+        university_id: formData.university_id || null,
+        venue_id: formData.venue_id || null
+      };
+
       if (editingEvent) {
         const { error } = await supabase
           .from('events')
-          .update(formData)
+          .update(eventData)
           .eq('id', editingEvent.id);
 
         if (error) throw error;
@@ -99,7 +163,7 @@ const AdminEvents = () => {
       } else {
         const { error } = await supabase
           .from('events')
-          .insert(formData);
+          .insert(eventData);
 
         if (error) throw error;
         
@@ -155,7 +219,9 @@ const AdminEvents = () => {
       category: '',
       description: '',
       image_url: '',
-      ticket_types: []
+      ticket_types: [],
+      university_id: '',
+      venue_id: ''
     });
     setEditingEvent(null);
     setShowForm(false);
@@ -171,7 +237,9 @@ const AdminEvents = () => {
       category: event.category,
       description: event.description || '',
       image_url: event.image_url || '',
-      ticket_types: event.ticket_types || []
+      ticket_types: event.ticket_types || [],
+      university_id: event.university_id || '',
+      venue_id: event.venue_id || ''
     });
     setEditingEvent(event);
     setShowForm(true);
@@ -260,6 +328,47 @@ const AdminEvents = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="university">University</Label>
+                  <Select 
+                    value={formData.university_id} 
+                    onValueChange={(value) => setFormData({...formData, university_id: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select university (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">No university</SelectItem>
+                      {universities.map((university) => (
+                        <SelectItem key={university.id} value={university.id}>
+                          {university.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="venue_select">Venue (from list)</Label>
+                  <Select 
+                    value={formData.venue_id} 
+                    onValueChange={(value) => setFormData({...formData, venue_id: value})}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select venue (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">No venue selected</SelectItem>
+                      {venues.map((venue) => (
+                        <SelectItem key={venue.id} value={venue.id}>
+                          {venue.name} - {venue.city}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
               <div>
                 <Label htmlFor="description">Description</Label>
                 <Textarea
@@ -280,7 +389,6 @@ const AdminEvents = () => {
                 />
               </div>
 
-              {/* Ticket Types Section */}
               <div>
                 <Label>Ticket Types</Label>
                 <div className="space-y-2">

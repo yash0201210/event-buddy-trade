@@ -50,7 +50,9 @@ export type Database = {
           image_url: string | null
           name: string
           ticket_types: string[] | null
+          university_id: string | null
           venue: string
+          venue_id: string | null
         }
         Insert: {
           category: string
@@ -62,7 +64,9 @@ export type Database = {
           image_url?: string | null
           name: string
           ticket_types?: string[] | null
+          university_id?: string | null
           venue: string
+          venue_id?: string | null
         }
         Update: {
           category?: string
@@ -74,9 +78,26 @@ export type Database = {
           image_url?: string | null
           name?: string
           ticket_types?: string[] | null
+          university_id?: string | null
           venue?: string
+          venue_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_venue_id_fkey"
+            columns: ["venue_id"]
+            isOneToOne: false
+            referencedRelation: "venues"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       messages: {
         Row: {
@@ -292,6 +313,68 @@ export type Database = {
             columns: ["seller_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      universities: {
+        Row: {
+          city: string | null
+          country: string | null
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name: string
+        }
+        Update: {
+          city?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      venues: {
+        Row: {
+          address: string | null
+          capacity: number | null
+          city: string
+          created_at: string
+          id: string
+          name: string
+          university_id: string | null
+        }
+        Insert: {
+          address?: string | null
+          capacity?: number | null
+          city: string
+          created_at?: string
+          id?: string
+          name: string
+          university_id?: string | null
+        }
+        Update: {
+          address?: string | null
+          capacity?: number | null
+          city?: string
+          created_at?: string
+          id?: string
+          name?: string
+          university_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "venues_university_id_fkey"
+            columns: ["university_id"]
+            isOneToOne: false
+            referencedRelation: "universities"
             referencedColumns: ["id"]
           },
         ]

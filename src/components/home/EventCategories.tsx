@@ -1,35 +1,70 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Music, Trophy, Theater, Gamepad2, Mic, Calendar } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 
-const categories = [
-  { id: 1, name: 'Concerts', icon: Music, color: 'bg-purple-100 text-purple-600', count: 245 },
-  { id: 2, name: 'Sports', icon: Trophy, color: 'bg-green-100 text-green-600', count: 189 },
-  { id: 3, name: 'Theatre', icon: Theater, color: 'bg-blue-100 text-blue-600', count: 167 },
-  { id: 4, name: 'Comedy', icon: Mic, color: 'bg-yellow-100 text-yellow-600', count: 98 },
-  { id: 5, name: 'Gaming', icon: Gamepad2, color: 'bg-red-100 text-red-600', count: 76 },
-  { id: 6, name: 'Festivals', icon: Calendar, color: 'bg-pink-100 text-pink-600', count: 134 }
-];
+interface University {
+  id: string;
+  name: string;
+  city: string;
+}
 
 export const EventCategories = () => {
+  const { data: universities = [], isLoading } = useQuery({
+    queryKey: ['universities'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('universities')
+        .select('*')
+        .order('name');
+
+      if (error) throw error;
+      return data as University[];
+    },
+  });
+
+  if (isLoading) {
+    return (
+      <section className="py-12 bg-gray-50">
+        <div className="container mx-auto px-4">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
+            Browse by University
+          </h2>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            {[...Array(10)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardContent className="p-6 text-center">
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-gray-200"></div>
+                  <div className="h-4 bg-gray-200 rounded mb-1"></div>
+                  <div className="h-3 bg-gray-200 rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </div>
+      </section>
+    );
+  }
+
   return (
     <section className="py-12 bg-gray-50">
       <div className="container mx-auto px-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-8 text-center">
-          Browse by Category
+          Browse by University
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category) => (
-            <Link key={category.id} to={`/?category=${category.name.toLowerCase()}`}>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          {universities.map((university) => (
+            <Link key={university.id} to={`/university/${university.id}`}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                 <CardContent className="p-6 text-center">
-                  <div className={`w-12 h-12 mx-auto mb-3 rounded-full flex items-center justify-center ${category.color}`}>
-                    <category.icon className="h-6 w-6" />
+                  <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
+                    <GraduationCap className="h-6 w-6" />
                   </div>
-                  <h3 className="font-semibold text-gray-900 mb-1">{category.name}</h3>
-                  <p className="text-sm text-gray-500">{category.count} events</p>
+                  <h3 className="font-semibold text-gray-900 mb-1 text-sm">{university.name}</h3>
+                  <p className="text-xs text-gray-500">{university.city}</p>
                 </CardContent>
               </Card>
             </Link>

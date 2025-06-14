@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -24,6 +23,8 @@ import AdminEvents from "./pages/admin/AdminEvents";
 import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
+import University from "./pages/University";
+import Venue from "./pages/Venue";
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,8 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/favourites" element={<Favourites />} />
             <Route path="/event/:id" element={<Event />} />
+            <Route path="/university/:id" element={<University />} />
+            <Route path="/venue/:id" element={<Venue />} />
             <Route path="/ticket/:id" element={<TicketDetails />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/my-tickets" element={<MyTickets />} />
@@ -58,6 +61,7 @@ const App = () => (
               </AdminAuthWrapper>
             }>
               <Route path="events" element={<AdminEvents />} />
+              <Route path="venues" element={<AdminVenues />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
