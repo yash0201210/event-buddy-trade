@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -218,15 +217,18 @@ export const EventCategories = () => {
                         </div>
                       </div>
                       
-                      {/* University Name - Fixed height container */}
-                      <div className="h-12 flex items-center justify-center mb-2 flex-shrink-0">
-                        <h3 className="font-semibold text-gray-900 text-sm px-2 text-center border-b border-gray-300 pb-1 leading-tight">
-                          {university.name}
-                        </h3>
+                      {/* University Name - Fixed height container with consistent spacing */}
+                      <div className="h-14 flex flex-col items-center justify-start mb-2 flex-shrink-0">
+                        <div className="flex-grow flex items-center px-2">
+                          <h3 className="font-semibold text-gray-900 text-sm text-center leading-tight">
+                            {university.name}
+                          </h3>
+                        </div>
+                        <div className="w-24 border-b border-gray-300 mt-2"></div>
                       </div>
                       
                       {/* Event Count - Fixed height */}
-                      <div className="h-8 flex items-center justify-center mb-6 flex-shrink-0">
+                      <div className="h-6 flex items-center justify-center mb-6 flex-shrink-0">
                         <p className="text-xs text-gray-500 text-center">
                           {eventCount} upcoming events
                         </p>
