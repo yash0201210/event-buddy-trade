@@ -33,8 +33,8 @@ export const Header = () => {
 
           {/* Navigation */}
           <nav className="flex items-center space-x-4">
-            <Link to="/about" className="hover:text-red-200 transition-colors text-sm">
-              About
+            <Link to="/favourites" className="hover:text-red-200 transition-colors text-sm">
+              Favourites
             </Link>
             <Link to="/help" className="hover:text-red-200 transition-colors text-sm">
               Help
@@ -45,9 +45,11 @@ export const Header = () => {
             <Button variant="secondary" size="sm" className="bg-white text-red-600 hover:bg-gray-100">
               Sell Tickets
             </Button>
-            <Button variant="ghost" size="sm" className="text-white hover:bg-red-500">
-              <User className="h-4 w-4" />
-            </Button>
+            <Link to="/auth">
+              <Button variant="ghost" size="sm" className="text-white hover:bg-red-500">
+                <User className="h-4 w-4" />
+              </Button>
+            </Link>
           </nav>
         </div>
       </div>
