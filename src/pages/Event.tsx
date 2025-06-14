@@ -4,9 +4,9 @@ import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Calendar, Star, User } from 'lucide-react';
+import { Heart, MapPin, Calendar, Star, User, GraduationCap } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -20,6 +20,8 @@ interface Event {
   category: string;
   description?: string;
   image_url?: string;
+  venue_id?: string;
+  university_id?: string;
 }
 
 interface Ticket {
@@ -34,6 +36,18 @@ interface Ticket {
   seller: {
     full_name: string;
   };
+}
+
+interface Venue {
+  id: string;
+  name: string;
+  city: string;
+}
+
+interface University {
+  id: string;
+  name: string;
+  city: string;
 }
 
 const Event = () => {
@@ -59,6 +73,42 @@ const Event = () => {
       return data as Event;
     },
     enabled: !!id,
+  });
+
+  // Fetch venue details
+  const { data: venue } = useQuery({
+    queryKey: ['venue', event?.venue_id],
+    queryFn: async () => {
+      if (!event?.venue_id) return null;
+      
+      const { data, error } = await supabase
+        .from('venues')
+        .select('*')
+        .eq('id', event.venue_id)
+        .single();
+      
+      if (error) throw error;
+      return data as Venue;
+    },
+    enabled: !!event?.venue_id,
+  });
+
+  // Fetch university details
+  const { data: university } = useQuery({
+    queryKey: ['university', event?.university_id],
+    queryFn: async () => {
+      if (!event?.university_id) return null;
+      
+      const { data, error } = await supabase
+        .from('universities')
+        .select('*')
+        .eq('id', event.university_id)
+        .single();
+      
+      if (error) throw error;
+      return data as University;
+    },
+    enabled: !!event?.university_id,
   });
 
   // Fetch tickets for this event
@@ -164,7 +214,19 @@ const Event = () => {
               <div className="space-y-3 text-gray-600 mb-4">
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 mr-3" />
-                  <span>{event.venue}, {event.city}</span>
+                  <span>
+                    {venue && event.venue_id ? (
+                      <Link 
+                        to={`/venue/${event.venue_id}`}
+                        className="text-red-600 hover:text-red-700 hover:underline"
+                      >
+                        {venue.name}
+                      </Link>
+                    ) : (
+                      event.venue
+                    )}
+                    , {event.city}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <Calendar className="h-4 w-4 mr-3" />
@@ -175,6 +237,19 @@ const Event = () => {
                     year: 'numeric'
                   })}</span>
                 </div>
+                {university && event.university_id && (
+                  <div className="flex items-center">
+                    <GraduationCap className="h-4 w-4 mr-3" />
+                    <span>
+                      <Link 
+                        to={`/university/${event.university_id}`}
+                        className="text-red-600 hover:text-red-700 hover:underline"
+                      >
+                        {university.name}
+                      </Link>
+                    </span>
+                  </div>
+                )}
               </div>
               
               {event.description && (
