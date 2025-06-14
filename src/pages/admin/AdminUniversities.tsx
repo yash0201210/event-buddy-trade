@@ -60,6 +60,8 @@ const AdminUniversities = () => {
     setLoading(true);
 
     try {
+      console.log('Form data being submitted:', formData);
+      
       const universityData = {
         name: formData.name,
         city: formData.city || null,
@@ -68,23 +70,37 @@ const AdminUniversities = () => {
         image_position: formData.image_position || 'center center'
       };
 
+      console.log('University data for database:', universityData);
+
       if (editingUniversity) {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('universities')
           .update(universityData)
-          .eq('id', editingUniversity.id);
+          .eq('id', editingUniversity.id)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Update error:', error);
+          throw error;
+        }
+        
+        console.log('Updated university data:', data);
         
         toast({
           title: "University updated successfully!",
         });
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('universities')
-          .insert(universityData);
+          .insert(universityData)
+          .select();
 
-        if (error) throw error;
+        if (error) {
+          console.error('Insert error:', error);
+          throw error;
+        }
+        
+        console.log('Created university data:', data);
         
         toast({
           title: "University created successfully!",
@@ -94,6 +110,7 @@ const AdminUniversities = () => {
       resetForm();
       fetchUniversities();
     } catch (error: any) {
+      console.error('Save error:', error);
       toast({
         title: "Error",
         description: error.message || "Failed to save university",
@@ -142,6 +159,7 @@ const AdminUniversities = () => {
   };
 
   const startEdit = (university: University) => {
+    console.log('Editing university:', university);
     setFormData({
       name: university.name,
       city: university.city || '',
@@ -177,9 +195,15 @@ const AdminUniversities = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <UniversityImageUpload 
                 imageUrl={formData.image_url}
-                onImageChange={(url) => setFormData({...formData, image_url: url})}
+                onImageChange={(url) => {
+                  console.log('Image URL changed to:', url);
+                  setFormData({...formData, image_url: url});
+                }}
                 imagePosition={formData.image_position}
-                onPositionChange={(position) => setFormData({...formData, image_position: position})}
+                onPositionChange={(position) => {
+                  console.log('Image position changed to:', position);
+                  setFormData({...formData, image_position: position});
+                }}
               />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -243,6 +267,7 @@ const AdminUniversities = () => {
                         src={university.image_url} 
                         alt={university.name}
                         className="w-full h-full object-cover"
+                        style={{ objectPosition: university.image_position || 'center center' }}
                       />
                     ) : (
                       <span className="text-blue-600 text-xs">No Image</span>
@@ -256,6 +281,11 @@ const AdminUniversities = () => {
                     <div className="text-gray-600 space-y-1">
                       <p><strong>Country:</strong> {university.country}</p>
                       {university.city && <p><strong>City:</strong> {university.city}</p>}
+                      {university.image_url && (
+                        <p className="text-xs text-gray-500">
+                          <strong>Image:</strong> {university.image_url.substring(0, 50)}...
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
