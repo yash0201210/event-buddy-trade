@@ -93,7 +93,7 @@ const AdminVenues = () => {
         address: formData.address || null,
         city: formData.city,
         capacity: formData.capacity ? parseInt(formData.capacity) : null,
-        university_id: formData.university_id || null
+        university_id: formData.university_id === 'none' ? null : formData.university_id || null
       };
 
       if (editingVenue) {
@@ -175,7 +175,7 @@ const AdminVenues = () => {
       address: venue.address || '',
       city: venue.city,
       capacity: venue.capacity?.toString() || '',
-      university_id: venue.university_id || ''
+      university_id: venue.university_id || 'none'
     });
     setEditingVenue(venue);
     setShowForm(true);
@@ -255,7 +255,7 @@ const AdminVenues = () => {
                       <SelectValue placeholder="Select university (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No university</SelectItem>
+                      <SelectItem value="none">No university</SelectItem>
                       {universities.map((university) => (
                         <SelectItem key={university.id} value={university.id}>
                           {university.name}
