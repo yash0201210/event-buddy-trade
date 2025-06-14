@@ -7,12 +7,14 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Trash2, Edit, Plus } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { UniversityImageUpload } from '@/components/admin/UniversityImageUpload';
 
 interface University {
   id: string;
   name: string;
   city?: string;
   country: string;
+  image_url?: string;
 }
 
 const AdminUniversities = () => {
@@ -23,7 +25,8 @@ const AdminUniversities = () => {
   const [formData, setFormData] = useState({
     name: '',
     city: '',
-    country: 'UK'
+    country: 'UK',
+    image_url: ''
   });
   
   const { toast } = useToast();
@@ -58,7 +61,8 @@ const AdminUniversities = () => {
       const universityData = {
         name: formData.name,
         city: formData.city || null,
-        country: formData.country
+        country: formData.country,
+        image_url: formData.image_url || null
       };
 
       if (editingUniversity) {
@@ -126,7 +130,8 @@ const AdminUniversities = () => {
     setFormData({
       name: '',
       city: '',
-      country: 'UK'
+      country: 'UK',
+      image_url: ''
     });
     setEditingUniversity(null);
     setShowForm(false);
@@ -136,7 +141,8 @@ const AdminUniversities = () => {
     setFormData({
       name: university.name,
       city: university.city || '',
-      country: university.country
+      country: university.country,
+      image_url: university.image_url || ''
     });
     setEditingUniversity(university);
     setShowForm(true);
@@ -163,7 +169,12 @@ const AdminUniversities = () => {
             <CardTitle>{editingUniversity ? 'Edit University' : 'Create New University'}</CardTitle>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <UniversityImageUpload 
+                imageUrl={formData.image_url}
+                onImageChange={(url) => setFormData({...formData, image_url: url})}
+              />
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="name">University Name</Label>
@@ -217,13 +228,28 @@ const AdminUniversities = () => {
           <Card key={university.id}>
             <CardContent className="p-6">
               <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <h3 className="font-semibold text-lg text-gray-900 mb-2">
-                    {university.name}
-                  </h3>
-                  <div className="text-gray-600 space-y-1">
-                    <p><strong>Country:</strong> {university.country}</p>
-                    {university.city && <p><strong>City:</strong> {university.city}</p>}
+                <div className="flex items-center space-x-4">
+                  {/* University Image Preview */}
+                  <div className="w-16 h-16 rounded-full border-2 border-blue-400 overflow-hidden flex items-center justify-center bg-gradient-to-br from-blue-200 to-blue-300 flex-shrink-0">
+                    {university.image_url ? (
+                      <img 
+                        src={university.image_url} 
+                        alt={university.name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-blue-600 text-xs">No Image</span>
+                    )}
+                  </div>
+                  
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-lg text-gray-900 mb-2">
+                      {university.name}
+                    </h3>
+                    <div className="text-gray-600 space-y-1">
+                      <p><strong>Country:</strong> {university.country}</p>
+                      {university.city && <p><strong>City:</strong> {university.city}</p>}
+                    </div>
                   </div>
                 </div>
                 

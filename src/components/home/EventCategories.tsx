@@ -11,6 +11,7 @@ interface University {
   id: string;
   name: string;
   city: string;
+  image_url?: string;
 }
 
 interface UniversityPin {
@@ -194,7 +195,19 @@ export const EventCategories = () => {
                       <div className={`w-32 h-32 mb-4 rounded-full overflow-hidden border-4 ${
                         isUniversityPinned ? 'border-orange-500' : 'border-blue-400'
                       } shadow-lg hover:shadow-xl transition-shadow flex-shrink-0`}>
-                        <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
+                        {university.image_url ? (
+                          <img 
+                            src={university.image_url} 
+                            alt={university.name}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              const target = e.target as HTMLImageElement;
+                              target.style.display = 'none';
+                              target.nextElementSibling?.classList.remove('hidden');
+                            }}
+                          />
+                        ) : null}
+                        <div className={`w-full h-full bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center ${university.image_url ? 'hidden' : ''}`}>
                           <GraduationCap className="h-12 w-12 text-blue-600" />
                         </div>
                       </div>

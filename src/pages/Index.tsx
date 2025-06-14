@@ -71,8 +71,8 @@ const Index = () => {
       
       <main>
         <HeroSection />
-        <CitySelector />
         <SuggestedEvents />
+        <CitySelector />
         <EventCategories />
 
         {/* Recent Tickets */}
