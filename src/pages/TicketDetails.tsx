@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,7 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 // Mock data - this would come from your database
 const ticketData = {
   "1": {
-    id: "1",
+    id: "550e8400-e29b-41d4-a716-446655440001", // Valid UUID format for ticket
     eventTitle: 'Taylor Swift - Eras Tour',
     venue: 'Wembley Stadium',
     location: 'London, UK',
@@ -57,11 +56,11 @@ const TicketDetails = () => {
     setLoading(true);
 
     try {
-      // Create conversation
+      // Create conversation using the actual ticket UUID, not the URL parameter
       const { data: conversation, error: conversationError } = await supabase
         .from('conversations')
         .insert({
-          ticket_id: ticket.id,
+          ticket_id: ticket.id, // Use the UUID from ticket data
           buyer_id: user.id,
           seller_id: ticket.sellerId,
         })
