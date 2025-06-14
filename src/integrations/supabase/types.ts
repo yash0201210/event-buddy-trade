@@ -9,7 +9,269 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          category: string
+          city: string
+          created_at: string | null
+          description: string | null
+          event_date: string
+          id: string
+          image_url: string | null
+          name: string
+          venue: string
+        }
+        Insert: {
+          category: string
+          city: string
+          created_at?: string | null
+          description?: string | null
+          event_date: string
+          id?: string
+          image_url?: string | null
+          name: string
+          venue: string
+        }
+        Update: {
+          category?: string
+          city?: string
+          created_at?: string | null
+          description?: string | null
+          event_date?: string
+          id?: string
+          image_url?: string | null
+          name?: string
+          venue?: string
+        }
+        Relationships: []
+      }
+      messages: {
+        Row: {
+          content: string
+          created_at: string | null
+          id: string
+          message_type: string | null
+          receiver_id: string
+          sender_id: string
+          ticket_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          receiver_id: string
+          sender_id: string
+          ticket_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string | null
+          id?: string
+          message_type?: string | null
+          receiver_id?: string
+          sender_id?: string
+          ticket_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      offers: {
+        Row: {
+          buyer_id: string
+          created_at: string | null
+          id: string
+          message: string | null
+          offered_price: number
+          seller_id: string
+          status: string
+          ticket_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          offered_price: number
+          seller_id: string
+          status?: string
+          ticket_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          offered_price?: number
+          seller_id?: string
+          status?: string
+          ticket_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "offers_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "offers_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          bank_account_name: string | null
+          bank_account_number: string | null
+          bank_name: string | null
+          bank_sort_code: string | null
+          created_at: string | null
+          email: string
+          full_name: string
+          id: string
+          is_verified: boolean | null
+          phone_number: string | null
+          university: string
+          updated_at: string | null
+        }
+        Insert: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          bank_sort_code?: string | null
+          created_at?: string | null
+          email: string
+          full_name: string
+          id: string
+          is_verified?: boolean | null
+          phone_number?: string | null
+          university: string
+          updated_at?: string | null
+        }
+        Update: {
+          bank_account_name?: string | null
+          bank_account_number?: string | null
+          bank_name?: string | null
+          bank_sort_code?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          is_verified?: boolean | null
+          phone_number?: string | null
+          university?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      tickets: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          event_id: string
+          id: string
+          is_negotiable: boolean | null
+          original_price: number
+          quantity: number
+          row_number: string | null
+          seat_numbers: string | null
+          section: string | null
+          seller_id: string
+          selling_price: number
+          status: string
+          ticket_type: string | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          event_id: string
+          id?: string
+          is_negotiable?: boolean | null
+          original_price: number
+          quantity?: number
+          row_number?: string | null
+          seat_numbers?: string | null
+          section?: string | null
+          seller_id: string
+          selling_price: number
+          status?: string
+          ticket_type?: string | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          event_id?: string
+          id?: string
+          is_negotiable?: boolean | null
+          original_price?: number
+          quantity?: number
+          row_number?: string | null
+          seat_numbers?: string | null
+          section?: string | null
+          seller_id?: string
+          selling_price?: number
+          status?: string
+          ticket_type?: string | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tickets_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
