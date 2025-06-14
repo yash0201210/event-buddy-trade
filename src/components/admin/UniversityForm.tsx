@@ -40,12 +40,24 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
   React.useEffect(() => {
     if (university) {
       console.log('University form - Setting form data for:', university);
-      setFormData({
+      const newFormData = {
         name: university.name,
         city: university.city || '',
         country: university.country,
         image_url: university.image_url || '',
         image_position: university.image_position || 'center center'
+      };
+      console.log('University form - New form data:', newFormData);
+      setFormData(newFormData);
+    } else {
+      // Reset form for new university
+      console.log('University form - Resetting form for new university');
+      setFormData({
+        name: '',
+        city: '',
+        country: 'UK',
+        image_url: '',
+        image_position: 'center center'
       });
     }
   }, [university]);
@@ -58,12 +70,20 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
 
   const handleImageChange = (url: string) => {
     console.log('University form - Image URL changed to:', url);
-    setFormData(prev => ({ ...prev, image_url: url }));
+    setFormData(prev => {
+      const updated = { ...prev, image_url: url };
+      console.log('University form - Updated form data with image:', updated);
+      return updated;
+    });
   };
 
   const handlePositionChange = (position: string) => {
     console.log('University form - Image position changed to:', position);
-    setFormData(prev => ({ ...prev, image_position: position }));
+    setFormData(prev => {
+      const updated = { ...prev, image_position: position };
+      console.log('University form - Updated form data with position:', updated);
+      return updated;
+    });
   };
 
   return (

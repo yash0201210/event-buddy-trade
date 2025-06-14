@@ -1,5 +1,5 @@
 
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -22,12 +22,26 @@ export const UniversityImageUpload = ({
   const [position, setPosition] = useState(imagePosition);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Sync preview with imageUrl prop when it changes
+  useEffect(() => {
+    console.log('UniversityImageUpload - imageUrl prop changed:', imageUrl);
+    setPreview(imageUrl);
+  }, [imageUrl]);
+
+  // Sync position with imagePosition prop when it changes
+  useEffect(() => {
+    console.log('UniversityImageUpload - imagePosition prop changed:', imagePosition);
+    setPosition(imagePosition);
+  }, [imagePosition]);
+
   const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
+      console.log('UniversityImageUpload - File selected:', file.name);
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
+        console.log('UniversityImageUpload - File read, calling onImageChange with:', result.substring(0, 50) + '...');
         setPreview(result);
         onImageChange(result);
       };
@@ -36,11 +50,13 @@ export const UniversityImageUpload = ({
   };
 
   const handleUrlInput = (url: string) => {
+    console.log('UniversityImageUpload - URL input changed:', url);
     setPreview(url);
     onImageChange(url);
   };
 
   const handlePositionChange = (newPosition: string) => {
+    console.log('UniversityImageUpload - Position changed:', newPosition);
     setPosition(newPosition);
     if (onPositionChange) {
       onPositionChange(newPosition);
@@ -48,6 +64,7 @@ export const UniversityImageUpload = ({
   };
 
   const clearImage = () => {
+    console.log('UniversityImageUpload - Clearing image');
     setPreview('');
     onImageChange('');
     setPosition('center center');
@@ -71,6 +88,8 @@ export const UniversityImageUpload = ({
     { value: 'bottom right', label: 'Bottom Right' },
   ];
 
+  console.log('UniversityImageUpload - Rendering with preview:', preview ? 'has image' : 'no image');
+
   return (
     <div className="space-y-4">
       <Label>University Image</Label>
@@ -84,7 +103,10 @@ export const UniversityImageUpload = ({
               alt="University preview"
               className="w-full h-full object-cover"
               style={{ objectPosition: position }}
-              onError={() => setPreview('')}
+              onError={(e) => {
+                console.log('UniversityImageUpload - Image failed to load:', preview);
+                setPreview('');
+              }}
             />
           ) : (
             <span className="text-blue-600 text-xs text-center">No Image</span>
@@ -136,7 +158,7 @@ export const UniversityImageUpload = ({
             id="image-url"
             type="url"
             placeholder="https://example.com/image.jpg"
-            value={preview}
+            value={preview || ''}
             onChange={(e) => handleUrlInput(e.target.value)}
             className="mt-1"
           />
