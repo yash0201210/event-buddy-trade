@@ -42,6 +42,7 @@ const App = () => (
             <Route path="/ticket/:id" element={<TicketDetails />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/my-tickets" element={<MyTickets />} />
+            <Route path="/selling-hub" element={<SellingHub />} />
             <Route path="/help" element={<Help />} />
             <Route path="/sell-tickets" element={<SellTickets />} />
             
