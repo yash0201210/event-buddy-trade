@@ -49,6 +49,37 @@ interface TicketCardProps {
 export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: TicketCardProps) => {
   const isClickable = ticket.conversation || ticket.has_offers;
   
+  const handleCardClick = () => {
+    console.log('Card clicked:', { isClickable, ticket });
+    if (isClickable && onView) {
+      onView(ticket);
+    }
+  };
+
+  const handleEditClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('Edit clicked for ticket:', ticket.id);
+    if (onEdit) {
+      onEdit(ticket);
+    }
+  };
+
+  const handleViewClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    console.log('View clicked for ticket:', ticket.id);
+    if (onView) {
+      onView(ticket);
+    }
+  };
+
+  console.log('Rendering TicketCard:', { 
+    ticketId: ticket.id, 
+    isClickable, 
+    hasConversation: !!ticket.conversation,
+    hasOffers: ticket.has_offers,
+    transactionStatus: ticket.conversation?.transaction_status
+  });
+  
   return (
     <Card 
       className={`transition-all duration-200 ${
@@ -56,7 +87,7 @@ export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: T
           ? 'hover:shadow-lg hover:scale-[1.02] cursor-pointer border-blue-200 hover:border-blue-300' 
           : 'hover:shadow-md'
       }`}
-      onClick={() => isClickable && onView?.(ticket)}
+      onClick={handleCardClick}
     >
       <CardHeader>
         <div className="flex justify-between items-start mb-2">
@@ -115,20 +146,15 @@ export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: T
                    ticket.conversation.buyer_confirmed ? 'Payment Received' : 
                    'Awaiting Payment'}
                 </Badge>
-                {isClickable && (
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-xs h-6 px-2"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onView?.(ticket);
-                    }}
-                  >
-                    <Eye className="h-3 w-3 mr-1" />
-                    View Details
-                  </Button>
-                )}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-xs h-6 px-2"
+                  onClick={handleViewClick}
+                >
+                  <Eye className="h-3 w-3 mr-1" />
+                  View Details
+                </Button>
               </div>
             </div>
           )}
@@ -143,20 +169,15 @@ export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: T
                   {ticket.latest_offer.status}
                 </Badge>
               </div>
-              {isClickable && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="text-xs h-6 px-2 mt-2"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onView?.(ticket);
-                  }}
-                >
-                  <Eye className="h-3 w-3 mr-1" />
-                  View Offers
-                </Button>
-              )}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="text-xs h-6 px-2 mt-2"
+                onClick={handleViewClick}
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                View Offers
+              </Button>
             </div>
           )}
 
@@ -165,10 +186,7 @@ export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: T
               variant="outline"
               size="sm"
               className="w-full"
-              onClick={(e) => {
-                e.stopPropagation();
-                onEdit?.(ticket);
-              }}
+              onClick={handleEditClick}
             >
               <Edit className="h-4 w-4 mr-2" />
               Edit Listing

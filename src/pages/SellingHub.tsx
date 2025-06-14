@@ -53,12 +53,14 @@ const SellingHub = () => {
   const [editingTicket, setEditingTicket] = useState<SellerTicket | null>(null);
   const [selectedTransaction, setSelectedTransaction] = useState<SellerTicket | null>(null);
 
-  const { data: tickets = [], isLoading } = useQuery({
+  const { data: tickets = [], isLoading, refetch } = useQuery({
     queryKey: ['seller-tickets', user?.id],
     queryFn: async () => {
       if (!user) return [];
       
-      const { data: ticketsData } = await supabase
+      console.log('Fetching tickets for user:', user.id);
+      
+      const { data: ticketsData, error } = await supabase
         .from('tickets')
         .select(`
           id,
@@ -80,11 +82,22 @@ const SellingHub = () => {
         .eq('seller_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (!ticketsData) return [];
+      if (error) {
+        console.error('Error fetching tickets:', error);
+        return [];
+      }
+
+      if (!ticketsData) {
+        console.log('No tickets found');
+        return [];
+      }
+
+      console.log('Raw tickets data:', ticketsData);
 
       // Check for offers and conversations on each ticket
       const ticketsWithDetails = await Promise.all(
         ticketsData.map(async (ticket) => {
+          // Check for offers
           const { data: offers } = await supabase
             .from('offers')
             .select('offered_price, status')
@@ -92,14 +105,14 @@ const SellingHub = () => {
             .order('created_at', { ascending: false })
             .limit(1);
 
-          // Get conversation details for sold tickets
+          // Get conversation details
           const { data: conversation } = await supabase
             .from('conversations')
             .select(`
               id,
               buyer_id,
               status,
-              messages!inner (
+              messages (
                 message_type,
                 created_at
               ),
@@ -110,7 +123,7 @@ const SellingHub = () => {
             `)
             .eq('ticket_id', ticket.id)
             .eq('seller_id', user.id)
-            .single();
+            .maybeSingle();
 
           let transactionStatus = 'pending';
           let buyerConfirmed = false;
@@ -133,12 +146,12 @@ const SellingHub = () => {
             }
           }
 
-          // Fix the buyer type issue - profiles is an array, we need the first element
+          // Handle buyer profile properly
           const buyerProfile = conversation?.profiles && Array.isArray(conversation.profiles) 
             ? conversation.profiles[0] 
             : conversation?.profiles;
 
-          return {
+          const ticketWithDetails = {
             ...ticket,
             has_offers: offers && offers.length > 0,
             latest_offer: offers?.[0],
@@ -151,9 +164,13 @@ const SellingHub = () => {
               buyer: buyerProfile || { full_name: 'Unknown', is_verified: false },
             } : undefined,
           };
+
+          console.log('Ticket with details:', ticketWithDetails);
+          return ticketWithDetails;
         })
       );
 
+      console.log('Final tickets with details:', ticketsWithDetails);
       return ticketsWithDetails as SellerTicket[];
     },
     enabled: !!user,
@@ -199,6 +216,7 @@ const SellingHub = () => {
         return sum;
       }, 0);
 
+      console.log('Stats calculated:', { totalSold, totalRevenue });
       return { totalSold, totalRevenue };
     },
     enabled: !!user,
@@ -231,10 +249,12 @@ const SellingHub = () => {
   );
 
   const handleEditTicket = (ticket: SellerTicket) => {
+    console.log('Editing ticket:', ticket);
     setEditingTicket(ticket);
   };
 
   const handleViewTransaction = (ticket: SellerTicket) => {
+    console.log('Viewing transaction for ticket:', ticket);
     setSelectedTransaction(ticket);
   };
 
@@ -248,6 +268,8 @@ const SellingHub = () => {
       </div>
     );
   }
+
+  console.log('Rendering with:', { tickets, currentListings, sellingHistory, stats });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -339,6 +361,10 @@ const SellingHub = () => {
           ticket={editingTicket}
           open={!!editingTicket}
           onClose={() => setEditingTicket(null)}
+          onSuccess={() => {
+            setEditingTicket(null);
+            refetch();
+          }}
         />
       )}
     </div>
