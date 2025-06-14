@@ -14,6 +14,7 @@ import Event from "./pages/Event";
 import TicketDetails from "./pages/TicketDetails";
 import Messages from "./pages/Messages";
 import MyTickets from "./pages/MyTickets";
+import SellingHub from "./pages/SellingHub";
 import Help from "./pages/Help";
 import SellTickets from "./pages/SellTickets";
 import NotFound from "./pages/NotFound";
