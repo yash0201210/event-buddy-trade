@@ -4,7 +4,7 @@ import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
-import { LogOut, Calendar, Users, Settings, BarChart3 } from 'lucide-react';
+import { LogOut, Calendar, Users, Settings, BarChart3, Building } from 'lucide-react';
 import {
   Sidebar,
   SidebarContent,
@@ -24,6 +24,16 @@ const adminMenuItems = [
     title: 'Events',
     url: '/admin/events',
     icon: Calendar,
+  },
+  {
+    title: 'Venues',
+    url: '/admin/venues',
+    icon: Building,
+  },
+  {
+    title: 'Universities',
+    url: '/admin/universities',
+    icon: Building,
   },
   {
     title: 'Users',

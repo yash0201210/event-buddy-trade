@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -25,6 +24,7 @@ import AdminUsers from "./pages/admin/AdminUsers";
 import AdminAnalytics from "./pages/admin/AdminAnalytics";
 import AdminSettings from "./pages/admin/AdminSettings";
 import AdminVenues from "./pages/admin/AdminVenues";
+import AdminUniversities from "./pages/admin/AdminUniversities";
 import University from "./pages/University";
 import Venue from "./pages/Venue";
 
@@ -64,6 +64,7 @@ const App = () => (
             }>
               <Route path="events" element={<AdminEvents />} />
               <Route path="venues" element={<AdminVenues />} />
+              <Route path="universities" element={<AdminUniversities />} />
               <Route path="users" element={<AdminUsers />} />
               <Route path="analytics" element={<AdminAnalytics />} />
               <Route path="settings" element={<AdminSettings />} />
