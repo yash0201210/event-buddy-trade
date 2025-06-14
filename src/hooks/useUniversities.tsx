@@ -68,12 +68,12 @@ export const useUniversities = () => {
       if (editingUniversity) {
         console.log('Updating university with ID:', editingUniversity.id);
         
+        // Use .select() without .single() to avoid the multiple rows error
         const { data, error } = await supabase
           .from('universities')
           .update(universityData)
           .eq('id', editingUniversity.id)
-          .select()
-          .single();
+          .select();
 
         if (error) {
           console.error('Update error:', error);
@@ -88,11 +88,11 @@ export const useUniversities = () => {
       } else {
         console.log('Creating new university');
         
+        // Use .select() without .single() to avoid the multiple rows error
         const { data, error } = await supabase
           .from('universities')
           .insert(universityData)
-          .select()
-          .single();
+          .select();
 
         if (error) {
           console.error('Insert error:', error);
