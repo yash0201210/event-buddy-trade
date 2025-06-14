@@ -1,92 +1,90 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Calendar, MapPin, Heart } from 'lucide-react';
+import { Search } from 'lucide-react';
 
 export const HeroSection = () => {
-  const [searchTerm, setSearchTerm] = useState('');
   const [location, setLocation] = useState('');
+  const [event, setEvent] = useState('');
   const [date, setDate] = useState('');
 
+  const handleSearch = () => {
+    // Navigate to search results or filter events
+    console.log('Searching for:', { location, event, date });
+  };
+
   return (
-    <section className="bg-gradient-to-b from-red-600 via-red-500 to-orange-300 py-12">
-      <div className="container mx-auto px-4">
-        {/* Pin your favorite unis section */}
-        <div className="text-center mb-6">
-          <div className="flex items-center justify-center gap-2 text-white/90 text-sm mb-2">
-            <Heart className="h-4 w-4" />
-            <span>Pin your favorite unis</span>
-          </div>
-          <p className="text-white/80 text-sm">
-            Explore events in your area and beyond
-          </p>
-        </div>
-
-        <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
-            Find the Perfect Tickets
+    <section className="relative bg-gradient-to-r from-red-600 to-orange-500 text-white py-16">
+      <div className="absolute inset-0 bg-black/10"></div>
+      <div className="container mx-auto px-4 relative z-10">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4">
+            Find Amazing Events Near You
           </h1>
-          <p className="text-lg text-white/90 max-w-2xl mx-auto">
-            Buy and sell tickets safely with verified sellers. Get the best deals on concerts, sports, and live events.
+          <p className="text-xl mb-2 text-red-100">
+            📍 Pin your favorite unis
           </p>
-        </div>
-
-        {/* Search Form */}
-        <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg border p-6">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Event or Artist
-              </label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <p className="text-lg mb-8 text-red-100">
+            🎯 Explore events in your area and beyond
+          </p>
+          
+          <div className="bg-white rounded-lg p-6 shadow-lg max-w-3xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="md:col-span-1">
                 <Input
                   type="text"
-                  placeholder="Search events, artists, teams..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Location
-              </label>
-              <div className="relative">
-                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                <Input
-                  type="text"
-                  placeholder="City or venue"
+                  placeholder="Location"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="pl-10"
+                  className="w-full"
                 />
               </div>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date
-              </label>
-              <div className="relative">
-                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+              <div className="md:col-span-1">
+                <Input
+                  type="text"
+                  placeholder="Event type"
+                  value={event}
+                  onChange={(e) => setEvent(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+              <div className="md:col-span-1">
                 <Input
                   type="date"
+                  placeholder="Date"
                   value={date}
                   onChange={(e) => setDate(e.target.value)}
-                  className="pl-10"
+                  className="w-full"
                 />
+              </div>
+              <div className="md:col-span-1">
+                <Button 
+                  onClick={handleSearch}
+                  className="w-full bg-red-600 hover:bg-red-700 text-white"
+                  size="lg"
+                >
+                  <Search className="h-4 w-4 mr-2" />
+                  Search
+                </Button>
               </div>
             </div>
           </div>
-
-          <div className="mt-6 text-center">
-            <Button className="bg-red-600 hover:bg-red-700 text-white px-8 py-3 text-lg">
-              Search Tickets
-            </Button>
+          
+          <div className="mt-8 text-center">
+            <p className="text-red-100 mb-4">Popular searches:</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {['Concerts', 'Football', 'Theatre', 'Comedy', 'Festivals'].map((term) => (
+                <Button
+                  key={term}
+                  variant="outline"
+                  size="sm"
+                  className="border-white/30 text-white hover:bg-white/10"
+                  onClick={() => setEvent(term)}
+                >
+                  {term}
+                </Button>
+              ))}
+            </div>
           </div>
         </div>
       </div>
