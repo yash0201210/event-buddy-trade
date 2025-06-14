@@ -19,10 +19,10 @@ interface Conversation {
   seller_id: string;
   status: string;
   created_at: string;
-  ticket: {
+  tickets: {
     title: string;
     selling_price: number;
-    event: {
+    events: {
       name: string;
       venue: string;
       event_date: string;
@@ -61,20 +61,25 @@ const Messages = () => {
       const { data, error } = await supabase
         .from('conversations')
         .select(`
-          *,
-          tickets!conversations_ticket_id_fkey (
+          id,
+          ticket_id,
+          buyer_id,
+          seller_id,
+          status,
+          created_at,
+          tickets (
             title,
             selling_price,
-            events!tickets_event_id_fkey (
+            events (
               name,
               venue,
               event_date
             )
           ),
-          profiles!conversations_buyer_id_fkey (
+          buyer_profile:profiles!conversations_buyer_id_fkey (
             full_name
           ),
-          profiles!conversations_seller_id_fkey (
+          seller_profile:profiles!conversations_seller_id_fkey (
             full_name
           ),
           messages (
@@ -89,7 +94,7 @@ const Messages = () => {
         .order('updated_at', { ascending: false });
 
       if (error) throw error;
-      return data;
+      return data as Conversation[];
     },
     enabled: !!user,
   });

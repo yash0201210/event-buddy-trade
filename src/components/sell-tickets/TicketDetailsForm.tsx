@@ -5,21 +5,30 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 
-interface TicketDetailsFormProps {
-  formData: {
-    section: string;
-    row: string;
-    seats: string;
-    quantity: number;
-    originalPrice: string;
-    sellingPrice: string;
-    description: string;
-    isNegotiable: boolean;
-  };
-  onInputChange: (field: string, value: any) => void;
+interface TicketFormData {
+  section: string;
+  row: string;
+  seats: string;
+  quantity: number;
+  originalPrice: number;
+  sellingPrice: number;
+  description: string;
+  isNegotiable: boolean;
 }
 
-export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsFormProps) => {
+interface TicketDetailsFormProps {
+  data: TicketFormData;
+  onChange: (data: TicketFormData) => void;
+}
+
+export const TicketDetailsForm = ({ data, onChange }: TicketDetailsFormProps) => {
+  const handleInputChange = (field: keyof TicketFormData, value: any) => {
+    onChange({
+      ...data,
+      [field]: value
+    });
+  };
+
   return (
     <div className="space-y-6">
       <div className="border-t pt-6">
@@ -30,8 +39,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
             <Label htmlFor="section">Section</Label>
             <Input
               id="section"
-              value={formData.section}
-              onChange={(e) => onInputChange('section', e.target.value)}
+              value={data.section}
+              onChange={(e) => handleInputChange('section', e.target.value)}
               placeholder="e.g. Lower Tier"
             />
           </div>
@@ -39,8 +48,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
             <Label htmlFor="row">Row</Label>
             <Input
               id="row"
-              value={formData.row}
-              onChange={(e) => onInputChange('row', e.target.value)}
+              value={data.row}
+              onChange={(e) => handleInputChange('row', e.target.value)}
               placeholder="e.g. M"
             />
           </div>
@@ -48,8 +57,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
             <Label htmlFor="seats">Seat Numbers</Label>
             <Input
               id="seats"
-              value={formData.seats}
-              onChange={(e) => onInputChange('seats', e.target.value)}
+              value={data.seats}
+              onChange={(e) => handleInputChange('seats', e.target.value)}
               placeholder="e.g. 12-13"
             />
           </div>
@@ -62,8 +71,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
               id="quantity"
               type="number"
               min="1"
-              value={formData.quantity}
-              onChange={(e) => onInputChange('quantity', parseInt(e.target.value))}
+              value={data.quantity}
+              onChange={(e) => handleInputChange('quantity', parseInt(e.target.value))}
               required
             />
           </div>
@@ -73,8 +82,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
               id="originalPrice"
               type="number"
               step="0.01"
-              value={formData.originalPrice}
-              onChange={(e) => onInputChange('originalPrice', e.target.value)}
+              value={data.originalPrice}
+              onChange={(e) => handleInputChange('originalPrice', parseFloat(e.target.value))}
               placeholder="0.00"
               required
             />
@@ -85,8 +94,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
               id="sellingPrice"
               type="number"
               step="0.01"
-              value={formData.sellingPrice}
-              onChange={(e) => onInputChange('sellingPrice', e.target.value)}
+              value={data.sellingPrice}
+              onChange={(e) => handleInputChange('sellingPrice', parseFloat(e.target.value))}
               placeholder="0.00"
               required
             />
@@ -102,8 +111,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
             <Label htmlFor="description">Description (Optional)</Label>
             <Textarea
               id="description"
-              value={formData.description}
-              onChange={(e) => onInputChange('description', e.target.value)}
+              value={data.description}
+              onChange={(e) => handleInputChange('description', e.target.value)}
               placeholder="Add any additional details about your tickets..."
               rows={3}
             />
@@ -112,8 +121,8 @@ export const TicketDetailsForm = ({ formData, onInputChange }: TicketDetailsForm
           <div className="flex items-center space-x-2">
             <Switch
               id="negotiable"
-              checked={formData.isNegotiable}
-              onCheckedChange={(checked) => onInputChange('isNegotiable', checked)}
+              checked={data.isNegotiable}
+              onCheckedChange={(checked) => handleInputChange('isNegotiable', checked)}
             />
             <Label htmlFor="negotiable">Open to offers</Label>
           </div>
