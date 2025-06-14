@@ -13,6 +13,7 @@ import Favourites from "./pages/Favourites";
 import Event from "./pages/Event";
 import TicketDetails from "./pages/TicketDetails";
 import Messages from "./pages/Messages";
+import MyTickets from "./pages/MyTickets";
 import Help from "./pages/Help";
 import SellTickets from "./pages/SellTickets";
 import NotFound from "./pages/NotFound";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/event/:id" element={<Event />} />
             <Route path="/ticket/:id" element={<TicketDetails />} />
             <Route path="/messages" element={<Messages />} />
+            <Route path="/my-tickets" element={<MyTickets />} />
             <Route path="/help" element={<Help />} />
             <Route path="/sell-tickets" element={<SellTickets />} />
             

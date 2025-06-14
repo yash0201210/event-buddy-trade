@@ -217,7 +217,7 @@ const Messages = () => {
   const handleConfirmTransfer = (conversationId: string) => {
     sendMessageMutation.mutate({
       conversationId,
-      content: "Confirm Transfer\n\nPlease confirm that you have transferred the seller to gain access to your tickets!",
+      content: "Funds Transferred!\n\nNow that you have sent this money across, Once the seller confirms they have received the funds, you will be able to view your ticket. Click below to view your tickets now!",
       messageType: 'transfer_confirmation',
     });
   };
@@ -393,6 +393,19 @@ const Messages = () => {
                                   className="bg-blue-600 hover:bg-blue-700 text-white text-xs w-full"
                                 >
                                   Confirm Transfer
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* My Ticket Button - show for buyers after transfer confirmation */}
+                            {isTransferConfirmation && !isOwn && isUserBuyer && (
+                              <div className="mt-3">
+                                <Button
+                                  size="sm"
+                                  onClick={() => navigate('/my-tickets')}
+                                  className="bg-orange-600 hover:bg-orange-700 text-white text-xs w-full"
+                                >
+                                  My Ticket
                                 </Button>
                               </div>
                             )}
