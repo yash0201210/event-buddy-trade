@@ -25,7 +25,7 @@ export const CitySelector = () => {
   const [selectedCity, setSelectedCity] = useState('London');
 
   return (
-    <section className="py-8 bg-white">
+    <section className="py-4 bg-white">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-start mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mr-3">
