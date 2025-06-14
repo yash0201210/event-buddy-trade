@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,32 +10,31 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { MakeOfferDialog } from '@/components/tickets/MakeOfferDialog';
 import { supabase } from '@/integrations/supabase/client';
+import { useQuery } from '@tanstack/react-query';
 
-// Mock data - this would come from your database
-const ticketData = {
-  "1": {
-    id: "550e8400-e29b-41d4-a716-446655440001", // Valid UUID format for ticket
-    eventTitle: 'Taylor Swift - Eras Tour',
-    venue: 'Wembley Stadium',
-    location: 'London, UK',
-    date: '2024-08-15',
-    time: '19:30',
-    section: 'Lower Tier',
-    row: 'M',
-    seats: '12-13',
-    price: 89,
-    originalPrice: 95,
-    quantity: 2,
-    seller: 'Sarah M.',
-    sellerRating: 4.9,
-    sellerReviews: 45,
-    sellerId: '550e8400-e29b-41d4-a716-446655440002', // Different valid UUID for seller
-    isInstant: true,
-    description: 'Great seats with excellent view of the stage. Tickets will be transferred immediately after payment.',
-    transferMethod: 'Mobile transfer via Ticketmaster',
-    saleEnds: '2024-08-14',
-  }
-};
+interface TicketWithDetails {
+  id: string;
+  title: string;
+  selling_price: number;
+  original_price: number;
+  quantity: number;
+  section: string;
+  row_number: string;
+  seat_numbers: string;
+  description: string;
+  is_negotiable: boolean;
+  seller_id: string;
+  events: {
+    name: string;
+    venue: string;
+    city: string;
+    event_date: string;
+  };
+  profiles: {
+    full_name: string;
+    is_verified: boolean;
+  };
+}
 
 const TicketDetails = () => {
   const [showOfferDialog, setShowOfferDialog] = useState(false);
@@ -44,11 +44,32 @@ const TicketDetails = () => {
   const { toast } = useToast();
   const { id } = useParams();
 
-  const ticket = ticketData[id as keyof typeof ticketData];
+  const { data: ticket, isLoading } = useQuery({
+    queryKey: ['ticket', id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('tickets')
+        .select(`
+          *,
+          events!tickets_event_id_fkey (
+            name,
+            venue,
+            city,
+            event_date
+          ),
+          profiles!tickets_seller_id_fkey (
+            full_name,
+            is_verified
+          )
+        `)
+        .eq('id', id)
+        .single();
 
-  if (!ticket) {
-    return <div>Ticket not found</div>;
-  }
+      if (error) throw error;
+      return data as TicketWithDetails;
+    },
+    enabled: !!id,
+  });
 
   const createConversation = async (type: 'buy_now' | 'offer', offerAmount?: number) => {
     if (!user) {
@@ -60,14 +81,13 @@ const TicketDetails = () => {
       return;
     }
 
+    if (!ticket) return;
+
     setLoading(true);
 
     try {
-      // Use the sellerId from ticket data, or fallback to a different UUID
-      const sellerId = ticket.sellerId || '550e8400-e29b-41d4-a716-446655440002';
-
       // Check if we're trying to buy our own ticket
-      if (sellerId === user.id) {
+      if (ticket.seller_id === user.id) {
         toast({
           title: "Cannot purchase own ticket",
           description: "You cannot buy your own ticket.",
@@ -77,35 +97,54 @@ const TicketDetails = () => {
         return;
       }
 
-      // Create conversation using the actual ticket UUID, not the URL parameter
-      const { data: conversation, error: conversationError } = await supabase
+      // Check if conversation already exists
+      const { data: existingConversation } = await supabase
         .from('conversations')
-        .insert({
-          ticket_id: ticket.id, // Use the UUID from ticket data
-          buyer_id: user.id,
-          seller_id: sellerId,
-        })
-        .select()
+        .select('id')
+        .eq('ticket_id', ticket.id)
+        .eq('buyer_id', user.id)
+        .eq('seller_id', ticket.seller_id)
         .single();
 
-      if (conversationError) throw conversationError;
+      let conversationId;
+
+      if (existingConversation) {
+        conversationId = existingConversation.id;
+      } else {
+        // Create new conversation
+        const { data: conversation, error: conversationError } = await supabase
+          .from('conversations')
+          .insert({
+            ticket_id: ticket.id,
+            buyer_id: user.id,
+            seller_id: ticket.seller_id,
+          })
+          .select()
+          .single();
+
+        if (conversationError) throw conversationError;
+        conversationId = conversation.id;
+      }
 
       // Create initial message
       let messageContent = '';
+      let messageType = 'text';
+      
       if (type === 'buy_now') {
-        messageContent = `Hi! I'd like to buy your tickets for ${ticket.eventTitle} at £${ticket.price} each. Please let me know how we can proceed with the transaction.`;
+        messageContent = `Hi! I'd like to buy your tickets for ${ticket.events.name} at £${ticket.selling_price} each. Please let me know how we can proceed with the transaction.`;
       } else {
-        messageContent = `Hi! I'm interested in your tickets for ${ticket.eventTitle}. I'd like to make an offer of £${offerAmount} per ticket. Let me know if this works for you!`;
+        messageContent = `Hi! I'm interested in your tickets for ${ticket.events.name}. I'd like to make an offer of £${offerAmount} per ticket. Let me know if this works for you!`;
+        messageType = 'offer';
       }
 
       const { error: messageError } = await supabase
         .from('messages')
         .insert({
-          conversation_id: conversation.id,
+          conversation_id: conversationId,
           sender_id: user.id,
-          receiver_id: sellerId,
+          receiver_id: ticket.seller_id,
           content: messageContent,
-          message_type: type === 'offer' ? 'offer' : 'buy_request'
+          message_type: messageType
         });
 
       if (messageError) throw messageError;
@@ -138,7 +177,35 @@ const TicketDetails = () => {
     setShowOfferDialog(false);
   };
 
-  const totalPrice = ticket.price * ticket.quantity;
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">Loading ticket details...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!ticket) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <Card className="max-w-md mx-auto">
+            <CardContent className="p-6 text-center">
+              <h1 className="text-xl font-semibold mb-4">Ticket Not Found</h1>
+              <p className="text-gray-600 mb-4">The ticket you're looking for doesn't exist or has been removed.</p>
+              <Button onClick={() => navigate('/')}>Browse Tickets</Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  const totalPrice = ticket.selling_price * ticket.quantity;
   const fees = Math.round(totalPrice * 0.05); // 5% fees
   const finalTotal = totalPrice + fees;
 
@@ -162,21 +229,21 @@ const TicketDetails = () => {
             {/* Event Info */}
             <Card>
               <CardContent className="p-6">
-                <h1 className="text-2xl font-bold text-gray-900 mb-4">{ticket.eventTitle}</h1>
+                <h1 className="text-2xl font-bold text-gray-900 mb-4">{ticket.events.name}</h1>
                 
                 <div className="space-y-3 text-gray-600 mb-6">
                   <div className="flex items-center">
                     <MapPin className="h-4 w-4 mr-3" />
-                    <span>{ticket.venue}, {ticket.location}</span>
+                    <span>{ticket.events.venue}, {ticket.events.city}</span>
                   </div>
                   <div className="flex items-center">
                     <Calendar className="h-4 w-4 mr-3" />
-                    <span>{new Date(ticket.date).toLocaleDateString('en-GB', { 
+                    <span>{new Date(ticket.events.event_date).toLocaleDateString('en-GB', { 
                       weekday: 'long', 
                       day: 'numeric', 
                       month: 'long',
                       year: 'numeric'
-                    })} at {ticket.time}</span>
+                    })}</span>
                   </div>
                 </div>
 
@@ -191,11 +258,11 @@ const TicketDetails = () => {
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Row</p>
-                      <p className="font-semibold">{ticket.row}</p>
+                      <p className="font-semibold">{ticket.row_number}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Seats</p>
-                      <p className="font-semibold">{ticket.seats}</p>
+                      <p className="font-semibold">{ticket.seat_numbers}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Quantity</p>
@@ -204,22 +271,29 @@ const TicketDetails = () => {
                   </div>
 
                   <div className="flex items-center gap-2 mb-4">
-                    {ticket.isInstant && (
-                      <Badge className="bg-green-100 text-green-700">
-                        <Clock className="h-3 w-3 mr-1" />
-                        Instant Download
+                    <Badge className="bg-green-100 text-green-700">
+                      <Clock className="h-3 w-3 mr-1" />
+                      Available
+                    </Badge>
+                    {ticket.profiles.is_verified && (
+                      <Badge variant="outline">
+                        <Shield className="h-3 w-3 mr-1" />
+                        Verified Seller
                       </Badge>
                     )}
-                    <Badge variant="outline">
-                      <Shield className="h-3 w-3 mr-1" />
-                      Verified Seller
-                    </Badge>
+                    {ticket.is_negotiable && (
+                      <Badge variant="secondary">
+                        Negotiable
+                      </Badge>
+                    )}
                   </div>
 
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold mb-2">Ticket Description</h4>
-                    <p className="text-gray-700 text-sm">{ticket.description}</p>
-                  </div>
+                  {ticket.description && (
+                    <div className="bg-gray-50 p-4 rounded-lg">
+                      <h4 className="font-semibold mb-2">Ticket Description</h4>
+                      <p className="text-gray-700 text-sm">{ticket.description}</p>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -235,22 +309,13 @@ const TicketDetails = () => {
                       <User className="h-6 w-6 text-red-600" />
                     </div>
                     <div>
-                      <p className="font-semibold">{ticket.seller}</p>
+                      <p className="font-semibold">{ticket.profiles.full_name}</p>
                       <div className="flex items-center text-sm text-gray-500">
                         <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
-                        <span>{ticket.sellerRating} ({ticket.sellerReviews} reviews)</span>
+                        <span>{ticket.profiles.is_verified ? 'Verified Seller' : 'New Seller'}</span>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                <div className="mt-4 pt-4 border-t">
-                  <p className="text-sm text-gray-600">
-                    <strong>Transfer method:</strong> {ticket.transferMethod}
-                  </p>
-                  <p className="text-sm text-gray-600 mt-1">
-                    <strong>Sale ends:</strong> {new Date(ticket.saleEnds).toLocaleDateString('en-GB')}
-                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -283,23 +348,25 @@ const TicketDetails = () => {
                     onClick={handleBuyNow}
                     disabled={loading}
                   >
-                    {loading ? 'Processing...' : 'Buy Now'}
+                    {loading ? 'Processing...' : 'Contact Seller'}
                   </Button>
                   
-                  <Button 
-                    variant="outline" 
-                    className="w-full"
-                    onClick={() => setShowOfferDialog(true)}
-                    disabled={loading}
-                  >
-                    Make Offer
-                  </Button>
+                  {ticket.is_negotiable && (
+                    <Button 
+                      variant="outline" 
+                      className="w-full"
+                      onClick={() => setShowOfferDialog(true)}
+                      disabled={loading}
+                    >
+                      Make Offer
+                    </Button>
+                  )}
                 </div>
 
                 <div className="mt-6 text-xs text-gray-500">
-                  <p className="mb-2">✓ 100% money back guarantee</p>
-                  <p className="mb-2">✓ Secure payment processing</p>
-                  <p>✓ Customer support available 24/7</p>
+                  <p className="mb-2">✓ Direct contact with seller</p>
+                  <p className="mb-2">✓ Secure messaging system</p>
+                  <p>✓ Payment handled outside platform</p>
                 </div>
               </CardContent>
             </Card>
@@ -307,13 +374,15 @@ const TicketDetails = () => {
         </div>
       </main>
 
-      <MakeOfferDialog 
-        isOpen={showOfferDialog}
-        onClose={() => setShowOfferDialog(false)}
-        onSubmit={handleMakeOffer}
-        ticketPrice={ticket.price}
-        quantity={ticket.quantity}
-      />
+      {ticket.is_negotiable && (
+        <MakeOfferDialog 
+          isOpen={showOfferDialog}
+          onClose={() => setShowOfferDialog(false)}
+          onSubmit={handleMakeOffer}
+          ticketPrice={ticket.selling_price}
+          quantity={ticket.quantity}
+        />
+      )}
     </div>
   );
 };
