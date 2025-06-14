@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -226,6 +227,8 @@ const Messages = () => {
     if (!conversation) return;
 
     try {
+      console.log('Updating ticket status to sold for ticket:', conversation.ticket_id);
+      
       // Update ticket status to 'sold'
       const { error: ticketError } = await supabase
         .from('tickets')
@@ -242,6 +245,8 @@ const Messages = () => {
         return;
       }
 
+      console.log('Ticket status updated successfully');
+
       // Send the funds received message
       sendMessageMutation.mutate({
         conversationId,
@@ -249,9 +254,31 @@ const Messages = () => {
         messageType: 'funds_received',
       });
 
-      // Invalidate relevant queries to refresh data
+      // Invalidate all relevant queries to refresh data across the app
       queryClient.invalidateQueries({ queryKey: ['event-tickets'] });
       queryClient.invalidateQueries({ queryKey: ['event-sold-tickets-count'] });
+      queryClient.invalidateQueries({ queryKey: ['seller-tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      
+      // Also invalidate any event-specific queries
+      if (conversation.ticket_id) {
+        // Get the event ID from the ticket and invalidate event-specific queries
+        const { data: ticketData } = await supabase
+          .from('tickets')
+          .select('event_id')
+          .eq('id', conversation.ticket_id)
+          .single();
+          
+        if (ticketData?.event_id) {
+          queryClient.invalidateQueries({ queryKey: ['event-tickets', ticketData.event_id] });
+          queryClient.invalidateQueries({ queryKey: ['event-sold-tickets-count', ticketData.event_id] });
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Transaction completed successfully!",
+      });
 
     } catch (error) {
       console.error('Error in handleFundsReceived:', error);

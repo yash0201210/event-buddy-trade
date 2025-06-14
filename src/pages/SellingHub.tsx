@@ -19,6 +19,8 @@ interface Ticket {
   quantity: number;
   ticket_type: string;
   title: string;
+  status: string;
+  sold_at?: string;
   events: {
     name: string;
     event_date: string;
@@ -64,38 +66,93 @@ export default function SellingHub() {
     );
   }
 
+  const availableTickets = tickets?.filter(ticket => ticket.status === 'available') || [];
+  const soldTickets = tickets?.filter(ticket => ticket.status === 'sold') || [];
+
   return (
     <Layout>
       <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-4">Selling Hub</h1>
+        <h1 className="text-3xl font-bold mb-6">Selling Hub</h1>
         
-        {tickets?.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {tickets.map((ticket) => (
-              <Card key={ticket.id} className="bg-white shadow-md rounded-md overflow-hidden">
-                <CardHeader className="p-4">
-                  <CardTitle className="text-lg font-semibold">{ticket.events.name}</CardTitle>
-                </CardHeader>
-                <CardContent className="p-4">
-                  <p className="text-gray-600">
-                    {format(new Date(ticket.events.event_date), 'PPP')} - {ticket.events.venue}, {ticket.events.city}
-                  </p>
-                  <p className="text-gray-700 mt-2">
-                    Price: £{ticket.selling_price} | Quantity: {ticket.quantity}
-                  </p>
+        {/* Active Listings */}
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Active Listings</h2>
+          {availableTickets.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {availableTickets.map((ticket) => (
+                <Card key={ticket.id} className="bg-white shadow-md rounded-md overflow-hidden">
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg font-semibold">{ticket.events.name}</CardTitle>
+                    <Badge variant="secondary" className="w-fit">Available</Badge>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <p className="text-gray-600">
+                      {format(new Date(ticket.events.event_date), 'PPP')} - {ticket.events.venue}, {ticket.events.city}
+                    </p>
+                    <p className="text-gray-700 mt-2">
+                      Price: £{ticket.selling_price} | Quantity: {ticket.quantity}
+                    </p>
 
-                  <div className="mt-4 flex justify-between">
-                    <Link to={`/ticket/${ticket.id}`}>
-                      <Button variant="outline">View Ticket</Button>
-                    </Link>
-                    <Button>Manage Listing</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="mt-4 flex justify-between">
+                      <Link to={`/ticket/${ticket.id}`}>
+                        <Button variant="outline">View Ticket</Button>
+                      </Link>
+                      <Button>Manage Listing</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="text-center py-8 bg-gray-50 rounded-lg">
+              <h3 className="text-xl font-semibold">No active listings</h3>
+              <p className="text-gray-600 mt-2">List tickets to start selling!</p>
+              <Link to="/sell-tickets">
+                <Button className="mt-4">Sell Tickets</Button>
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Selling History */}
+        {soldTickets.length > 0 && (
+          <div>
+            <h2 className="text-2xl font-semibold mb-4">Selling History</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {soldTickets.map((ticket) => (
+                <Card key={ticket.id} className="bg-green-50 border-green-200 shadow-md rounded-md overflow-hidden">
+                  <CardHeader className="p-4">
+                    <CardTitle className="text-lg font-semibold">{ticket.events.name}</CardTitle>
+                    <Badge className="w-fit bg-green-100 text-green-700">Sold</Badge>
+                  </CardHeader>
+                  <CardContent className="p-4">
+                    <p className="text-gray-600">
+                      {format(new Date(ticket.events.event_date), 'PPP')} - {ticket.events.venue}, {ticket.events.city}
+                    </p>
+                    <p className="text-gray-700 mt-2">
+                      Sold Price: £{ticket.selling_price} | Quantity: {ticket.quantity}
+                    </p>
+                    {ticket.sold_at && (
+                      <p className="text-sm text-green-600 mt-2">
+                        Sold on: {format(new Date(ticket.sold_at), 'PPP')}
+                      </p>
+                    )}
+
+                    <div className="mt-4">
+                      <Link to={`/ticket/${ticket.id}`}>
+                        <Button variant="outline" className="w-full">View Details</Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
-        ) : (
-          <div className="text-center">
+        )}
+
+        {/* Empty State */}
+        {availableTickets.length === 0 && soldTickets.length === 0 && (
+          <div className="text-center py-12">
             <h2 className="text-xl font-semibold">No tickets listed for sale yet.</h2>
             <p className="text-gray-600 mt-2">List tickets to start selling!</p>
             <Link to="/sell-tickets">
