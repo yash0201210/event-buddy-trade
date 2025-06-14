@@ -66,7 +66,7 @@ export const HeroSection = () => {
             Find Buyers And Sellers For Your Event!
           </p>
           
-          <div className="max-w-2xl mx-auto" ref={searchRef}>
+          <div className="max-w-2xl mx-auto relative" ref={searchRef}>
             <SearchBar
               searchQuery={searchQuery}
               onSearchChange={setSearchQuery}

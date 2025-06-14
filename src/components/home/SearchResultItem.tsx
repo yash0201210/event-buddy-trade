@@ -37,7 +37,7 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
   return (
     <div
       onClick={() => onClick(result)}
-      className={`flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors group ${
+      className={`flex items-center px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group ${
         !isLast ? 'border-b border-gray-100' : ''
       }`}
     >
@@ -46,7 +46,7 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
           <img 
             src={result.image} 
             alt={result.title}
-            className="w-10 h-10 rounded-lg object-cover"
+            className="w-8 h-8 rounded-md object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
@@ -54,7 +54,7 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
             }}
           />
         ) : null}
-        <div className={`w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center ${result.image ? 'hidden' : ''}`}>
+        <div className={`w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center ${result.image ? 'hidden' : ''}`}>
           {getResultIcon(result.type)}
         </div>
       </div>
