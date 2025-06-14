@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin, Calendar, Star, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 
 const eventData = {
@@ -64,40 +64,21 @@ const tickets = [
 
 const Event = () => {
   const [isFavourite, setIsFavourite] = useState(false);
-  const [purchasingTicket, setPurchasingTicket] = useState<number | null>(null);
   const { user } = useAuth();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { id } = useParams();
 
-  const handleBuyTicket = async (ticketId: number, price: number) => {
+  const handleViewTicket = (ticketId: number) => {
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please log in to purchase tickets",
+        description: "Please log in to view tickets",
       });
       navigate('/auth');
       return;
     }
-
-    setPurchasingTicket(ticketId);
-
-    try {
-      // Simulate purchase process
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
-      toast({
-        title: "Purchase initiated!",
-        description: "Your ticket purchase is being processed.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Purchase failed",
-        description: error.message,
-        variant: "destructive"
-      });
-    } finally {
-      setPurchasingTicket(null);
-    }
+    navigate(`/ticket/${ticketId}`);
   };
 
   return (
@@ -203,10 +184,9 @@ const Event = () => {
                       </div>
                       <Button 
                         className="bg-red-600 hover:bg-red-700"
-                        onClick={() => handleBuyTicket(ticket.id, ticket.price)}
-                        disabled={purchasingTicket === ticket.id}
+                        onClick={() => handleViewTicket(ticket.id)}
                       >
-                        {purchasingTicket === ticket.id ? 'Processing...' : 'Buy Now'}
+                        View
                       </Button>
                     </div>
                   </div>

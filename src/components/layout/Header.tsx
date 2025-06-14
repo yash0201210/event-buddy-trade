@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Heart, User } from 'lucide-react';
+import { Heart, User, MessageCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import {
@@ -76,6 +76,12 @@ export const Header = () => {
 
             {user ? (
               <>
+                <Link to="/messages">
+                  <Button variant="ghost" size="sm">
+                    <MessageCircle className="h-4 w-4" />
+                  </Button>
+                </Link>
+
                 <Link to="/favourites">
                   <Button variant="ghost" size="sm">
                     <Heart className="h-4 w-4" />

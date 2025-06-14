@@ -9,6 +9,36 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      conversations: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          seller_id: string
+          status: string
+          ticket_id: string
+          updated_at: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          seller_id: string
+          status?: string
+          ticket_id: string
+          updated_at?: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          seller_id?: string
+          status?: string
+          ticket_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           category: string
@@ -48,32 +78,39 @@ export type Database = {
       messages: {
         Row: {
           content: string
+          conversation_id: string | null
           created_at: string | null
           id: string
           message_type: string | null
           receiver_id: string
           sender_id: string
-          ticket_id: string
         }
         Insert: {
           content: string
+          conversation_id?: string | null
           created_at?: string | null
           id?: string
           message_type?: string | null
           receiver_id: string
           sender_id: string
-          ticket_id: string
         }
         Update: {
           content?: string
+          conversation_id?: string | null
           created_at?: string | null
           id?: string
           message_type?: string | null
           receiver_id?: string
           sender_id?: string
-          ticket_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "messages_receiver_id_fkey"
             columns: ["receiver_id"]
@@ -86,13 +123,6 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "messages_ticket_id_fkey"
-            columns: ["ticket_id"]
-            isOneToOne: false
-            referencedRelation: "tickets"
             referencedColumns: ["id"]
           },
         ]
