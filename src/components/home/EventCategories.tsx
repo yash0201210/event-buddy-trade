@@ -208,31 +208,34 @@ export const EventCategories = () => {
               return (
                 <div key={university.id} className="flex-none w-48">
                   <Link to={`/university/${university.id}`} className="block">
-                    <div className="text-center">
+                    <div className="flex flex-col items-center h-full min-h-[240px]">
                       {/* Circular University Image */}
-                      <div className={`w-32 h-32 mx-auto mb-4 rounded-full overflow-hidden border-4 ${
+                      <div className={`w-32 h-32 mb-4 rounded-full overflow-hidden border-4 ${
                         isUniversityPinned ? 'border-orange-500' : 'border-blue-400'
-                      } shadow-lg hover:shadow-xl transition-shadow`}>
+                      } shadow-lg hover:shadow-xl transition-shadow flex-shrink-0`}>
                         <div className="w-full h-full bg-gradient-to-br from-blue-200 to-blue-300 flex items-center justify-center">
                           <GraduationCap className="h-12 w-12 text-blue-600" />
                         </div>
                       </div>
                       
                       {/* University Name */}
-                      <h3 className="font-semibold text-gray-900 mb-1 text-sm px-2 border-b border-gray-300 pb-1">
+                      <h3 className="font-semibold text-gray-900 mb-1 text-sm px-2 text-center border-b border-gray-300 pb-1 flex-shrink-0">
                         {university.name}
                       </h3>
                       
                       {/* Event Count */}
-                      <p className="text-xs text-gray-500 mb-3">
+                      <p className="text-xs text-gray-500 mb-4 text-center flex-shrink-0">
                         {eventCount} upcoming events
                       </p>
+                      
+                      {/* Spacer to push button to bottom */}
+                      <div className="flex-grow"></div>
                       
                       {/* Pin/Unpin Button */}
                       {user && (
                         <Button 
                           size="sm" 
-                          className={`rounded-full px-4 ${
+                          className={`rounded-full px-4 flex-shrink-0 ${
                             isUniversityPinned 
                               ? 'bg-orange-500 hover:bg-orange-600 text-white' 
                               : 'bg-gray-200 hover:bg-gray-300 text-gray-700'
@@ -256,7 +259,7 @@ export const EventCategories = () => {
                       {!user && (
                         <Button 
                           size="sm" 
-                          className="rounded-full px-4 bg-gray-200 hover:bg-gray-300 text-gray-700"
+                          className="rounded-full px-4 bg-gray-200 hover:bg-gray-300 text-gray-700 flex-shrink-0"
                           disabled
                         >
                           <Pin className="h-3 w-3 mr-1" />
