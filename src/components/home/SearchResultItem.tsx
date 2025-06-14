@@ -29,7 +29,7 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', { 
       day: 'numeric', 
-      month: 'short', 
+      month: 'long', 
       year: 'numeric' 
     });
   };
@@ -37,16 +37,16 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
   return (
     <div
       onClick={() => onClick(result)}
-      className={`flex items-center px-3 py-2.5 hover:bg-gray-50 cursor-pointer transition-colors group ${
+      className={`flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
         !isLast ? 'border-b border-gray-100' : ''
       }`}
     >
-      <div className="flex-shrink-0 mr-3">
+      <div className="flex-shrink-0 mr-4">
         {result.image ? (
           <img 
             src={result.image} 
             alt={result.title}
-            className="w-8 h-8 rounded-md object-cover"
+            className="w-12 h-12 rounded-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
               target.style.display = 'none';
@@ -54,30 +54,23 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
             }}
           />
         ) : null}
-        <div className={`w-8 h-8 rounded-md bg-gray-100 flex items-center justify-center ${result.image ? 'hidden' : ''}`}>
+        <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center ${result.image ? 'hidden' : ''}`}>
           {getResultIcon(result.type)}
         </div>
       </div>
       
       <div className="flex-1 min-w-0">
-        <h5 className="text-sm font-medium text-gray-900 truncate group-hover:text-blue-600 transition-colors">
+        <h3 className="text-base font-semibold text-gray-900 mb-1">
           {result.title}
-        </h5>
-        <div className="flex items-center text-xs text-gray-500 mt-0.5">
-          {result.date && (
-            <span className="mr-2 font-medium text-blue-600">
-              {formatDate(result.date)}
-            </span>
-          )}
-          {result.date && result.subtitle && <span className="mr-2">•</span>}
-          <span className="truncate">
-            {result.subtitle}
-          </span>
-        </div>
-      </div>
-      
-      <div className="flex-shrink-0 ml-2">
-        {getResultIcon(result.type)}
+        </h3>
+        {result.date && (
+          <p className="text-sm text-gray-600 mb-1">
+            {formatDate(result.date)}
+          </p>
+        )}
+        <p className="text-sm text-gray-500">
+          {result.subtitle}
+        </p>
       </div>
     </div>
   );
