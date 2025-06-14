@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -28,7 +29,7 @@ const ticketData = {
     seller: 'Sarah M.',
     sellerRating: 4.9,
     sellerReviews: 45,
-    sellerId: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
+    sellerId: null, // Set to null for demo purposes
     isInstant: true,
     description: 'Great seats with excellent view of the stage. Tickets will be transferred immediately after payment.',
     transferMethod: 'Mobile transfer via Ticketmaster',
@@ -51,18 +52,39 @@ const TicketDetails = () => {
   }
 
   const createConversation = async (type: 'buy_now' | 'offer', offerAmount?: number) => {
-    if (!user) return;
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to contact the seller.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     setLoading(true);
 
     try {
+      // For demo purposes, use the current user as the seller if no seller exists
+      const sellerId = ticket.sellerId || user.id;
+
+      // Check if we're trying to buy our own ticket
+      if (sellerId === user.id) {
+        toast({
+          title: "Cannot purchase own ticket",
+          description: "You cannot buy your own ticket.",
+          variant: "destructive"
+        });
+        setLoading(false);
+        return;
+      }
+
       // Create conversation using the actual ticket UUID, not the URL parameter
       const { data: conversation, error: conversationError } = await supabase
         .from('conversations')
         .insert({
           ticket_id: ticket.id, // Use the UUID from ticket data
           buyer_id: user.id,
-          seller_id: ticket.sellerId,
+          seller_id: sellerId,
         })
         .select()
         .single();
@@ -82,7 +104,7 @@ const TicketDetails = () => {
         .insert({
           conversation_id: conversation.id,
           sender_id: user.id,
-          receiver_id: ticket.sellerId,
+          receiver_id: sellerId,
           content: messageContent,
           message_type: type === 'offer' ? 'offer' : 'buy_request'
         });
@@ -97,9 +119,10 @@ const TicketDetails = () => {
       navigate('/messages');
 
     } catch (error: any) {
+      console.error('Error creating conversation:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "Failed to send message. Please try again.",
         variant: "destructive"
       });
     } finally {
