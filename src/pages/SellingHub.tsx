@@ -187,13 +187,13 @@ const SellingHub = () => {
 
       const totalSold = completedSales.length;
       const totalRevenue = completedSales.reduce((sum, conv) => {
-        const ticket = conv.tickets;
-        // Fix the TypeScript error by properly checking if ticket exists and has selling_price
-        if (ticket && typeof ticket === 'object' && ticket !== null) {
-          if (Array.isArray(ticket) && ticket.length > 0 && ticket[0]?.selling_price) {
-            return sum + ticket[0].selling_price;
-          } else if (!Array.isArray(ticket) && 'selling_price' in ticket && ticket.selling_price) {
-            return sum + ticket.selling_price;
+        // Properly handle the ticket object with correct type checking
+        if (conv.tickets) {
+          const tickets = conv.tickets as any;
+          if (Array.isArray(tickets) && tickets.length > 0 && tickets[0]?.selling_price) {
+            return sum + Number(tickets[0].selling_price);
+          } else if (!Array.isArray(tickets) && tickets.selling_price) {
+            return sum + Number(tickets.selling_price);
           }
         }
         return sum;
