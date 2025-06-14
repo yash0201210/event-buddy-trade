@@ -229,6 +229,10 @@ const Messages = () => {
     });
   };
 
+  const handleViewTransactionDetails = (conversationId: string) => {
+    navigate(`/my-tickets?conversation=${conversationId}`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -396,16 +400,27 @@ const Messages = () => {
                               </div>
                             )}
 
-                            {/* View My Ticket Button - show for buyers after they confirm transfer */}
+                            {/* Clickable Transaction Details Box - show for buyers after they confirm transfer */}
                             {isTransferConfirmation && isOwn && isUserBuyer && (
-                              <div className="mt-3">
-                                <Button
-                                  size="sm"
-                                  onClick={() => navigate('/my-tickets')}
-                                  className="bg-orange-600 hover:bg-orange-700 text-white text-xs w-full"
-                                >
-                                  View My Ticket
-                                </Button>
+                              <div 
+                                className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                                onClick={() => handleViewTransactionDetails(selectedConv.id)}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <h4 className="font-semibold text-blue-800 text-xs">Transaction Status</h4>
+                                  <Badge variant="outline" className="text-xs">
+                                    Pending Seller
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-blue-700 mb-2">
+                                  {selectedConv.event_name} • €{selectedConv.ticket_price}
+                                </p>
+                                <p className="text-xs text-blue-600">
+                                  📍 Waiting for seller to confirm receipt
+                                </p>
+                                <div className="mt-2 text-xs text-blue-500 italic">
+                                  Click to view full transaction details →
+                                </div>
                               </div>
                             )}
 
