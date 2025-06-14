@@ -17,6 +17,7 @@ import MyTickets from "./pages/MyTickets";
 import SellingHub from "./pages/SellingHub";
 import Help from "./pages/Help";
 import SellTickets from "./pages/SellTickets";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 import AdminAuth from "./pages/admin/AdminAuth";
 import AdminEvents from "./pages/admin/AdminEvents";
@@ -45,6 +46,7 @@ const App = () => (
             <Route path="/selling-hub" element={<SellingHub />} />
             <Route path="/help" element={<Help />} />
             <Route path="/sell-tickets" element={<SellTickets />} />
+            <Route path="/settings" element={<Settings />} />
             
             {/* Admin authentication */}
             <Route path="/admin/auth" element={<AdminAuth />} />

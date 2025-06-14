@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { Heart, User, MessageCircle } from 'lucide-react';
+import { Heart, User, MessageCircle, Settings } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { useQuery } from '@tanstack/react-query';
@@ -140,6 +139,11 @@ export const Header = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/selling-hub')}>
                       Selling Hub
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate('/settings')}>
+                      <Settings className="h-4 w-4 mr-2" />
+                      Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
