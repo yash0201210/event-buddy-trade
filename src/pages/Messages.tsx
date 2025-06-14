@@ -229,10 +229,13 @@ const Messages = () => {
     try {
       console.log('Updating ticket status to sold for ticket:', conversation.ticket_id);
       
-      // Update ticket status to 'sold'
+      // Update ticket status to 'sold' and set sold_at timestamp
       const { error: ticketError } = await supabase
         .from('tickets')
-        .update({ status: 'sold' })
+        .update({ 
+          status: 'sold',
+          sold_at: new Date().toISOString()
+        })
         .eq('id', conversation.ticket_id);
 
       if (ticketError) {
@@ -245,7 +248,7 @@ const Messages = () => {
         return;
       }
 
-      console.log('Ticket status updated successfully');
+      console.log('Ticket status updated successfully to sold');
 
       // Send the funds received message
       sendMessageMutation.mutate({
