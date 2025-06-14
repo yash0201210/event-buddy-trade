@@ -19,21 +19,13 @@ interface Conversation {
   seller_id: string;
   status: string;
   created_at: string;
-  tickets: {
-    title: string;
-    selling_price: number;
-    events: {
-      name: string;
-      venue: string;
-      event_date: string;
-    };
-  };
-  buyer_profile: {
-    full_name: string;
-  };
-  seller_profile: {
-    full_name: string;
-  };
+  ticket_title?: string;
+  ticket_price?: number;
+  event_name?: string;
+  event_venue?: string;
+  event_date?: string;
+  buyer_name?: string;
+  seller_name?: string;
   messages: Message[];
 }
 
@@ -58,43 +50,69 @@ const Messages = () => {
     queryFn: async () => {
       if (!user) return [];
       
-      const { data, error } = await supabase
+      // Get conversations with related data
+      const { data: conversationsData, error: conversationsError } = await supabase
         .from('conversations')
-        .select(`
-          id,
-          ticket_id,
-          buyer_id,
-          seller_id,
-          status,
-          created_at,
-          tickets (
-            title,
-            selling_price,
-            events (
-              name,
-              venue,
-              event_date
-            )
-          ),
-          buyer_profile:profiles!conversations_buyer_id_fkey (
-            full_name
-          ),
-          seller_profile:profiles!conversations_seller_id_fkey (
-            full_name
-          ),
-          messages (
-            id,
-            content,
-            sender_id,
-            message_type,
-            created_at
-          )
-        `)
+        .select('*')
         .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
-      return data as Conversation[];
+      if (conversationsError) throw conversationsError;
+
+      // Get related data for each conversation
+      const enrichedConversations = await Promise.all(
+        conversationsData.map(async (conv) => {
+          // Get ticket data
+          const { data: ticketData } = await supabase
+            .from('tickets')
+            .select(`
+              title,
+              selling_price,
+              events!tickets_event_id_fkey (
+                name,
+                venue,
+                event_date
+              )
+            `)
+            .eq('id', conv.ticket_id)
+            .single();
+
+          // Get buyer profile
+          const { data: buyerProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', conv.buyer_id)
+            .single();
+
+          // Get seller profile
+          const { data: sellerProfile } = await supabase
+            .from('profiles')
+            .select('full_name')
+            .eq('id', conv.seller_id)
+            .single();
+
+          // Get messages
+          const { data: messages } = await supabase
+            .from('messages')
+            .select('*')
+            .eq('conversation_id', conv.id)
+            .order('created_at', { ascending: true });
+
+          return {
+            ...conv,
+            ticket_title: ticketData?.title || 'Unknown Ticket',
+            ticket_price: ticketData?.selling_price || 0,
+            event_name: ticketData?.events?.name || 'Unknown Event',
+            event_venue: ticketData?.events?.venue || 'Unknown Venue',
+            event_date: ticketData?.events?.event_date || '',
+            buyer_name: buyerProfile?.full_name || 'Unknown User',
+            seller_name: sellerProfile?.full_name || 'Unknown User',
+            messages: messages || []
+          };
+        })
+      );
+
+      return enrichedConversations as Conversation[];
     },
     enabled: !!user,
   });
@@ -207,9 +225,9 @@ const Messages = () => {
                 <div className="space-y-1">
                   {conversations.map((conversation) => {
                     const isCurrentUserBuyer = conversation.buyer_id === user.id;
-                    const otherParty = isCurrentUserBuyer 
-                      ? conversation.seller_profile 
-                      : conversation.buyer_profile;
+                    const otherPartyName = isCurrentUserBuyer 
+                      ? conversation.seller_name 
+                      : conversation.buyer_name;
                     const lastMessage = conversation.messages?.[conversation.messages.length - 1];
                     
                     return (
@@ -221,13 +239,13 @@ const Messages = () => {
                         onClick={() => setSelectedConversation(conversation.id)}
                       >
                         <div className="flex justify-between items-start mb-2">
-                          <h4 className="font-semibold text-sm">{otherParty?.full_name}</h4>
+                          <h4 className="font-semibold text-sm">{otherPartyName}</h4>
                           <Badge variant={isCurrentUserBuyer ? "secondary" : "default"}>
                             {isCurrentUserBuyer ? 'Buying' : 'Selling'}
                           </Badge>
                         </div>
                         <p className="text-sm text-gray-600 truncate mb-1">
-                          {conversation.tickets?.title}
+                          {conversation.ticket_title}
                         </p>
                         {lastMessage && (
                           <p className="text-xs text-gray-500 truncate">
@@ -258,13 +276,13 @@ const Messages = () => {
                     </Button>
                     <div>
                       <CardTitle className="text-lg">
-                        {selectedConv.tickets?.title}
+                        {selectedConv.ticket_title}
                       </CardTitle>
                       <p className="text-sm text-gray-600">
-                        £{selectedConv.tickets?.selling_price} • {
+                        £{selectedConv.ticket_price} • {
                           isUserBuyer 
-                            ? selectedConv.seller_profile?.full_name 
-                            : selectedConv.buyer_profile?.full_name
+                            ? selectedConv.seller_name
+                            : selectedConv.buyer_name
                         }
                       </p>
                     </div>
