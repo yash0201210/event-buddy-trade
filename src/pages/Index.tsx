@@ -72,8 +72,8 @@ const Index = () => {
       <main>
         <HeroSection />
         <CitySelector />
-        <EventCategories />
         <SuggestedEvents />
+        <EventCategories />
 
         {/* Recent Tickets */}
         <section className="py-8 bg-white">
