@@ -148,16 +148,7 @@ export const EventCategories = () => {
               Browse by University
             </h2>
           </div>
-          <div 
-            className="overflow-x-auto scrollbar-hide"
-            style={{
-              overflowX: 'auto',
-              scrollBehavior: 'smooth',
-            }}
-            onWheel={(e) => {
-              e.currentTarget.scrollLeft += e.deltaY;
-            }}
-          >
+          <div className="overflow-x-auto">
             <div className="flex space-x-6 pb-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex-none w-48 animate-pulse">
@@ -189,17 +180,8 @@ export const EventCategories = () => {
           </Link>
         </div>
         
-        <div 
-          className="overflow-x-auto scrollbar-hide"
-          style={{
-            overflowX: 'auto',
-            scrollBehavior: 'smooth',
-          }}
-          onWheel={(e) => {
-            e.currentTarget.scrollLeft += e.deltaY;
-          }}
-        >
-          <div className="flex space-x-6 pb-4">
+        <div className="overflow-x-auto overflow-y-hidden">
+          <div className="flex space-x-6 pb-4 min-w-max">
             {sortedUniversities.map((university) => {
               const eventCount = eventCounts[university.id] || 0;
               const isUniversityPinned = isPinned(university.id);
