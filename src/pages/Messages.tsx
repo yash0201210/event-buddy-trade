@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -397,15 +396,15 @@ const Messages = () => {
                               </div>
                             )}
 
-                            {/* My Ticket Button - show for buyers after transfer confirmation */}
-                            {isTransferConfirmation && !isOwn && isUserBuyer && (
+                            {/* View My Ticket Button - show for buyers after they confirm transfer */}
+                            {isTransferConfirmation && isOwn && isUserBuyer && (
                               <div className="mt-3">
                                 <Button
                                   size="sm"
                                   onClick={() => navigate('/my-tickets')}
                                   className="bg-orange-600 hover:bg-orange-700 text-white text-xs w-full"
                                 >
-                                  My Ticket
+                                  View My Ticket
                                 </Button>
                               </div>
                             )}
