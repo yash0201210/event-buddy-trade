@@ -5,8 +5,6 @@ import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal, MapPin, Calendar, Star, GraduationCap } from 'lucide-react';
 import { useSearch, SearchResult } from '@/hooks/useSearch';
 import { useNavigate } from 'react-router-dom';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 
 export const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,7 +46,6 @@ export const HeroSection = () => {
         navigate(`/venue/${result.id}`);
         break;
       case 'city':
-        // Navigate to events filtered by city or just stay on home page
         navigate('/');
         break;
     }
@@ -57,31 +54,32 @@ export const HeroSection = () => {
   const getResultIcon = (type: string) => {
     switch (type) {
       case 'event':
-        return <Calendar className="h-4 w-4 text-blue-500" />;
+        return <Calendar className="h-5 w-5 text-blue-500" />;
       case 'university':
-        return <GraduationCap className="h-4 w-4 text-purple-500" />;
+        return <GraduationCap className="h-5 w-5 text-purple-500" />;
       case 'venue':
-        return <MapPin className="h-4 w-4 text-green-500" />;
+        return <MapPin className="h-5 w-5 text-green-500" />;
       case 'city':
-        return <MapPin className="h-4 w-4 text-orange-500" />;
+        return <MapPin className="h-5 w-5 text-orange-500" />;
       default:
-        return <Search className="h-4 w-4 text-gray-500" />;
+        return <Search className="h-5 w-5 text-gray-400" />;
     }
   };
 
-  const getTypeBadge = (type: string) => {
-    const colors = {
-      event: 'bg-blue-100 text-blue-700',
-      university: 'bg-purple-100 text-purple-700',
-      venue: 'bg-green-100 text-green-700',
-      city: 'bg-orange-100 text-orange-700'
-    };
+  // Group results by type for better organization
+  const groupedResults = results.reduce((acc, result) => {
+    if (!acc[result.type]) {
+      acc[result.type] = [];
+    }
+    acc[result.type].push(result);
+    return acc;
+  }, {} as Record<string, SearchResult[]>);
 
-    return (
-      <Badge className={`text-xs ${colors[type as keyof typeof colors] || 'bg-gray-100 text-gray-700'}`}>
-        {type}
-      </Badge>
-    );
+  const typeLabels = {
+    event: 'Events',
+    university: 'Universities',
+    venue: 'Venues',
+    city: 'Cities'
   };
 
   return (
@@ -97,81 +95,95 @@ export const HeroSection = () => {
           </p>
           
           <div className="max-w-2xl mx-auto" ref={searchRef}>
-            <div className="bg-white rounded-full p-2 shadow-lg flex items-center relative">
-              <div className="flex items-center flex-1 px-4">
-                <Search className="h-6 w-6 text-gray-400 mr-3" />
+            <div className="bg-white rounded-2xl p-1 shadow-xl flex items-center relative">
+              <div className="flex items-center flex-1 px-6 py-3">
+                <Search className="h-5 w-5 text-gray-400 mr-4" />
                 <Input
                   type="text"
                   placeholder="Search for an event, artist, venue or city"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   onFocus={() => setIsFocused(true)}
-                  className="border-0 bg-transparent text-gray-900 placeholder-gray-500 text-lg focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="border-0 bg-transparent text-gray-900 placeholder-gray-500 text-base focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0"
                 />
               </div>
               <Button 
-                className="bg-white hover:bg-gray-50 text-gray-600 rounded-full p-3 mr-1"
+                className="bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl p-3 mr-1"
                 size="sm"
               >
-                <SlidersHorizontal className="h-5 w-5" />
+                <SlidersHorizontal className="h-4 w-4" />
               </Button>
             </div>
 
             {/* Search Results Dropdown */}
             {isOpen && (
-              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-xl border border-gray-200 z-50 max-h-96 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 max-h-96 overflow-hidden">
                 {isLoading ? (
-                  <div className="p-4 text-center text-gray-500">
-                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600 mx-auto"></div>
-                    <p className="mt-2 text-sm">Searching...</p>
+                  <div className="p-8 text-center text-gray-500">
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-3"></div>
+                    <p className="text-sm font-medium">Searching...</p>
                   </div>
                 ) : results.length > 0 ? (
-                  <div className="p-2">
-                    <div className="text-xs font-medium text-gray-500 px-3 py-2 uppercase tracking-wide">
-                      Search Results
-                    </div>
-                    {results.map((result) => (
-                      <div
-                        key={`${result.type}-${result.id}`}
-                        onClick={() => handleResultClick(result)}
-                        className="flex items-center p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors group"
-                      >
-                        <div className="flex-shrink-0 mr-3">
-                          {result.image ? (
-                            <img 
-                              src={result.image} 
-                              alt={result.title}
-                              className="w-10 h-10 rounded-lg object-cover"
-                              onError={(e) => {
-                                const target = e.target as HTMLImageElement;
-                                target.style.display = 'none';
-                              }}
-                            />
-                          ) : (
-                            <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
-                              {getResultIcon(result.type)}
-                            </div>
-                          )}
+                  <div className="max-h-96 overflow-y-auto">
+                    {Object.entries(groupedResults).map(([type, typeResults]) => (
+                      <div key={type} className="border-b border-gray-50 last:border-b-0">
+                        <div className="px-6 py-3 bg-gray-50">
+                          <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                            {typeLabels[type as keyof typeof typeLabels]}
+                          </h4>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2">
-                            <p className="text-sm font-medium text-gray-900 truncate group-hover:text-red-600 transition-colors">
-                              {result.title}
-                            </p>
-                            {getTypeBadge(result.type)}
-                          </div>
-                          <p className="text-xs text-gray-500 truncate">
-                            {result.subtitle}
-                          </p>
+                        <div className="py-2">
+                          {typeResults.map((result) => (
+                            <div
+                              key={`${result.type}-${result.id}`}
+                              onClick={() => handleResultClick(result)}
+                              className="flex items-center px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors group"
+                            >
+                              <div className="flex-shrink-0 mr-4">
+                                {result.image ? (
+                                  <img 
+                                    src={result.image} 
+                                    alt={result.title}
+                                    className="w-12 h-12 rounded-xl object-cover border border-gray-100"
+                                    onError={(e) => {
+                                      const target = e.target as HTMLImageElement;
+                                      target.style.display = 'none';
+                                    }}
+                                  />
+                                ) : (
+                                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
+                                    {getResultIcon(result.type)}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <h5 className="text-base font-semibold text-gray-900 truncate group-hover:text-red-600 transition-colors">
+                                  {result.title}
+                                </h5>
+                                <p className="text-sm text-gray-500 truncate mt-1">
+                                  {result.subtitle}
+                                </p>
+                              </div>
+                              <div className="flex-shrink-0 ml-4">
+                                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                  <Search className="h-3 w-3 text-gray-400" />
+                                </div>
+                              </div>
+                            </div>
+                          ))}
                         </div>
                       </div>
                     ))}
                   </div>
                 ) : searchQuery.length >= 2 ? (
-                  <div className="p-6 text-center text-gray-500">
-                    <Search className="h-8 w-8 mx-auto text-gray-300 mb-2" />
-                    <p className="text-sm">No results found for "{searchQuery}"</p>
-                    <p className="text-xs text-gray-400 mt-1">Try searching for events, venues, universities, or cities</p>
+                  <div className="p-8 text-center text-gray-500">
+                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
+                      <Search className="h-8 w-8 text-gray-300" />
+                    </div>
+                    <h4 className="text-lg font-medium text-gray-900 mb-2">No results found</h4>
+                    <p className="text-sm text-gray-500">
+                      Try searching for events, venues, universities, or cities
+                    </p>
                   </div>
                 ) : null}
               </div>
