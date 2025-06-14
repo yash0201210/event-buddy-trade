@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -29,7 +28,7 @@ const ticketData = {
     seller: 'Sarah M.',
     sellerRating: 4.9,
     sellerReviews: 45,
-    sellerId: null, // Set to null for demo purposes
+    sellerId: '550e8400-e29b-41d4-a716-446655440002', // Different valid UUID for seller
     isInstant: true,
     description: 'Great seats with excellent view of the stage. Tickets will be transferred immediately after payment.',
     transferMethod: 'Mobile transfer via Ticketmaster',
@@ -64,8 +63,8 @@ const TicketDetails = () => {
     setLoading(true);
 
     try {
-      // For demo purposes, use the current user as the seller if no seller exists
-      const sellerId = ticket.sellerId || user.id;
+      // Use the sellerId from ticket data, or fallback to a different UUID
+      const sellerId = ticket.sellerId || '550e8400-e29b-41d4-a716-446655440002';
 
       // Check if we're trying to buy our own ticket
       if (sellerId === user.id) {
