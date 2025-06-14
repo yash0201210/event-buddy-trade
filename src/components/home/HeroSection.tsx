@@ -54,16 +54,25 @@ export const HeroSection = () => {
   const getResultIcon = (type: string) => {
     switch (type) {
       case 'event':
-        return <Calendar className="h-5 w-5 text-blue-500" />;
+        return <Calendar className="h-4 w-4 text-blue-500" />;
       case 'university':
-        return <GraduationCap className="h-5 w-5 text-purple-500" />;
+        return <GraduationCap className="h-4 w-4 text-purple-500" />;
       case 'venue':
-        return <MapPin className="h-5 w-5 text-green-500" />;
+        return <MapPin className="h-4 w-4 text-green-500" />;
       case 'city':
-        return <MapPin className="h-5 w-5 text-orange-500" />;
+        return <MapPin className="h-4 w-4 text-orange-500" />;
       default:
-        return <Search className="h-5 w-5 text-gray-400" />;
+        return <Search className="h-4 w-4 text-gray-400" />;
     }
+  };
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', { 
+      day: 'numeric', 
+      month: 'short', 
+      year: 'numeric' 
+    });
   };
 
   // Group results by type for better organization
@@ -117,56 +126,64 @@ export const HeroSection = () => {
 
             {/* Search Results Dropdown */}
             {isOpen && (
-              <div className="absolute top-full left-0 right-0 mt-3 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 max-h-96 overflow-hidden">
+              <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 max-h-96 overflow-hidden">
                 {isLoading ? (
-                  <div className="p-8 text-center text-gray-500">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-3"></div>
-                    <p className="text-sm font-medium">Searching...</p>
+                  <div className="p-6 text-center text-gray-500">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-red-600 mx-auto mb-2"></div>
+                    <p className="text-sm">Searching...</p>
                   </div>
                 ) : results.length > 0 ? (
                   <div className="max-h-96 overflow-y-auto">
                     {Object.entries(groupedResults).map(([type, typeResults]) => (
                       <div key={type} className="border-b border-gray-50 last:border-b-0">
-                        <div className="px-6 py-3 bg-gray-50">
-                          <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                            {typeLabels[type as keyof typeof typeLabels]}
-                          </h4>
+                        <div className="px-4 py-2 bg-gray-50/50 border-b border-gray-100">
+                          <div className="flex items-center gap-2">
+                            {getResultIcon(type)}
+                            <h4 className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
+                              {typeLabels[type as keyof typeof typeLabels]}
+                            </h4>
+                          </div>
                         </div>
-                        <div className="py-2">
+                        <div>
                           {typeResults.map((result) => (
                             <div
                               key={`${result.type}-${result.id}`}
                               onClick={() => handleResultClick(result)}
-                              className="flex items-center px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors group"
+                              className="flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors group border-b border-gray-50 last:border-b-0"
                             >
-                              <div className="flex-shrink-0 mr-4">
+                              <div className="flex-shrink-0 mr-3">
                                 {result.image ? (
                                   <img 
                                     src={result.image} 
                                     alt={result.title}
-                                    className="w-12 h-12 rounded-xl object-cover border border-gray-100"
+                                    className="w-10 h-10 rounded-lg object-cover border border-gray-200"
                                     onError={(e) => {
                                       const target = e.target as HTMLImageElement;
                                       target.style.display = 'none';
+                                      target.nextElementSibling?.classList.remove('hidden');
                                     }}
                                   />
-                                ) : (
-                                  <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center border border-gray-200">
-                                    {getResultIcon(result.type)}
-                                  </div>
-                                )}
+                                ) : null}
+                                <div className={`w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center border border-gray-200 ${result.image ? 'hidden' : ''}`}>
+                                  {getResultIcon(result.type)}
+                                </div>
                               </div>
                               <div className="flex-1 min-w-0">
-                                <h5 className="text-base font-semibold text-gray-900 truncate group-hover:text-red-600 transition-colors">
+                                <h5 className="text-sm font-medium text-gray-900 truncate group-hover:text-red-600 transition-colors">
                                   {result.title}
                                 </h5>
-                                <p className="text-sm text-gray-500 truncate mt-1">
-                                  {result.subtitle}
-                                </p>
-                              </div>
-                              <div className="flex-shrink-0 ml-4">
-                                <div className="w-6 h-6 rounded-full bg-gray-100 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                  <Search className="h-3 w-3 text-gray-400" />
+                                <div className="flex items-center gap-2 mt-0.5">
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {result.subtitle}
+                                  </p>
+                                  {result.date && (
+                                    <>
+                                      <span className="text-gray-300">•</span>
+                                      <p className="text-xs text-gray-500">
+                                        {formatDate(result.date)}
+                                      </p>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                             </div>
@@ -177,11 +194,11 @@ export const HeroSection = () => {
                   </div>
                 ) : searchQuery.length >= 2 ? (
                   <div className="p-8 text-center text-gray-500">
-                    <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
-                      <Search className="h-8 w-8 text-gray-300" />
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-3">
+                      <Search className="h-6 w-6 text-gray-300" />
                     </div>
-                    <h4 className="text-lg font-medium text-gray-900 mb-2">No results found</h4>
-                    <p className="text-sm text-gray-500">
+                    <h4 className="text-sm font-medium text-gray-900 mb-1">No results found</h4>
+                    <p className="text-xs text-gray-500">
                       Try searching for events, venues, universities, or cities
                     </p>
                   </div>

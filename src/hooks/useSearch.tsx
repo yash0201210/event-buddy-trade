@@ -9,6 +9,7 @@ export interface SearchResult {
   title: string;
   subtitle: string;
   image?: string;
+  date?: string;
 }
 
 export const useSearch = (query: string) => {
@@ -21,10 +22,10 @@ export const useSearch = (query: string) => {
 
       const searchResults: SearchResult[] = [];
 
-      // Search events
+      // Search events with date
       const { data: events } = await supabase
         .from('events')
-        .select('id, name, venue, city, image_url')
+        .select('id, name, venue, city, image_url, event_date')
         .ilike('name', `%${query}%`)
         .limit(5);
 
@@ -35,12 +36,13 @@ export const useSearch = (query: string) => {
             type: 'event',
             title: event.name,
             subtitle: `${event.venue}, ${event.city}`,
-            image: event.image_url
+            image: event.image_url || `https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=400&h=300&fit=crop`,
+            date: event.event_date
           });
         });
       }
 
-      // Search universities
+      // Search universities with better image handling
       const { data: universities } = await supabase
         .from('universities')
         .select('id, name, city, image_url')
@@ -54,31 +56,31 @@ export const useSearch = (query: string) => {
             type: 'university',
             title: uni.name,
             subtitle: uni.city || 'University',
-            image: uni.image_url
+            image: uni.image_url || `https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&h=300&fit=crop`
           });
         });
       }
 
-      // Search venues (from events)
+      // Search venues with location
       const { data: venues } = await supabase
-        .from('events')
-        .select('venue, city')
-        .ilike('venue', `%${query}%`)
+        .from('venues')
+        .select('id, name, city, address')
+        .ilike('name', `%${query}%`)
         .limit(3);
 
       if (venues) {
-        const uniqueVenues = [...new Set(venues.map(v => `${v.venue}, ${v.city}`))];
-        uniqueVenues.forEach((venue, index) => {
+        venues.forEach(venue => {
           searchResults.push({
-            id: `venue-${index}`,
+            id: venue.id,
             type: 'venue',
-            title: venue.split(', ')[0],
-            subtitle: venue.split(', ')[1] || 'Venue'
+            title: venue.name,
+            subtitle: venue.address ? `${venue.address}, ${venue.city}` : venue.city,
+            image: `https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop`
           });
         });
       }
 
-      // Search cities (from events)
+      // Search cities from events
       const { data: cities } = await supabase
         .from('events')
         .select('city')
@@ -92,12 +94,13 @@ export const useSearch = (query: string) => {
             id: `city-${index}`,
             type: 'city',
             title: city,
-            subtitle: 'City'
+            subtitle: 'City',
+            image: `https://images.unsplash.com/photo-1466442929976-97f336a657be?w=400&h=300&fit=crop`
           });
         });
       }
 
-      return searchResults.slice(0, 10);
+      return searchResults.slice(0, 12);
     },
     enabled: query.length >= 2,
   });
