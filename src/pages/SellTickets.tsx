@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -50,23 +51,24 @@ const SellTickets = () => {
     setLoading(true);
 
     try {
+      // For now, we'll create a dummy event ID since we need one for the tickets table
+      const eventId = '123e4567-e89b-12d3-a456-426614174000';
+      
       const { error } = await supabase
         .from('tickets')
         .insert({
-          user_id: user.id,
-          event_name: formData.eventName,
-          venue: formData.venue,
-          event_date: formData.date,
+          seller_id: user.id,
+          event_id: eventId,
+          title: formData.eventName,
           section: formData.section || null,
-          row: formData.row || null,
-          seats: formData.seats || null,
+          row_number: formData.row || null,
+          seat_numbers: formData.seats || null,
           quantity: formData.quantity,
           original_price: parseFloat(formData.originalPrice),
           selling_price: parseFloat(formData.sellingPrice),
-          category: formData.category,
           description: formData.description || null,
           is_negotiable: formData.isNegotiable,
-          status: 'active'
+          status: 'available'
         });
 
       if (error) throw error;

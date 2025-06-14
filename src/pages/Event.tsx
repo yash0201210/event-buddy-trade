@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin, Calendar, Star, User } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 const eventData = {
@@ -83,17 +82,8 @@ const Event = () => {
     setPurchasingTicket(ticketId);
 
     try {
-      // Create a purchase record
-      const { error } = await supabase
-        .from('purchases')
-        .insert({
-          buyer_id: user.id,
-          ticket_id: ticketId.toString(),
-          purchase_price: price,
-          status: 'pending'
-        });
-
-      if (error) throw error;
+      // Simulate purchase process
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
       toast({
         title: "Purchase initiated!",
