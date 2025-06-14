@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +9,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Upload, Camera } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 const SellTickets = () => {
   const [formData, setFormData] = useState({
@@ -28,14 +30,46 @@ const SellTickets = () => {
   });
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const { user, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to list tickets",
+      });
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate, toast]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!user) return;
+
     setLoading(true);
 
     try {
-      // Here we would normally save to the database
-      console.log('Ticket listing:', formData);
+      const { error } = await supabase
+        .from('tickets')
+        .insert({
+          user_id: user.id,
+          event_name: formData.eventName,
+          venue: formData.venue,
+          event_date: formData.date,
+          section: formData.section || null,
+          row: formData.row || null,
+          seats: formData.seats || null,
+          quantity: formData.quantity,
+          original_price: parseFloat(formData.originalPrice),
+          selling_price: parseFloat(formData.sellingPrice),
+          category: formData.category,
+          description: formData.description || null,
+          is_negotiable: formData.isNegotiable,
+          status: 'active'
+        });
+
+      if (error) throw error;
       
       toast({
         title: "Ticket listed successfully!",
@@ -57,10 +91,10 @@ const SellTickets = () => {
         description: '',
         isNegotiable: true
       });
-    } catch (error) {
+    } catch (error: any) {
       toast({
         title: "Error",
-        description: "Failed to list your ticket. Please try again.",
+        description: error.message || "Failed to list your ticket. Please try again.",
         variant: "destructive"
       });
     } finally {
@@ -71,6 +105,21 @@ const SellTickets = () => {
   const handleInputChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="container mx-auto px-4 py-8 flex justify-center">
+          <div className="text-lg">Loading...</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null; // Will redirect to auth
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -5,6 +5,10 @@ import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin, Calendar, Star, User } from 'lucide-react';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 const eventData = {
   id: 1,
@@ -61,6 +65,50 @@ const tickets = [
 
 const Event = () => {
   const [isFavourite, setIsFavourite] = useState(false);
+  const [purchasingTicket, setPurchasingTicket] = useState<number | null>(null);
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleBuyTicket = async (ticketId: number, price: number) => {
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to purchase tickets",
+      });
+      navigate('/auth');
+      return;
+    }
+
+    setPurchasingTicket(ticketId);
+
+    try {
+      // Create a purchase record
+      const { error } = await supabase
+        .from('purchases')
+        .insert({
+          buyer_id: user.id,
+          ticket_id: ticketId.toString(),
+          purchase_price: price,
+          status: 'pending'
+        });
+
+      if (error) throw error;
+
+      toast({
+        title: "Purchase initiated!",
+        description: "Your ticket purchase is being processed.",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Purchase failed",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setPurchasingTicket(null);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -163,8 +211,12 @@ const Event = () => {
                       <div className="text-sm text-gray-500 mb-3">
                         per ticket
                       </div>
-                      <Button className="bg-red-600 hover:bg-red-700">
-                        Buy Now
+                      <Button 
+                        className="bg-red-600 hover:bg-red-700"
+                        onClick={() => handleBuyTicket(ticket.id, ticket.price)}
+                        disabled={purchasingTicket === ticket.id}
+                      >
+                        {purchasingTicket === ticket.id ? 'Processing...' : 'Buy Now'}
                       </Button>
                     </div>
                   </div>
