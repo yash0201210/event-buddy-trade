@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -87,7 +86,7 @@ const SellingHub = () => {
         return [];
       }
 
-      if (!ticketsData) {
+      if (!ticketsData || ticketsData.length === 0) {
         console.log('No tickets found');
         return [];
       }
@@ -98,17 +97,21 @@ const SellingHub = () => {
       const ticketsWithDetails = await Promise.all(
         ticketsData.map(async (ticket) => {
           // Check for offers
-          const { data: offers } = await supabase
+          const { data: offers, error: offersError } = await supabase
             .from('offers')
             .select('offered_price, status')
             .eq('ticket_id', ticket.id)
             .order('created_at', { ascending: false })
             .limit(1);
 
+          if (offersError) {
+            console.error(`Error fetching offers for ticket ${ticket.id}:`, offersError);
+          }
+
           console.log(`Offers for ticket ${ticket.id}:`, offers);
 
           // Get conversation details
-          const { data: conversation } = await supabase
+          const { data: conversation, error: conversationError } = await supabase
             .from('conversations')
             .select(`
               id,
@@ -127,13 +130,18 @@ const SellingHub = () => {
             .eq('seller_id', user.id)
             .maybeSingle();
 
+          if (conversationError) {
+            console.error(`Error fetching conversation for ticket ${ticket.id}:`, conversationError);
+          }
+
           console.log(`Conversation for ticket ${ticket.id}:`, conversation);
 
+          // Process transaction status
           let transactionStatus = 'pending';
           let buyerConfirmed = false;
           let sellerConfirmed = false;
 
-          if (conversation && conversation.messages) {
+          if (conversation?.messages && Array.isArray(conversation.messages)) {
             const messages = conversation.messages.sort((a, b) => 
               new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
             );
@@ -155,30 +163,40 @@ const SellingHub = () => {
             ? conversation.profiles[0] 
             : conversation?.profiles;
 
-          const hasOffers = Array.isArray(offers) && offers.length > 0;
+          // Process offers and conversations
+          const hasOffers = offers && Array.isArray(offers) && offers.length > 0;
           const latestOffer = hasOffers ? offers[0] : null;
 
-          const ticketWithDetails = {
+          const processedTicket: SellerTicket = {
             ...ticket,
             has_offers: hasOffers,
-            latest_offer: latestOffer || undefined,
+            latest_offer: latestOffer ? {
+              offered_price: latestOffer.offered_price,
+              status: latestOffer.status
+            } : undefined,
             conversation: conversation ? {
               id: conversation.id,
               buyer_id: conversation.buyer_id,
               transaction_status: transactionStatus,
               buyer_confirmed: buyerConfirmed,
               seller_confirmed: sellerConfirmed,
-              buyer: buyerProfile || { full_name: 'Unknown', is_verified: false },
+              buyer: buyerProfile ? {
+                full_name: buyerProfile.full_name || 'Unknown',
+                is_verified: buyerProfile.is_verified || false
+              } : {
+                full_name: 'Unknown',
+                is_verified: false
+              },
             } : undefined,
           };
 
-          console.log('Ticket with details:', ticketWithDetails);
-          return ticketWithDetails;
+          console.log('Processed ticket:', processedTicket);
+          return processedTicket;
         })
       );
 
       console.log('Final tickets with details:', ticketsWithDetails);
-      return ticketsWithDetails as SellerTicket[];
+      return ticketsWithDetails;
     },
     enabled: !!user,
   });
