@@ -11,16 +11,26 @@ import { Footer } from '@/components/layout/Footer';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
       
-      <main>
+      <main className="space-y-0">
         <HeroSection />
-        <CitySelector />
-        <SuggestedEvents />
-        <EventCategories />
-        <DiscoverMoreEvents />
-        <UniTicketingSolution />
+        <div className="bg-gray-50">
+          <SuggestedEvents />
+        </div>
+        <div className="bg-white">
+          <CitySelector />
+        </div>
+        <div className="bg-gray-50">
+          <EventCategories />
+        </div>
+        <div className="bg-white">
+          <DiscoverMoreEvents />
+        </div>
+        <div className="bg-gray-50">
+          <UniTicketingSolution />
+        </div>
       </main>
       
       <Footer />
