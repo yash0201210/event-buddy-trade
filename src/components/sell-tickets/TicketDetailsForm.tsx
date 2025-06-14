@@ -4,11 +4,20 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+interface Event {
+  id: string;
+  name: string;
+  venue: string;
+  city: string;
+  event_date: string;
+  category: string;
+  ticket_types?: string[];
+}
 
 interface TicketFormData {
-  section: string;
-  row: string;
-  seats: string;
+  ticketType: string;
   quantity: number;
   originalPrice: number;
   sellingPrice: number;
@@ -19,9 +28,10 @@ interface TicketFormData {
 interface TicketDetailsFormProps {
   data: TicketFormData;
   onChange: (data: TicketFormData) => void;
+  selectedEvent: Event | null;
 }
 
-export const TicketDetailsForm = ({ data, onChange }: TicketDetailsFormProps) => {
+export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetailsFormProps) => {
   const handleInputChange = (field: keyof TicketFormData, value: any) => {
     onChange({
       ...data,
@@ -34,37 +44,28 @@ export const TicketDetailsForm = ({ data, onChange }: TicketDetailsFormProps) =>
       <div className="border-t pt-6">
         <h3 className="text-lg font-semibold mb-4">Ticket Information</h3>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="section">Section</Label>
-            <Input
-              id="section"
-              value={data.section}
-              onChange={(e) => handleInputChange('section', e.target.value)}
-              placeholder="e.g. Lower Tier"
-            />
+            <Label htmlFor="ticketType">Ticket Type</Label>
+            <Select 
+              value={data.ticketType} 
+              onValueChange={(value) => handleInputChange('ticketType', value)}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select ticket type" />
+              </SelectTrigger>
+              <SelectContent>
+                {selectedEvent?.ticket_types?.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                )) || (
+                  <SelectItem value="" disabled>No ticket types available</SelectItem>
+                )}
+              </SelectContent>
+            </Select>
           </div>
-          <div>
-            <Label htmlFor="row">Row</Label>
-            <Input
-              id="row"
-              value={data.row}
-              onChange={(e) => handleInputChange('row', e.target.value)}
-              placeholder="e.g. M"
-            />
-          </div>
-          <div>
-            <Label htmlFor="seats">Seat Numbers</Label>
-            <Input
-              id="seats"
-              value={data.seats}
-              onChange={(e) => handleInputChange('seats', e.target.value)}
-              placeholder="e.g. 12-13"
-            />
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+          
           <div>
             <Label htmlFor="quantity">Quantity</Label>
             <Input
@@ -76,6 +77,9 @@ export const TicketDetailsForm = ({ data, onChange }: TicketDetailsFormProps) =>
               required
             />
           </div>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
           <div>
             <Label htmlFor="originalPrice">Original Price (£)</Label>
             <Input

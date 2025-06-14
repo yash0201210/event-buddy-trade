@@ -18,12 +18,11 @@ interface Event {
   city: string;
   event_date: string;
   category: string;
+  ticket_types?: string[];
 }
 
 interface TicketFormData {
-  section: string;
-  row: string;
-  seats: string;
+  ticketType: string;
   quantity: number;
   originalPrice: number;
   sellingPrice: number;
@@ -37,9 +36,7 @@ const SellTickets = () => {
   const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [ticketData, setTicketData] = useState<TicketFormData>({
-    section: '',
-    row: '',
-    seats: '',
+    ticketType: '',
     quantity: 1,
     originalPrice: 0,
     sellingPrice: 0,
@@ -82,6 +79,11 @@ const SellTickets = () => {
   const handleEventSelect = (eventId: string) => {
     const event = events.find(e => e.id === eventId);
     setSelectedEvent(event || null);
+    // Reset ticket type when event changes
+    setTicketData({
+      ...ticketData,
+      ticketType: ''
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -96,6 +98,15 @@ const SellTickets = () => {
       return;
     }
 
+    if (!ticketData.ticketType) {
+      toast({
+        title: "Ticket type required",
+        description: "Please select a ticket type",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -104,10 +115,8 @@ const SellTickets = () => {
         .insert({
           event_id: selectedEvent.id,
           seller_id: user.id,
-          title: `${selectedEvent.name} - ${ticketData.section}`,
-          section: ticketData.section,
-          row_number: ticketData.row,
-          seat_numbers: ticketData.seats,
+          title: `${selectedEvent.name} - ${ticketData.ticketType}`,
+          ticket_type: ticketData.ticketType,
           quantity: ticketData.quantity,
           original_price: ticketData.originalPrice,
           selling_price: ticketData.sellingPrice,
@@ -178,6 +187,7 @@ const SellTickets = () => {
                   <TicketDetailsForm
                     data={ticketData}
                     onChange={setTicketData}
+                    selectedEvent={selectedEvent}
                   />
                 </CardContent>
               </Card>

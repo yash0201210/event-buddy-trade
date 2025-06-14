@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Trash2, Edit, Plus } from 'lucide-react';
+import { Trash2, Edit, Plus, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
 interface Event {
@@ -19,6 +19,7 @@ interface Event {
   category: string;
   description?: string;
   image_url?: string;
+  ticket_types?: string[];
 }
 
 const AdminEvents = () => {
@@ -33,8 +34,10 @@ const AdminEvents = () => {
     event_date: '',
     category: '',
     description: '',
-    image_url: ''
+    image_url: '',
+    ticket_types: [] as string[]
   });
+  const [newTicketType, setNewTicketType] = useState('');
   
   const { toast } = useToast();
 
@@ -58,6 +61,23 @@ const AdminEvents = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const addTicketType = () => {
+    if (newTicketType.trim() && !formData.ticket_types.includes(newTicketType.trim())) {
+      setFormData({
+        ...formData,
+        ticket_types: [...formData.ticket_types, newTicketType.trim()]
+      });
+      setNewTicketType('');
+    }
+  };
+
+  const removeTicketType = (typeToRemove: string) => {
+    setFormData({
+      ...formData,
+      ticket_types: formData.ticket_types.filter(type => type !== typeToRemove)
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -134,10 +154,12 @@ const AdminEvents = () => {
       event_date: '',
       category: '',
       description: '',
-      image_url: ''
+      image_url: '',
+      ticket_types: []
     });
     setEditingEvent(null);
     setShowForm(false);
+    setNewTicketType('');
   };
 
   const startEdit = (event: Event) => {
@@ -148,7 +170,8 @@ const AdminEvents = () => {
       event_date: event.event_date,
       category: event.category,
       description: event.description || '',
-      image_url: event.image_url || ''
+      image_url: event.image_url || '',
+      ticket_types: event.ticket_types || []
     });
     setEditingEvent(event);
     setShowForm(true);
@@ -257,6 +280,43 @@ const AdminEvents = () => {
                 />
               </div>
 
+              {/* Ticket Types Section */}
+              <div>
+                <Label>Ticket Types</Label>
+                <div className="space-y-2">
+                  <div className="flex gap-2">
+                    <Input
+                      value={newTicketType}
+                      onChange={(e) => setNewTicketType(e.target.value)}
+                      placeholder="e.g., Premium, General Admission, VIP"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTicketType())}
+                    />
+                    <Button type="button" onClick={addTicketType} variant="outline">
+                      Add
+                    </Button>
+                  </div>
+                  {formData.ticket_types.length > 0 && (
+                    <div className="flex flex-wrap gap-2">
+                      {formData.ticket_types.map((type, index) => (
+                        <div
+                          key={index}
+                          className="bg-gray-100 px-3 py-1 rounded-full flex items-center gap-2 text-sm"
+                        >
+                          <span>{type}</span>
+                          <button
+                            type="button"
+                            onClick={() => removeTicketType(type)}
+                            className="text-gray-500 hover:text-red-500"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
               <div className="flex gap-4">
                 <Button 
                   type="submit" 
@@ -288,6 +348,9 @@ const AdminEvents = () => {
                     <p><strong>Date:</strong> {new Date(event.event_date).toLocaleDateString()}</p>
                     <p><strong>Category:</strong> {event.category}</p>
                     {event.description && <p><strong>Description:</strong> {event.description}</p>}
+                    {event.ticket_types && event.ticket_types.length > 0 && (
+                      <p><strong>Ticket Types:</strong> {event.ticket_types.join(', ')}</p>
+                    )}
                   </div>
                 </div>
                 

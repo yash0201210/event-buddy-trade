@@ -49,6 +49,7 @@ export type Database = {
           id: string
           image_url: string | null
           name: string
+          ticket_types: string[] | null
           venue: string
         }
         Insert: {
@@ -60,6 +61,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name: string
+          ticket_types?: string[] | null
           venue: string
         }
         Update: {
@@ -71,6 +73,7 @@ export type Database = {
           id?: string
           image_url?: string | null
           name?: string
+          ticket_types?: string[] | null
           venue?: string
         }
         Relationships: []
@@ -239,13 +242,10 @@ export type Database = {
           is_negotiable: boolean | null
           original_price: number
           quantity: number
-          row_number: string | null
-          seat_numbers: string | null
-          section: string | null
           seller_id: string
           selling_price: number
           status: string
-          ticket_type: string | null
+          ticket_type: string
           title: string
           updated_at: string | null
         }
@@ -257,13 +257,10 @@ export type Database = {
           is_negotiable?: boolean | null
           original_price: number
           quantity?: number
-          row_number?: string | null
-          seat_numbers?: string | null
-          section?: string | null
           seller_id: string
           selling_price: number
           status?: string
-          ticket_type?: string | null
+          ticket_type: string
           title: string
           updated_at?: string | null
         }
@@ -275,13 +272,10 @@ export type Database = {
           is_negotiable?: boolean | null
           original_price?: number
           quantity?: number
-          row_number?: string | null
-          seat_numbers?: string | null
-          section?: string | null
           seller_id?: string
           selling_price?: number
           status?: string
-          ticket_type?: string | null
+          ticket_type?: string
           title?: string
           updated_at?: string | null
         }
