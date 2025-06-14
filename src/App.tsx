@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Favourites from "./pages/Favourites";
 import Event from "./pages/Event";
 import Help from "./pages/Help";
+import SellTickets from "./pages/SellTickets";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
           <Route path="/favourites" element={<Favourites />} />
           <Route path="/event/:id" element={<Event />} />
           <Route path="/help" element={<Help />} />
+          <Route path="/sell-tickets" element={<SellTickets />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

@@ -42,9 +42,11 @@ export const Header = () => {
             <Button variant="outline" size="sm" className="border-white text-white hover:bg-white hover:text-red-600">
               List Tickets
             </Button>
-            <Button variant="secondary" size="sm" className="bg-white text-red-600 hover:bg-gray-100">
-              Sell Tickets
-            </Button>
+            <Link to="/sell-tickets">
+              <Button variant="secondary" size="sm" className="bg-white text-red-600 hover:bg-gray-100">
+                Sell Tickets
+              </Button>
+            </Link>
             <Link to="/auth">
               <Button variant="ghost" size="sm" className="text-white hover:bg-red-500">
                 <User className="h-4 w-4" />
