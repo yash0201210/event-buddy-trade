@@ -14,18 +14,26 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 
+interface Event {
+  id: string;
+  name: string;
+  venue: string;
+  city: string;
+  event_date: string;
+  category: string;
+}
+
 const SellTickets = () => {
+  const [events, setEvents] = useState<Event[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [formData, setFormData] = useState({
-    eventName: '',
-    venue: '',
-    date: '',
+    eventId: '',
     section: '',
     row: '',
     seats: '',
     quantity: 1,
     originalPrice: '',
     sellingPrice: '',
-    category: '',
     description: '',
     isNegotiable: true
   });
@@ -44,22 +52,49 @@ const SellTickets = () => {
     }
   }, [user, authLoading, navigate, toast]);
 
+  useEffect(() => {
+    if (user) {
+      fetchEvents();
+    }
+  }, [user]);
+
+  const fetchEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('events')
+        .select('*')
+        .order('event_date', { ascending: true });
+
+      if (error) throw error;
+      setEvents(data || []);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch events",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const handleEventSelect = (eventId: string) => {
+    const event = events.find(e => e.id === eventId);
+    setSelectedEvent(event || null);
+    setFormData(prev => ({ ...prev, eventId }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return;
+    if (!user || !selectedEvent) return;
 
     setLoading(true);
 
     try {
-      // For now, we'll create a dummy event ID since we need one for the tickets table
-      const eventId = '123e4567-e89b-12d3-a456-426614174000';
-      
       const { error } = await supabase
         .from('tickets')
         .insert({
           seller_id: user.id,
-          event_id: eventId,
-          title: formData.eventName,
+          event_id: formData.eventId,
+          title: selectedEvent.name,
           section: formData.section || null,
           row_number: formData.row || null,
           seat_numbers: formData.seats || null,
@@ -80,19 +115,17 @@ const SellTickets = () => {
       
       // Reset form
       setFormData({
-        eventName: '',
-        venue: '',
-        date: '',
+        eventId: '',
         section: '',
         row: '',
         seats: '',
         quantity: 1,
         originalPrice: '',
         sellingPrice: '',
-        category: '',
         description: '',
         isNegotiable: true
       });
+      setSelectedEvent(null);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -136,60 +169,35 @@ const SellTickets = () => {
 
           <Card>
             <CardHeader>
-              <CardTitle>Event Details</CardTitle>
+              <CardTitle>Select Event</CardTitle>
             </CardHeader>
             <CardContent>
               <form onSubmit={handleSubmit} className="space-y-6">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="eventName">Event Name</Label>
-                    <Input
-                      id="eventName"
-                      value={formData.eventName}
-                      onChange={(e) => handleInputChange('eventName', e.target.value)}
-                      placeholder="e.g. Taylor Swift - Eras Tour"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="venue">Venue</Label>
-                    <Input
-                      id="venue"
-                      value={formData.venue}
-                      onChange={(e) => handleInputChange('venue', e.target.value)}
-                      placeholder="e.g. Wembley Stadium"
-                      required
-                    />
-                  </div>
+                <div>
+                  <Label htmlFor="event">Choose Event</Label>
+                  <Select value={formData.eventId} onValueChange={handleEventSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select an event" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {events.map((event) => (
+                        <SelectItem key={event.id} value={event.id}>
+                          {event.name} - {event.venue}, {event.city} ({new Date(event.event_date).toLocaleDateString()})
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="date">Event Date</Label>
-                    <Input
-                      id="date"
-                      type="date"
-                      value={formData.date}
-                      onChange={(e) => handleInputChange('date', e.target.value)}
-                      required
-                    />
+                {selectedEvent && (
+                  <div className="p-4 bg-gray-50 rounded-lg">
+                    <h3 className="font-semibold text-gray-900 mb-2">{selectedEvent.name}</h3>
+                    <p className="text-gray-600">
+                      {selectedEvent.venue}, {selectedEvent.city} • {new Date(selectedEvent.event_date).toLocaleDateString()}
+                    </p>
+                    <p className="text-sm text-gray-500 mt-1">Category: {selectedEvent.category}</p>
                   </div>
-                  <div>
-                    <Label htmlFor="category">Category</Label>
-                    <Select value={formData.category} onValueChange={(value) => handleInputChange('category', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select category" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="concerts">Concerts</SelectItem>
-                        <SelectItem value="sports">Sports</SelectItem>
-                        <SelectItem value="theatre">Theatre</SelectItem>
-                        <SelectItem value="comedy">Comedy</SelectItem>
-                        <SelectItem value="festivals">Festivals</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
+                )}
 
                 <div className="border-t pt-6">
                   <h3 className="text-lg font-semibold mb-4">Ticket Information</h3>
@@ -306,7 +314,7 @@ const SellTickets = () => {
                   <Button 
                     type="submit" 
                     className="flex-1 bg-red-600 hover:bg-red-700"
-                    disabled={loading}
+                    disabled={loading || !selectedEvent}
                   >
                     {loading ? 'Listing Ticket...' : 'List Ticket'}
                   </Button>
