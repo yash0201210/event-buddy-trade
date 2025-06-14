@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -190,7 +189,7 @@ const SellingHub = () => {
         const ticket = conv.tickets;
         if (Array.isArray(ticket) && ticket.length > 0 && ticket[0]) {
           return sum + (ticket[0].selling_price || 0);
-        } else if (ticket && typeof ticket === 'object' && ticket.selling_price) {
+        } else if (ticket && ticket !== null && typeof ticket === 'object' && 'selling_price' in ticket && ticket.selling_price) {
           return sum + ticket.selling_price;
         }
         return sum;
