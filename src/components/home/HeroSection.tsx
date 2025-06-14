@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Search, Calendar, MapPin } from 'lucide-react';
+import { Search, Calendar, MapPin, Heart } from 'lucide-react';
 
 export const HeroSection = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -10,13 +10,24 @@ export const HeroSection = () => {
   const [date, setDate] = useState('');
 
   return (
-    <section className="bg-white py-12">
+    <section className="bg-gradient-to-b from-red-600 via-red-500 to-orange-300 py-12">
       <div className="container mx-auto px-4">
+        {/* Pin your favorite unis section */}
+        <div className="text-center mb-6">
+          <div className="flex items-center justify-center gap-2 text-white/90 text-sm mb-2">
+            <Heart className="h-4 w-4" />
+            <span>Pin your favorite unis</span>
+          </div>
+          <p className="text-white/80 text-sm">
+            Explore events in your area and beyond
+          </p>
+        </div>
+
         <div className="text-center mb-8">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
             Find the Perfect Tickets
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-white/90 max-w-2xl mx-auto">
             Buy and sell tickets safely with verified sellers. Get the best deals on concerts, sports, and live events.
           </p>
         </div>

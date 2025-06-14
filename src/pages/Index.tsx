@@ -7,7 +7,7 @@ import { SuggestedEvents } from '@/components/home/SuggestedEvents';
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Header />
       <main>
         <HeroSection />
