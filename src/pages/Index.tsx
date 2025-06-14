@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { HeroSection } from '@/components/home/HeroSection';
+import { CitySelector } from '@/components/home/CitySelector';
 import { EventCategories } from '@/components/home/EventCategories';
 import { SuggestedEvents } from '@/components/home/SuggestedEvents';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -70,6 +71,7 @@ const Index = () => {
       
       <main>
         <HeroSection />
+        <CitySelector />
         <EventCategories />
         <SuggestedEvents />
 
