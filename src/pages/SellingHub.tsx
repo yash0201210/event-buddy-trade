@@ -134,7 +134,7 @@ const SellingHub = () => {
           }
 
           // Fix the buyer type issue - profiles is an array, we need the first element
-          const buyerProfile = Array.isArray(conversation?.profiles) 
+          const buyerProfile = conversation?.profiles && Array.isArray(conversation.profiles) 
             ? conversation.profiles[0] 
             : conversation?.profiles;
 
@@ -188,7 +188,7 @@ const SellingHub = () => {
       const totalSold = completedSales.length;
       const totalRevenue = completedSales.reduce((sum, conv) => {
         const ticket = conv.tickets;
-        if (Array.isArray(ticket) && ticket.length > 0) {
+        if (ticket && Array.isArray(ticket) && ticket.length > 0) {
           return sum + (ticket[0].selling_price || 0);
         } else if (ticket && typeof ticket === 'object' && 'selling_price' in ticket) {
           return sum + (ticket.selling_price || 0);
