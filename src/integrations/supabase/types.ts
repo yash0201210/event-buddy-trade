@@ -326,6 +326,7 @@ export type Database = {
           country: string | null
           created_at: string
           id: string
+          image_position: string | null
           image_url: string | null
           name: string
         }
@@ -334,6 +335,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           id?: string
+          image_position?: string | null
           image_url?: string | null
           name: string
         }
@@ -342,6 +344,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           id?: string
+          image_position?: string | null
           image_url?: string | null
           name?: string
         }
