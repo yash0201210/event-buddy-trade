@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -61,6 +60,7 @@ const AdminUniversities = () => {
 
     try {
       console.log('Form data being submitted:', formData);
+      console.log('Editing university ID:', editingUniversity?.id);
       
       const universityData = {
         name: formData.name,
@@ -73,6 +73,22 @@ const AdminUniversities = () => {
       console.log('University data for database:', universityData);
 
       if (editingUniversity) {
+        console.log('Attempting to update university with ID:', editingUniversity.id);
+        
+        // First check if the university exists
+        const { data: existingUniversity, error: fetchError } = await supabase
+          .from('universities')
+          .select('id')
+          .eq('id', editingUniversity.id)
+          .single();
+
+        if (fetchError) {
+          console.error('Error finding university:', fetchError);
+          throw new Error('University not found');
+        }
+
+        console.log('Found existing university:', existingUniversity);
+
         const { data, error } = await supabase
           .from('universities')
           .update(universityData)
