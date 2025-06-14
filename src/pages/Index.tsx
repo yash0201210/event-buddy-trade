@@ -77,7 +77,7 @@ const Index = () => {
 
         {/* Recent Tickets */}
         <section className="py-8 bg-white">
-          <div className="container mx-auto px-4">
+          <div className="max-w-4xl mx-auto px-4">
             <h2 className="text-3xl font-bold text-gray-900 mb-8 text-center">
               Latest Tickets
             </h2>
