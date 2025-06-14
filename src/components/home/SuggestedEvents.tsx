@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -46,17 +47,17 @@ export const SuggestedEvents = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardHeader className="p-0">
-                  <div className="w-full h-48 bg-gray-200 rounded-t-lg"></div>
+                  <div className="w-full h-36 bg-gray-200 rounded-t-lg"></div>
                 </CardHeader>
-                <CardContent className="p-4">
+                <CardContent className="p-3">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded mb-4"></div>
-                  <div className="h-8 bg-gray-200 rounded"></div>
+                  <div className="h-6 bg-gray-200 rounded"></div>
                 </CardContent>
               </Card>
             ))}
@@ -100,7 +101,7 @@ export const SuggestedEvents = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {events.map((event) => (
             <Link key={event.id} to={`/event/${event.id}`}>
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">
@@ -110,14 +111,14 @@ export const SuggestedEvents = () => {
                       <img 
                         src={event.image_url} 
                         alt={event.name}
-                        className="w-full h-48 object-cover rounded-t-lg"
+                        className="w-full h-36 object-cover rounded-t-lg"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
                           target.src = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=300&fit=crop';
                         }}
                       />
                     ) : (
-                      <div className="w-full h-48 bg-gradient-to-br from-red-100 to-red-200 rounded-t-lg flex items-center justify-center">
+                      <div className="w-full h-36 bg-gradient-to-br from-red-100 to-red-200 rounded-t-lg flex items-center justify-center">
                         <span className="text-red-600 font-medium">{event.category}</span>
                       </div>
                     )}
@@ -138,18 +139,18 @@ export const SuggestedEvents = () => {
                   </div>
                 </CardHeader>
                 
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                <CardContent className="p-3">
+                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">
                     {event.name}
                   </h3>
                   
-                  <div className="space-y-2 text-sm text-gray-600 mb-3">
+                  <div className="space-y-1 text-xs text-gray-600 mb-3">
                     <div className="flex items-center">
-                      <MapPin className="h-3 w-3 mr-2" />
-                      <span>{event.venue}, {event.city}</span>
+                      <MapPin className="h-3 w-3 mr-1" />
+                      <span className="truncate">{event.venue}, {event.city}</span>
                     </div>
                     <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-2" />
+                      <Calendar className="h-3 w-3 mr-1" />
                       <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
                         weekday: 'short', 
                         day: 'numeric', 
@@ -159,10 +160,10 @@ export const SuggestedEvents = () => {
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-500">
+                    <span className="text-xs text-gray-500">
                       View Details
                     </span>
-                    <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                    <Button size="sm" className="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 h-6">
                       View Event
                     </Button>
                   </div>
