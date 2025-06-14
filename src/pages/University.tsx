@@ -30,24 +30,28 @@ interface University {
 const University = () => {
   const { id } = useParams<{ id: string }>();
 
-  const { data: university } = useQuery({
+  const { data: university, isLoading: universityLoading, error: universityError } = useQuery({
     queryKey: ['university', id],
     queryFn: async () => {
+      if (!id) throw new Error('University ID is required');
+      
       const { data, error } = await supabase
         .from('universities')
         .select('*')
         .eq('id', id)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
-      return data as University;
+      return data as University | null;
     },
     enabled: !!id,
   });
 
-  const { data: events = [], isLoading } = useQuery({
+  const { data: events = [], isLoading: eventsLoading } = useQuery({
     queryKey: ['university-events', id],
     queryFn: async () => {
+      if (!id) return [];
+      
       const { data, error } = await supabase
         .from('events')
         .select('*')
@@ -60,11 +64,29 @@ const University = () => {
     enabled: !!id,
   });
 
-  if (isLoading || !university) {
+  if (universityLoading || eventsLoading) {
     return (
       <Layout>
         <div className="container mx-auto py-8">
-          <div>Loading...</div>
+          <div className="text-center">Loading university details...</div>
+        </div>
+      </Layout>
+    );
+  }
+
+  if (universityError || !university) {
+    return (
+      <Layout>
+        <div className="container mx-auto py-8">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">University Not Found</h1>
+            <p className="text-gray-600 mb-4">The university you're looking for doesn't exist or has been removed.</p>
+            <Link to="/universities">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Browse All Universities
+              </Button>
+            </Link>
+          </div>
         </div>
       </Layout>
     );
