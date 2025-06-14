@@ -26,7 +26,8 @@ const AdminUniversities = () => {
     name: '',
     city: '',
     country: 'UK',
-    image_url: ''
+    image_url: '',
+    image_position: 'center center'
   });
   
   const { toast } = useToast();
@@ -131,7 +132,8 @@ const AdminUniversities = () => {
       name: '',
       city: '',
       country: 'UK',
-      image_url: ''
+      image_url: '',
+      image_position: 'center center'
     });
     setEditingUniversity(null);
     setShowForm(false);
@@ -142,7 +144,8 @@ const AdminUniversities = () => {
       name: university.name,
       city: university.city || '',
       country: university.country,
-      image_url: university.image_url || ''
+      image_url: university.image_url || '',
+      image_position: 'center center'
     });
     setEditingUniversity(university);
     setShowForm(true);
@@ -173,6 +176,8 @@ const AdminUniversities = () => {
               <UniversityImageUpload 
                 imageUrl={formData.image_url}
                 onImageChange={(url) => setFormData({...formData, image_url: url})}
+                imagePosition={formData.image_position}
+                onPositionChange={(position) => setFormData({...formData, image_position: position})}
               />
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
