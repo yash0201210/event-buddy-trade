@@ -29,7 +29,7 @@ const ticketData = {
     seller: 'Sarah M.',
     sellerRating: 4.9,
     sellerReviews: 45,
-    sellerId: 'seller-1',
+    sellerId: '550e8400-e29b-41d4-a716-446655440000', // Valid UUID format
     isInstant: true,
     description: 'Great seats with excellent view of the stage. Tickets will be transferred immediately after payment.',
     transferMethod: 'Mobile transfer via Ticketmaster',
