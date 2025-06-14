@@ -27,7 +27,7 @@ export const CitySelector = () => {
   return (
     <section className="py-8 bg-white">
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-center mb-6">
+        <div className="flex items-center justify-start mb-6">
           <h2 className="text-2xl font-bold text-gray-900 mr-3">
             What's on in
           </h2>
