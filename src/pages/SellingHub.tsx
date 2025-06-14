@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -119,9 +118,13 @@ const SellingHub = () => {
       );
 
       const totalSold = completedSales.length;
-      const totalRevenue = completedSales.reduce((sum, conv) => 
-        sum + (conv.tickets?.[0]?.selling_price || 0), 0
-      );
+      const totalRevenue = completedSales.reduce((sum, conv) => {
+        const ticket = conv.tickets;
+        if (Array.isArray(ticket) && ticket.length > 0) {
+          return sum + (ticket[0].selling_price || 0);
+        }
+        return sum;
+      }, 0);
 
       return { totalSold, totalRevenue };
     },
