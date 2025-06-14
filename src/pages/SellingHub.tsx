@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -154,7 +153,7 @@ const SellingHub = () => {
           const ticketWithDetails = {
             ...ticket,
             has_offers: offers && offers.length > 0,
-            latest_offer: offers?.[0],
+            latest_offer: offers && offers.length > 0 ? offers[0] : undefined,
             conversation: conversation ? {
               id: conversation.id,
               buyer_id: conversation.buyer_id,
@@ -269,7 +268,7 @@ const SellingHub = () => {
     );
   }
 
-  console.log('Rendering with:', { tickets, currentListings, sellingHistory, stats });
+  console.log('Rendering with:', { tickets, currentListings, sellingHistory });
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -286,8 +285,8 @@ const SellingHub = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-8">Selling Hub</h1>
             
             <SellingStats 
-              totalSold={stats?.totalSold || 0}
-              totalRevenue={stats?.totalRevenue || 0}
+              totalSold={sellingHistory.length}
+              totalRevenue={sellingHistory.reduce((sum, ticket) => sum + Number(ticket.selling_price), 0)}
               activeListings={currentListings.length}
             />
             
@@ -320,7 +319,7 @@ const SellingHub = () => {
                       <TicketCard 
                         key={ticket.id} 
                         ticket={ticket} 
-                        showEditButton={!ticket.conversation}
+                        showEditButton={!ticket.conversation && !ticket.has_offers}
                         onEdit={handleEditTicket}
                         onView={handleViewTransaction}
                       />

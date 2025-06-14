@@ -47,7 +47,7 @@ interface TicketCardProps {
 }
 
 export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: TicketCardProps) => {
-  const isClickable = ticket.conversation || ticket.has_offers;
+  const isClickable = !!ticket.conversation || ticket.has_offers;
   
   const handleCardClick = () => {
     console.log('Card clicked:', { isClickable, ticket });
@@ -181,7 +181,7 @@ export const TicketCard = ({ ticket, showEditButton = false, onEdit, onView }: T
             </div>
           )}
 
-          {showEditButton && !ticket.conversation && (
+          {showEditButton && (
             <Button
               variant="outline"
               size="sm"
