@@ -221,12 +221,46 @@ const Messages = () => {
     });
   };
 
-  const handleFundsReceived = (conversationId: string) => {
-    sendMessageMutation.mutate({
-      conversationId,
-      content: "Funds Received!\n\nThis transaction is now complete, thank you!\n\nYou can view all your selling activity in your Selling Hub.",
-      messageType: 'funds_received',
-    });
+  const handleFundsReceived = async (conversationId: string) => {
+    const conversation = conversations.find(c => c.id === conversationId);
+    if (!conversation) return;
+
+    try {
+      // Update ticket status to 'sold'
+      const { error: ticketError } = await supabase
+        .from('tickets')
+        .update({ status: 'sold' })
+        .eq('id', conversation.ticket_id);
+
+      if (ticketError) {
+        console.error('Error updating ticket status:', ticketError);
+        toast({
+          title: "Error",
+          description: "Failed to update ticket status",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      // Send the funds received message
+      sendMessageMutation.mutate({
+        conversationId,
+        content: "Funds Received!\n\nThis transaction is now complete, thank you!\n\nYou can view all your selling activity in your Selling Hub.",
+        messageType: 'funds_received',
+      });
+
+      // Invalidate relevant queries to refresh data
+      queryClient.invalidateQueries({ queryKey: ['event-tickets'] });
+      queryClient.invalidateQueries({ queryKey: ['event-sold-tickets-count'] });
+
+    } catch (error) {
+      console.error('Error in handleFundsReceived:', error);
+      toast({
+        title: "Error",
+        description: "Something went wrong",
+        variant: "destructive"
+      });
+    }
   };
 
   const handleViewTransactionDetails = (conversationId: string) => {

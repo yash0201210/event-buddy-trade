@@ -265,6 +265,7 @@ export type Database = {
           quantity: number
           seller_id: string
           selling_price: number
+          sold_at: string | null
           status: string
           ticket_type: string
           title: string
@@ -280,6 +281,7 @@ export type Database = {
           quantity?: number
           seller_id: string
           selling_price: number
+          sold_at?: string | null
           status?: string
           ticket_type: string
           title: string
@@ -295,6 +297,7 @@ export type Database = {
           quantity?: number
           seller_id?: string
           selling_price?: number
+          sold_at?: string | null
           status?: string
           ticket_type?: string
           title?: string

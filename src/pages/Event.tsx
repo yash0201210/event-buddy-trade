@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Calendar, Star, User, GraduationCap } from 'lucide-react';
+import { Heart, MapPin, Calendar, Star, User, GraduationCap, TrendingUp } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useParams, Link } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
@@ -111,7 +110,7 @@ const Event = () => {
     enabled: !!event?.university_id,
   });
 
-  // Fetch tickets for this event
+  // Fetch available tickets for this event (exclude sold tickets)
   const { data: tickets = [], isLoading: ticketsLoading } = useQuery({
     queryKey: ['event-tickets', id],
     queryFn: async () => {
@@ -128,6 +127,24 @@ const Event = () => {
       
       if (error) throw error;
       return data as Ticket[];
+    },
+    enabled: !!id,
+  });
+
+  // Fetch sold tickets count for this event
+  const { data: soldTicketsCount = 0 } = useQuery({
+    queryKey: ['event-sold-tickets-count', id],
+    queryFn: async () => {
+      if (!id) return 0;
+      
+      const { count, error } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .eq('event_id', id)
+        .eq('status', 'sold');
+      
+      if (error) throw error;
+      return count || 0;
     },
     enabled: !!id,
   });
@@ -327,6 +344,25 @@ const Event = () => {
             </div>
           )}
         </div>
+
+        {/* Sold Tickets Counter */}
+        {soldTicketsCount > 0 && (
+          <div className="mb-6">
+            <Card className="bg-green-50 border-green-200">
+              <CardContent className="p-4">
+                <div className="flex items-center justify-center text-green-700">
+                  <TrendingUp className="h-5 w-5 mr-2" />
+                  <span className="font-medium">
+                    {soldTicketsCount} ticket{soldTicketsCount === 1 ? '' : 's'} sold
+                  </span>
+                  <span className="ml-2 text-sm text-green-600">
+                    - High demand event!
+                  </span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </main>
     </div>
   );
