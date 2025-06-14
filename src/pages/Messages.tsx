@@ -11,6 +11,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { MessageCircle, Send, Clock, Check, X, ArrowLeft } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { BankDetailsDialog } from '@/components/messages/BankDetailsDialog';
+import { CounterOfferDialog } from '@/components/messages/CounterOfferDialog';
 
 interface Conversation {
   id: string;
@@ -44,6 +46,9 @@ const Messages = () => {
   const queryClient = useQueryClient();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [newMessage, setNewMessage] = useState('');
+  const [showBankDetails, setShowBankDetails] = useState(false);
+  const [showCounterOffer, setShowCounterOffer] = useState(false);
+  const [pendingAcceptConversation, setPendingAcceptConversation] = useState<string | null>(null);
 
   const { data: conversations = [], isLoading } = useQuery({
     queryKey: ['conversations', user?.id],
@@ -175,19 +180,53 @@ const Messages = () => {
     });
   };
 
-  const handleAcceptOffer = (conversationId: string) => {
+  const handleAcceptPurchaseRequest = (conversationId: string) => {
+    setPendingAcceptConversation(conversationId);
+    setShowBankDetails(true);
+  };
+
+  const handleRejectPurchaseRequest = (conversationId: string) => {
+    setShowCounterOffer(true);
+    setPendingAcceptConversation(conversationId);
+  };
+
+  const handleBankDetailsSubmitted = () => {
+    if (pendingAcceptConversation) {
+      sendMessageMutation.mutate({
+        conversationId: pendingAcceptConversation,
+        content: "Order Confirmed!\n\nThe order has now been confirmed. Transfer €9.73 to the seller once they share their bank details!\n\nHi, please send me €9.73 on the following bank details:\n\nFull Name: Yash Agrawal\nSort Code: XX - XX - XX\nAccount Number: 12736892\n\nRemember to confirm here once you have sent this money across!",
+        messageType: 'order_confirmed',
+      });
+    }
+    setShowBankDetails(false);
+    setPendingAcceptConversation(null);
+  };
+
+  const handleCounterOfferSubmitted = (amount: number) => {
+    if (pendingAcceptConversation) {
+      sendMessageMutation.mutate({
+        conversationId: pendingAcceptConversation,
+        content: `I appreciate your interest, but I'd like to counter with €${amount}. Let me know if this works for you!`,
+        messageType: 'counter_offer',
+      });
+    }
+    setShowCounterOffer(false);
+    setPendingAcceptConversation(null);
+  };
+
+  const handleConfirmTransfer = (conversationId: string) => {
     sendMessageMutation.mutate({
       conversationId,
-      content: "Great! I accept your offer. Let's proceed with the transaction. Please contact me to arrange the transfer.",
-      messageType: 'offer_accepted',
+      content: "Confirm Transfer\n\nPlease confirm that you have transferred the seller to gain access to your tickets!",
+      messageType: 'transfer_confirmation',
     });
   };
 
-  const handleRejectOffer = (conversationId: string) => {
+  const handleFundsReceived = (conversationId: string) => {
     sendMessageMutation.mutate({
       conversationId,
-      content: "Thank you for your offer, but I'm not able to accept it at this time.",
-      messageType: 'offer_rejected',
+      content: "Funds Received!\n\nThis transaction is now complete, thank you!",
+      messageType: 'funds_received',
     });
   };
 
@@ -249,7 +288,7 @@ const Messages = () => {
                         </p>
                         {lastMessage && (
                           <p className="text-xs text-gray-500 truncate">
-                            {lastMessage.content}
+                            {lastMessage.content.split('\n')[0]}
                           </p>
                         )}
                       </div>
@@ -279,7 +318,7 @@ const Messages = () => {
                         {selectedConv.ticket_title}
                       </CardTitle>
                       <p className="text-sm text-gray-600">
-                        £{selectedConv.ticket_price} • {
+                        €{selectedConv.ticket_price} • {
                           isUserBuyer 
                             ? selectedConv.seller_name
                             : selectedConv.buyer_name
@@ -294,34 +333,40 @@ const Messages = () => {
                   <div className="flex-1 overflow-y-auto space-y-4 p-4">
                     {selectedConv.messages?.map((message) => {
                       const isOwn = message.sender_id === user.id;
-                      const isOffer = message.message_type === 'offer';
-                      const isOfferResponse = ['offer_accepted', 'offer_rejected'].includes(message.message_type);
+                      const isPurchaseRequest = message.message_type === 'purchase_request';
+                      const isOrderConfirmed = message.message_type === 'order_confirmed';
+                      const isTransferConfirmation = message.message_type === 'transfer_confirmation';
+                      const isFundsReceived = message.message_type === 'funds_received';
                       
                       return (
                         <div key={message.id} className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
-                          <div className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          <div className={`max-w-xs lg:max-w-md px-4 py-3 rounded-lg ${
                             isOwn 
                               ? 'bg-red-600 text-white' 
-                              : isOffer 
-                                ? 'bg-yellow-100 border border-yellow-300'
-                                : isOfferResponse
+                              : isPurchaseRequest
+                                ? 'bg-gray-100 border'
+                                : isOrderConfirmed
                                   ? 'bg-green-100 border border-green-300'
-                                  : 'bg-gray-100'
+                                  : isTransferConfirmation
+                                    ? 'bg-blue-100 border border-blue-300'
+                                    : isFundsReceived
+                                      ? 'bg-green-100 border border-green-300'
+                                      : 'bg-gray-100'
                           }`}>
-                            <p className="text-sm">{message.content}</p>
-                            <p className={`text-xs mt-1 ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
+                            <div className="whitespace-pre-line text-sm">{message.content}</div>
+                            <p className={`text-xs mt-2 ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
                               {new Date(message.created_at).toLocaleTimeString([], {
                                 hour: '2-digit',
                                 minute: '2-digit'
                               })}
                             </p>
                             
-                            {/* Offer Actions - only show for sellers receiving offers */}
-                            {isOffer && !isOwn && !isUserBuyer && (
-                              <div className="mt-2 flex gap-2">
+                            {/* Purchase Request Actions - only show for sellers */}
+                            {isPurchaseRequest && !isOwn && !isUserBuyer && (
+                              <div className="mt-3 flex gap-2">
                                 <Button
                                   size="sm"
-                                  onClick={() => handleAcceptOffer(selectedConv.id)}
+                                  onClick={() => handleAcceptPurchaseRequest(selectedConv.id)}
                                   className="bg-green-600 hover:bg-green-700 text-white text-xs"
                                 >
                                   <Check className="h-3 w-3 mr-1" />
@@ -330,11 +375,37 @@ const Messages = () => {
                                 <Button
                                   size="sm"
                                   variant="outline"
-                                  onClick={() => handleRejectOffer(selectedConv.id)}
+                                  onClick={() => handleRejectPurchaseRequest(selectedConv.id)}
                                   className="text-xs"
                                 >
                                   <X className="h-3 w-3 mr-1" />
-                                  Reject
+                                  Counter Offer
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* Transfer Confirmation Actions - only show for buyers */}
+                            {isOrderConfirmed && !isOwn && isUserBuyer && (
+                              <div className="mt-3">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleConfirmTransfer(selectedConv.id)}
+                                  className="bg-blue-600 hover:bg-blue-700 text-white text-xs w-full"
+                                >
+                                  Confirm Transfer
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* Funds Received Action - only show for sellers */}
+                            {isTransferConfirmation && !isOwn && !isUserBuyer && (
+                              <div className="mt-3">
+                                <Button
+                                  size="sm"
+                                  onClick={() => handleFundsReceived(selectedConv.id)}
+                                  className="bg-green-600 hover:bg-green-700 text-white text-xs w-full"
+                                >
+                                  Funds Received
                                 </Button>
                               </div>
                             )}
@@ -350,17 +421,17 @@ const Messages = () => {
                     <div className="text-xs text-gray-700 space-y-1">
                       {isUserBuyer ? (
                         <>
-                          <p>1. Agree on price and payment method with the seller</p>
-                          <p>2. Transfer payment outside this platform (bank transfer, PayPal, etc.)</p>
-                          <p>3. Seller will transfer tickets after payment confirmation</p>
-                          <p>4. Verify tickets before finalizing</p>
+                          <p>1. Wait for seller to accept your purchase request</p>
+                          <p>2. Transfer payment using the provided bank details</p>
+                          <p>3. Confirm transfer in the chat</p>
+                          <p>4. Receive tickets after seller confirms payment</p>
                         </>
                       ) : (
                         <>
-                          <p>1. Discuss price and payment method with the buyer</p>
-                          <p>2. Wait for payment confirmation outside this platform</p>
-                          <p>3. Transfer tickets immediately after receiving payment</p>
-                          <p>4. Provide transfer confirmation to buyer</p>
+                          <p>1. Accept or counter purchase requests</p>
+                          <p>2. Share your bank details for payment</p>
+                          <p>3. Wait for payment confirmation from buyer</p>
+                          <p>4. Transfer tickets after confirming payment received</p>
                         </>
                       )}
                     </div>
@@ -395,6 +466,19 @@ const Messages = () => {
           </Card>
         </div>
       </main>
+
+      <BankDetailsDialog
+        isOpen={showBankDetails}
+        onClose={() => setShowBankDetails(false)}
+        onSubmit={handleBankDetailsSubmitted}
+      />
+
+      <CounterOfferDialog
+        isOpen={showCounterOffer}
+        onClose={() => setShowCounterOffer(false)}
+        onSubmit={handleCounterOfferSubmitted}
+        originalPrice={selectedConv?.ticket_price || 0}
+      />
     </div>
   );
 };

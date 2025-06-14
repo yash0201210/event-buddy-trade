@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { MakeOfferDialog } from '@/components/tickets/MakeOfferDialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery } from '@tanstack/react-query';
+import { PurchaseConfirmationDialog } from '@/components/tickets/PurchaseConfirmationDialog';
 
 interface TicketWithDetails {
   id: string;
@@ -18,9 +19,7 @@ interface TicketWithDetails {
   selling_price: number;
   original_price: number;
   quantity: number;
-  section: string;
-  row_number: string;
-  seat_numbers: string;
+  ticket_type: string;
   description: string;
   is_negotiable: boolean;
   seller_id: string;
@@ -38,6 +37,7 @@ interface TicketWithDetails {
 
 const TicketDetails = () => {
   const [showOfferDialog, setShowOfferDialog] = useState(false);
+  const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   const [loading, setLoading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -131,7 +131,8 @@ const TicketDetails = () => {
       let messageType = 'text';
       
       if (type === 'buy_now') {
-        messageContent = `Hi! I'd like to buy your tickets for ${ticket.events.name} at £${ticket.selling_price} each. Please let me know how we can proceed with the transaction.`;
+        messageContent = `Order for ${ticket.events.name}\n\n1 X ${ticket.ticket_type}\n€${ticket.selling_price}\n\nConfirmed Amount\n€${ticket.selling_price}\nAwaiting Seller Confirmation`;
+        messageType = 'purchase_request';
       } else {
         messageContent = `Hi! I'm interested in your tickets for ${ticket.events.name}. I'd like to make an offer of £${offerAmount} per ticket. Let me know if this works for you!`;
         messageType = 'offer';
@@ -169,6 +170,11 @@ const TicketDetails = () => {
   };
 
   const handleBuyNow = () => {
+    setShowPurchaseDialog(true);
+  };
+
+  const handleConfirmPurchase = () => {
+    setShowPurchaseDialog(false);
     createConversation('buy_now');
   };
 
@@ -253,16 +259,8 @@ const TicketDetails = () => {
                   
                   <div className="grid grid-cols-2 gap-4 mb-4">
                     <div>
-                      <p className="text-sm text-gray-500">Section</p>
-                      <p className="font-semibold">{ticket.section}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Row</p>
-                      <p className="font-semibold">{ticket.row_number}</p>
-                    </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Seats</p>
-                      <p className="font-semibold">{ticket.seat_numbers}</p>
+                      <p className="text-sm text-gray-500">Type</p>
+                      <p className="font-semibold">{ticket.ticket_type}</p>
                     </div>
                     <div>
                       <p className="text-sm text-gray-500">Quantity</p>
@@ -348,7 +346,7 @@ const TicketDetails = () => {
                     onClick={handleBuyNow}
                     disabled={loading}
                   >
-                    {loading ? 'Processing...' : 'Contact Seller'}
+                    {loading ? 'Processing...' : 'Buy Now'}
                   </Button>
                   
                   {ticket.is_negotiable && (
@@ -383,6 +381,13 @@ const TicketDetails = () => {
           quantity={ticket.quantity}
         />
       )}
+
+      <PurchaseConfirmationDialog
+        isOpen={showPurchaseDialog}
+        onClose={() => setShowPurchaseDialog(false)}
+        onConfirm={handleConfirmPurchase}
+        ticket={ticket}
+      />
     </div>
   );
 };
