@@ -6,7 +6,6 @@ import { GraduationCap, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 
 interface University {
   id: string;
@@ -51,14 +50,14 @@ export const EventCategories = () => {
 
   if (isLoading) {
     return (
-      <section className="py-12 bg-gray-50">
+      <section className="py-12">
         <div className="container mx-auto px-4">
           <div className="flex justify-between items-center mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Browse by University
             </h2>
           </div>
-          <ScrollArea className="w-full whitespace-nowrap">
+          <div className="overflow-x-auto scrollbar-hide">
             <div className="flex space-x-6 pb-4">
               {[...Array(5)].map((_, i) => (
                 <div key={i} className="flex-none w-48 animate-pulse">
@@ -69,15 +68,14 @@ export const EventCategories = () => {
                 </div>
               ))}
             </div>
-            <ScrollBar orientation="horizontal" />
-          </ScrollArea>
+          </div>
         </div>
       </section>
     );
   }
 
   return (
-    <section className="py-12 bg-gray-50">
+    <section className="py-12">
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
@@ -91,7 +89,7 @@ export const EventCategories = () => {
           </Link>
         </div>
         
-        <ScrollArea className="w-full whitespace-nowrap">
+        <div className="overflow-x-auto scrollbar-hide">
           <div className="flex space-x-6 pb-4">
             {universities.map((university, index) => {
               const eventCount = eventCounts[university.id] || 0;
@@ -137,8 +135,7 @@ export const EventCategories = () => {
               );
             })}
           </div>
-          <ScrollBar orientation="horizontal" />
-        </ScrollArea>
+        </div>
       </div>
     </section>
   );
