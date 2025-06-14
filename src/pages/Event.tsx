@@ -85,10 +85,10 @@ const Event = () => {
         .from('venues')
         .select('*')
         .eq('id', event.venue_id)
-        .single();
+        .maybeSingle();
       
       if (error) throw error;
-      return data as Venue;
+      return data as Venue | null;
     },
     enabled: !!event?.venue_id,
   });
@@ -215,12 +215,12 @@ const Event = () => {
                 <div className="flex items-center">
                   <MapPin className="h-4 w-4 mr-3" />
                   <span>
-                    {venue && event.venue_id ? (
+                    {event.venue_id ? (
                       <Link 
                         to={`/venue/${event.venue_id}`}
                         className="text-red-600 hover:text-red-700 hover:underline"
                       >
-                        {venue.name}
+                        {venue?.name || event.venue}
                       </Link>
                     ) : (
                       event.venue
