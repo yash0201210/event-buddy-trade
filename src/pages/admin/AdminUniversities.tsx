@@ -15,6 +15,7 @@ interface University {
   city?: string;
   country: string;
   image_url?: string;
+  image_position?: string;
 }
 
 const AdminUniversities = () => {
@@ -63,7 +64,8 @@ const AdminUniversities = () => {
         name: formData.name,
         city: formData.city || null,
         country: formData.country,
-        image_url: formData.image_url || null
+        image_url: formData.image_url || null,
+        image_position: formData.image_position || 'center center'
       };
 
       if (editingUniversity) {
@@ -145,7 +147,7 @@ const AdminUniversities = () => {
       city: university.city || '',
       country: university.country,
       image_url: university.image_url || '',
-      image_position: 'center center'
+      image_position: university.image_position || 'center center'
     });
     setEditingUniversity(university);
     setShowForm(true);

@@ -13,6 +13,7 @@ interface University {
   name: string;
   city: string;
   image_url?: string;
+  image_position?: string;
 }
 
 interface UniversityPin {
@@ -201,6 +202,7 @@ export const EventCategories = () => {
                             src={university.image_url} 
                             alt={university.name}
                             className="w-full h-full object-cover"
+                            style={{ objectPosition: university.image_position || 'center center' }}
                             onError={(e) => {
                               const target = e.target as HTMLImageElement;
                               target.style.display = 'none';
