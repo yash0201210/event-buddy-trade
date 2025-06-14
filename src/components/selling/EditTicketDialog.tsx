@@ -33,9 +33,10 @@ interface EditTicketDialogProps {
   ticket: Ticket;
   open: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-export const EditTicketDialog = ({ ticket, open, onClose }: EditTicketDialogProps) => {
+export const EditTicketDialog = ({ ticket, open, onClose, onSuccess }: EditTicketDialogProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
@@ -103,6 +104,7 @@ export const EditTicketDialog = ({ ticket, open, onClose }: EditTicketDialogProp
       });
 
       onClose();
+      onSuccess?.(); // Call onSuccess if provided
     } catch (error) {
       console.error('Error updating ticket:', error);
       toast({
