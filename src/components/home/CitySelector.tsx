@@ -25,9 +25,9 @@ export const CitySelector = () => {
   const [selectedCity, setSelectedCity] = useState('London');
 
   return (
-    <section className="py-4 bg-white">
+    <section className="py-2 bg-white">
       <div className="max-w-5xl mx-auto px-4">
-        <div className="flex items-center justify-start mb-6">
+        <div className="flex items-center justify-start mb-4">
           <div className="flex items-center space-x-3 bg-white border border-gray-300 rounded-full px-6 py-3 shadow-sm">
             <h2 className="text-lg font-medium text-gray-900">
               Explore Events in
@@ -38,7 +38,7 @@ export const CitySelector = () => {
                 <span className="font-medium text-gray-900">{selectedCity}</span>
                 <ChevronDown className="h-4 w-4 text-gray-600" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent className="w-40 bg-white border shadow-lg">
+              <DropdownMenuContent className="w-40 bg-white border shadow-lg z-50">
                 {cities.map((city) => (
                   <DropdownMenuItem
                     key={city}
