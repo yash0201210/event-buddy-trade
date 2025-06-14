@@ -66,20 +66,20 @@ export default function SellingHub() {
     );
   }
 
-  const availableTickets = tickets?.filter(ticket => ticket.status === 'available') || [];
-  const soldTickets = tickets?.filter(ticket => ticket.status === 'sold') || [];
+  const currentListings = tickets?.filter(ticket => ticket.status === 'available') || [];
+  const sellingHistory = tickets?.filter(ticket => ticket.status === 'sold') || [];
 
   return (
     <Layout>
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">Selling Hub</h1>
         
-        {/* Active Listings */}
+        {/* Current Listings */}
         <div className="mb-8">
-          <h2 className="text-2xl font-semibold mb-4">Active Listings</h2>
-          {availableTickets.length > 0 ? (
+          <h2 className="text-2xl font-semibold mb-4">Current Listings</h2>
+          {currentListings.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {availableTickets.map((ticket) => (
+              {currentListings.map((ticket) => (
                 <Card key={ticket.id} className="bg-white shadow-md rounded-md overflow-hidden">
                   <CardHeader className="p-4">
                     <CardTitle className="text-lg font-semibold">{ticket.events.name}</CardTitle>
@@ -90,7 +90,7 @@ export default function SellingHub() {
                       {format(new Date(ticket.events.event_date), 'PPP')} - {ticket.events.venue}, {ticket.events.city}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Price: £{ticket.selling_price} | Quantity: {ticket.quantity}
+                      Price: €{ticket.selling_price} | Quantity: {ticket.quantity}
                     </p>
 
                     <div className="mt-4 flex justify-between">
@@ -105,7 +105,7 @@ export default function SellingHub() {
             </div>
           ) : (
             <div className="text-center py-8 bg-gray-50 rounded-lg">
-              <h3 className="text-xl font-semibold">No active listings</h3>
+              <h3 className="text-xl font-semibold">No current listings</h3>
               <p className="text-gray-600 mt-2">List tickets to start selling!</p>
               <Link to="/sell-tickets">
                 <Button className="mt-4">Sell Tickets</Button>
@@ -115,11 +115,11 @@ export default function SellingHub() {
         </div>
 
         {/* Selling History */}
-        {soldTickets.length > 0 && (
-          <div>
-            <h2 className="text-2xl font-semibold mb-4">Selling History</h2>
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4">Selling History</h2>
+          {sellingHistory.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {soldTickets.map((ticket) => (
+              {sellingHistory.map((ticket) => (
                 <Card key={ticket.id} className="bg-green-50 border-green-200 shadow-md rounded-md overflow-hidden">
                   <CardHeader className="p-4">
                     <CardTitle className="text-lg font-semibold">{ticket.events.name}</CardTitle>
@@ -130,7 +130,7 @@ export default function SellingHub() {
                       {format(new Date(ticket.events.event_date), 'PPP')} - {ticket.events.venue}, {ticket.events.city}
                     </p>
                     <p className="text-gray-700 mt-2">
-                      Sold Price: £{ticket.selling_price} | Quantity: {ticket.quantity}
+                      Sold Price: €{ticket.selling_price} | Quantity: {ticket.quantity}
                     </p>
                     {ticket.sold_at && (
                       <p className="text-sm text-green-600 mt-2">
@@ -147,11 +147,16 @@ export default function SellingHub() {
                 </Card>
               ))}
             </div>
-          </div>
-        )}
+          ) : (
+            <div className="text-center py-8 bg-gray-50 rounded-lg">
+              <h3 className="text-xl font-semibold">No selling history yet</h3>
+              <p className="text-gray-600 mt-2">Your sold tickets will appear here</p>
+            </div>
+          )}
+        </div>
 
         {/* Empty State */}
-        {availableTickets.length === 0 && soldTickets.length === 0 && (
+        {currentListings.length === 0 && sellingHistory.length === 0 && (
           <div className="text-center py-12">
             <h2 className="text-xl font-semibold">No tickets listed for sale yet.</h2>
             <p className="text-gray-600 mt-2">List tickets to start selling!</p>
