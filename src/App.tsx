@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -26,6 +27,7 @@ import AdminSettings from "./pages/admin/AdminSettings";
 import AdminVenues from "./pages/admin/AdminVenues";
 import AdminUniversities from "./pages/admin/AdminUniversities";
 import University from "./pages/University";
+import Universities from "./pages/Universities";
 import Venue from "./pages/Venue";
 
 const queryClient = new QueryClient();
