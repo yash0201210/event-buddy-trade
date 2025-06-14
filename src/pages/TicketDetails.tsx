@@ -13,8 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Mock data - this would come from your database
 const ticketData = {
-  1: {
-    id: 1,
+  "1": {
+    id: "1",
     eventTitle: 'Taylor Swift - Eras Tour',
     venue: 'Wembley Stadium',
     location: 'London, UK',
