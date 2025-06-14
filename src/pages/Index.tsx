@@ -16,19 +16,19 @@ const Index = () => {
       
       <main className="space-y-0">
         <HeroSection />
-        <div className="bg-gray-50">
-          <SuggestedEvents />
-        </div>
         <div className="bg-white">
           <CitySelector />
         </div>
         <div className="bg-gray-50">
-          <EventCategories />
+          <SuggestedEvents />
         </div>
         <div className="bg-white">
-          <DiscoverMoreEvents />
+          <EventCategories />
         </div>
         <div className="bg-gray-50">
+          <DiscoverMoreEvents />
+        </div>
+        <div className="bg-white">
           <UniTicketingSolution />
         </div>
       </main>
