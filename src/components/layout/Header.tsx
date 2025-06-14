@@ -138,6 +138,9 @@ export const Header = () => {
                     <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
                       My Tickets
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/selling-hub')}>
+                      Selling Hub
+                    </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
                       Sign Out

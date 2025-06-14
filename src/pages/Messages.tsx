@@ -224,7 +224,7 @@ const Messages = () => {
   const handleFundsReceived = (conversationId: string) => {
     sendMessageMutation.mutate({
       conversationId,
-      content: "Funds Received!\n\nThis transaction is now complete, thank you!",
+      content: "Funds Received!\n\nThis transaction is now complete, thank you!\n\nYou can view all your selling activity in your Selling Hub.",
       messageType: 'funds_received',
     });
   };
@@ -433,6 +433,20 @@ const Messages = () => {
                                   className="bg-green-600 hover:bg-green-700 text-white text-xs w-full"
                                 >
                                   Funds Received
+                                </Button>
+                              </div>
+                            )}
+
+                            {/* Go to Selling Hub link - show for sellers after funds received */}
+                            {isFundsReceived && isOwn && !isUserBuyer && (
+                              <div className="mt-3">
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => navigate('/selling-hub')}
+                                  className="text-xs w-full bg-white hover:bg-gray-50"
+                                >
+                                  Go to My Selling Hub
                                 </Button>
                               </div>
                             )}
