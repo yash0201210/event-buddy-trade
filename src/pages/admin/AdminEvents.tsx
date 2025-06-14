@@ -145,8 +145,8 @@ const AdminEvents = () => {
     try {
       const eventData = {
         ...formData,
-        university_id: formData.university_id || null,
-        venue_id: formData.venue_id || null
+        university_id: formData.university_id === 'none' ? null : formData.university_id || null,
+        venue_id: formData.venue_id === 'none' ? null : formData.venue_id || null
       };
 
       if (editingEvent) {
@@ -238,8 +238,8 @@ const AdminEvents = () => {
       description: event.description || '',
       image_url: event.image_url || '',
       ticket_types: event.ticket_types || [],
-      university_id: event.university_id || '',
-      venue_id: event.venue_id || ''
+      university_id: event.university_id || 'none',
+      venue_id: event.venue_id || 'none'
     });
     setEditingEvent(event);
     setShowForm(true);
@@ -339,7 +339,7 @@ const AdminEvents = () => {
                       <SelectValue placeholder="Select university (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No university</SelectItem>
+                      <SelectItem value="none">No university</SelectItem>
                       {universities.map((university) => (
                         <SelectItem key={university.id} value={university.id}>
                           {university.name}
@@ -358,7 +358,7 @@ const AdminEvents = () => {
                       <SelectValue placeholder="Select venue (optional)" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">No venue selected</SelectItem>
+                      <SelectItem value="none">No venue selected</SelectItem>
                       {venues.map((venue) => (
                         <SelectItem key={venue.id} value={venue.id}>
                           {venue.name} - {venue.city}
