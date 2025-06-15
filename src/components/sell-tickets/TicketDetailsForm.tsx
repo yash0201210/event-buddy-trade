@@ -41,6 +41,16 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
     });
   };
 
+  const handlePriceChange = (field: 'originalPrice' | 'sellingPrice', value: string) => {
+    const numericValue = value === '' ? 0 : parseFloat(value);
+    const finalValue = isNaN(numericValue) ? 0 : numericValue;
+    
+    onChange({
+      ...data,
+      [field]: finalValue
+    });
+  };
+
   const handlePdfUploadsComplete = (uploads: Array<{ pdfUrl: string; qrCodeHash: string; pages: number }>) => {
     onChange({
       ...data,
@@ -82,7 +92,7 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
               type="number"
               min="1"
               value={data.quantity}
-              onChange={(e) => handleInputChange('quantity', parseInt(e.target.value))}
+              onChange={(e) => handleInputChange('quantity', parseInt(e.target.value) || 1)}
               required
             />
           </div>
@@ -95,8 +105,9 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
               id="originalPrice"
               type="number"
               step="0.01"
-              value={data.originalPrice}
-              onChange={(e) => handleInputChange('originalPrice', parseFloat(e.target.value))}
+              min="0"
+              value={data.originalPrice || ''}
+              onChange={(e) => handlePriceChange('originalPrice', e.target.value)}
               placeholder="0.00"
               required
             />
@@ -107,8 +118,9 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
               id="sellingPrice"
               type="number"
               step="0.01"
-              value={data.sellingPrice}
-              onChange={(e) => handleInputChange('sellingPrice', parseFloat(e.target.value))}
+              min="0"
+              value={data.sellingPrice || ''}
+              onChange={(e) => handlePriceChange('sellingPrice', e.target.value)}
               placeholder="0.00"
               required
             />
