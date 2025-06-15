@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -45,6 +44,9 @@ const SellTickets = () => {
     isNegotiable: true,
   });
   const [loading, setLoading] = useState(false);
+
+  // VERIFICATION TEMPORARILY DISABLED FOR TESTING
+  const VERIFICATION_DISABLED = true;
 
   // Fetch events from database
   const { data: events = [], isLoading } = useQuery({
@@ -134,24 +136,27 @@ const SellTickets = () => {
       return;
     }
 
-    if (!ticketData.pdfUploads || ticketData.pdfUploads.length === 0) {
-      toast({
-        title: "Ticket verification required",
-        description: "Please upload and verify your ticket PDFs",
-        variant: "destructive"
-      });
-      return;
-    }
+    // Only require PDF uploads if verification is enabled
+    if (!VERIFICATION_DISABLED) {
+      if (!ticketData.pdfUploads || ticketData.pdfUploads.length === 0) {
+        toast({
+          title: "Ticket verification required",
+          description: "Please upload and verify your ticket PDFs",
+          variant: "destructive"
+        });
+        return;
+      }
 
-    // Check if total pages match quantity
-    const totalPages = ticketData.pdfUploads.reduce((sum, upload) => sum + upload.pages, 0);
-    if (totalPages !== ticketData.quantity) {
-      toast({
-        title: "Quantity mismatch",
-        description: `You selected ${totalPages} tickets but specified quantity of ${ticketData.quantity}`,
-        variant: "destructive"
-      });
-      return;
+      // Check if total pages match quantity
+      const totalPages = ticketData.pdfUploads.reduce((sum, upload) => sum + upload.pages, 0);
+      if (totalPages !== ticketData.quantity) {
+        toast({
+          title: "Quantity mismatch",
+          description: `You selected ${totalPages} tickets but specified quantity of ${ticketData.quantity}`,
+          variant: "destructive"
+        });
+        return;
+      }
     }
 
     setLoading(true);
@@ -164,43 +169,73 @@ const SellTickets = () => {
         isNaN: isNaN(ticketData.originalPrice)
       });
 
-      // Create multiple ticket entries if there are multiple uploads
-      const ticketPromises = ticketData.pdfUploads.map((upload, index) => {
+      if (VERIFICATION_DISABLED) {
+        // Create a single ticket entry when verification is disabled
         const ticketEntry = {
           event_id: selectedEvent.id,
           seller_id: user.id,
-          title: `${selectedEvent.name} - ${ticketData.ticketType}${ticketData.pdfUploads!.length > 1 ? ` (${index + 1})` : ''}`,
+          title: `${selectedEvent.name} - ${ticketData.ticketType}`,
           ticket_type: ticketData.ticketType,
-          quantity: upload.pages,
+          quantity: ticketData.quantity,
           original_price: Number(ticketData.originalPrice),
           selling_price: Number(ticketData.sellingPrice),
           description: ticketData.description,
           is_negotiable: ticketData.isNegotiable,
-          pdf_url: upload.pdfUrl,
-          qr_code_hash: upload.qrCodeHash,
+          pdf_url: null,
+          qr_code_hash: `test_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
           verification_status: 'verified',
           status: 'available'
         };
         
-        console.log('Inserting ticket entry:', ticketEntry);
+        console.log('Inserting ticket entry (verification disabled):', ticketEntry);
         
-        return supabase
+        const { error } = await supabase
           .from('tickets')
           .insert(ticketEntry);
-      });
 
-      const results = await Promise.all(ticketPromises);
-      const hasError = results.some(result => result.error);
-      
-      if (hasError) {
-        const errorDetails = results.filter(r => r.error).map(r => r.error);
-        console.error('Database insertion errors:', errorDetails);
-        throw new Error('Failed to create some ticket listings');
+        if (error) {
+          console.error('Database insertion error:', error);
+          throw error;
+        }
+      } else {
+        // Original logic for when verification is enabled
+        const ticketPromises = ticketData.pdfUploads!.map((upload, index) => {
+          const ticketEntry = {
+            event_id: selectedEvent.id,
+            seller_id: user.id,
+            title: `${selectedEvent.name} - ${ticketData.ticketType}${ticketData.pdfUploads!.length > 1 ? ` (${index + 1})` : ''}`,
+            ticket_type: ticketData.ticketType,
+            quantity: upload.pages,
+            original_price: Number(ticketData.originalPrice),
+            selling_price: Number(ticketData.sellingPrice),
+            description: ticketData.description,
+            is_negotiable: ticketData.isNegotiable,
+            pdf_url: upload.pdfUrl,
+            qr_code_hash: upload.qrCodeHash,
+            verification_status: 'verified',
+            status: 'available'
+          };
+          
+          console.log('Inserting ticket entry:', ticketEntry);
+          
+          return supabase
+            .from('tickets')
+            .insert(ticketEntry);
+        });
+
+        const results = await Promise.all(ticketPromises);
+        const hasError = results.some(result => result.error);
+        
+        if (hasError) {
+          const errorDetails = results.filter(r => r.error).map(r => r.error);
+          console.error('Database insertion errors:', errorDetails);
+          throw new Error('Failed to create some ticket listings');
+        }
       }
 
       toast({
         title: "Tickets listed successfully!",
-        description: `Your ${ticketData.pdfUploads.length} ticket listing(s) are now live and visible to buyers.`,
+        description: `Your ticket listing is now live and visible to buyers.`,
       });
 
       navigate('/');
