@@ -4,31 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Calendar, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-interface Event {
-  id: string;
-  name: string;
-  venue: string;
-  city: string;
-  event_date: string;
-  category: string;
-  description?: string;
-  image_url?: string;
-  venue_id?: string;
-  university_id?: string;
-}
-
-interface Venue {
-  id: string;
-  name: string;
-  city: string;
-}
-
-interface University {
-  id: string;
-  name: string;
-  city: string;
-}
+import { Event, Venue, University } from '@/types/event';
 
 interface EventHeaderProps {
   event: Event;
@@ -92,7 +68,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
               
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
+                <span>{new Date(event.start_date_time).toLocaleDateString('en-GB', { 
                   weekday: 'long', 
                   day: 'numeric', 
                   month: 'long',

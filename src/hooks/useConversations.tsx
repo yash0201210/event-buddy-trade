@@ -44,7 +44,7 @@ export const useConversations = (userId?: string) => {
           other_user_id: otherUserId,
           latest_message: latestMessage,
           ticket: conversation.tickets,
-          ticket_price: Array.isArray(conversation.tickets) ? conversation.tickets[0]?.selling_price || 0 : 0
+          ticket_price: conversation.tickets?.selling_price || 0
         };
       }) || [];
     },
@@ -104,13 +104,12 @@ export const useConversations = (userId?: string) => {
 
   const markTicketAsSold = async (conversationId: string) => {
     const conversation = conversations.find(c => c.id === conversationId);
-    const ticketData = Array.isArray(conversation?.tickets) ? conversation.tickets[0] : conversation?.tickets;
-    if (!ticketData?.id) return;
+    if (!conversation?.tickets?.id) return;
 
     const { error } = await supabase
       .from('tickets')
       .update({ status: 'sold' })
-      .eq('id', ticketData.id);
+      .eq('id', conversation.tickets.id);
 
     if (error) {
       toast({

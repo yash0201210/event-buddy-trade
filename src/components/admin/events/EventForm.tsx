@@ -3,7 +3,6 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Event, University, Venue, EventFormData } from '@/types/event';
-import { EventUrlScraper } from './EventUrlScraper';
 import { EventBasicInfo } from './EventBasicInfo';
 import { EventTicketTypes } from './EventTicketTypes';
 
@@ -32,21 +31,12 @@ export const EventForm = ({
   onSubmit,
   onCancel
 }: EventFormProps) => {
-  const handleDataScraped = (scrapedData: any) => {
-    setFormData(prevData => ({
-      ...prevData,
-      ...scrapedData
-    }));
-  };
-
   return (
     <Card className="mb-8">
       <CardHeader>
         <CardTitle>{editingEvent ? 'Edit Event' : 'Create New Event'}</CardTitle>
       </CardHeader>
       <CardContent>
-        <EventUrlScraper onDataScraped={handleDataScraped} />
-
         <form onSubmit={onSubmit} className="space-y-4">
           <EventBasicInfo
             formData={formData}

@@ -14,7 +14,7 @@ const Event = () => {
   const { id } = useParams<{ id: string }>();
   
   const {
-    event: dbEvent,
+    event,
     venue,
     university,
     tickets,
@@ -31,19 +31,13 @@ const Event = () => {
     );
   }
 
-  if (!dbEvent) {
+  if (!event) {
     return (
       <Layout>
         <EventNotFound />
       </Layout>
     );
   }
-
-  // Convert database event to frontend Event format
-  const event = {
-    ...dbEvent,
-    event_date: dbEvent.start_date_time
-  };
 
   return (
     <Layout>

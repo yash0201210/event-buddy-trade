@@ -7,7 +7,7 @@ import { EventCardSkeleton } from '@/components/home/EventCardSkeleton';
 import { useFavourites } from '@/hooks/useFavourites';
 
 const Favourites = () => {
-  const { favouriteEvents, isLoading, toggleFavourite } = useFavourites();
+  const { favouriteEvents, isLoading } = useFavourites();
 
   return (
     <Layout>
@@ -24,14 +24,10 @@ const Favourites = () => {
           <EmptyEventsState />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favouriteEvents.map((dbEvent) => (
+            {favouriteEvents.map((event) => (
               <EventCard
-                key={dbEvent.id}
-                event={{
-                  ...dbEvent,
-                  event_date: dbEvent.start_date_time
-                }}
-                isFavourite={true}
+                key={event.id}
+                event={event}
               />
             ))}
           </div>

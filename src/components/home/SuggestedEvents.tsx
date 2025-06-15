@@ -5,24 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { EventCard } from './EventCard';
 import { EventCardSkeleton } from './EventCardSkeleton';
 import { EmptyEventsState } from './EmptyEventsState';
-
-interface EventWithTicketCount {
-  id: string;
-  name: string;
-  venue: string;
-  city: string;
-  start_date_time: string;
-  end_date_time?: string;
-  category: string;
-  description?: string;
-  image_url?: string;
-  ticket_types?: string[];
-  university_id?: string;
-  venue_id?: string;
-  created_at?: string;
-  ticket_count?: number;
-  event_date: string; // Add this property to match Event interface
-}
+import { Event } from '@/types/event';
 
 interface SuggestedEventsProps {
   selectedCity?: string;
@@ -63,18 +46,7 @@ export const SuggestedEvents = ({ selectedCity, selectedCategory, searchTerm }: 
         throw error;
       }
 
-      // Process the data to add ticket count and event_date
-      const eventsWithTicketCount = data?.map(event => {
-        const ticketCount = Array.isArray(event.tickets) ? event.tickets.length : 0;
-        const { tickets, ...eventData } = event;
-        return {
-          ...eventData,
-          ticket_count: ticketCount,
-          event_date: eventData.start_date_time // Map start_date_time to event_date
-        } as EventWithTicketCount;
-      }) || [];
-
-      return eventsWithTicketCount;
+      return data as Event[];
     },
   });
 
