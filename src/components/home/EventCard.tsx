@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Heart, MapPin, Calendar, Star, Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useFavourites } from '@/hooks/useFavourites';
 
 interface Event {
   id: string;
@@ -23,6 +24,15 @@ interface EventCardProps {
 }
 
 export const EventCard = ({ event }: EventCardProps) => {
+  const { toggleFavourite, isFavourite, isUpdating } = useFavourites();
+  const eventIsFavourite = isFavourite(event.id);
+
+  const handleFavouriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    toggleFavourite(event.id);
+  };
+
   return (
     <Card className="hover:shadow-lg transition-shadow">
       <CardHeader className="p-0">
@@ -45,13 +55,15 @@ export const EventCard = ({ event }: EventCardProps) => {
           <Button 
             variant="ghost" 
             size="sm" 
-            className="absolute top-2 right-2 bg-white/80 hover:bg-white text-gray-600"
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-            }}
+            className={`absolute top-2 right-2 backdrop-blur-sm transition-colors ${
+              eventIsFavourite 
+                ? 'bg-red-600/80 hover:bg-red-700/80 text-white' 
+                : 'bg-white/80 hover:bg-white text-gray-600'
+            }`}
+            onClick={handleFavouriteClick}
+            disabled={isUpdating}
           >
-            <Heart className="h-4 w-4" />
+            <Heart className={`h-4 w-4 ${eventIsFavourite ? 'fill-current' : ''}`} />
           </Button>
           <Badge className="absolute top-2 left-2 bg-red-600 text-white">
             {event.category}
