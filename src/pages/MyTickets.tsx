@@ -1,51 +1,29 @@
-
 import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Calendar, Download, Star, Clock, Shield, User, Eye } from 'lucide-react';
 import { BuyerTransactionDetailsView } from '@/components/tickets/BuyerTransactionDetailsView';
-import { useToast } from '@/hooks/use-toast';
-
-interface PurchasedTicket {
-  id: string;
-  ticket_id: string;
-  status: 'pending' | 'confirmed' | 'completed';
-  amount_paid: number;
-  transaction_date: string;
-  seller_confirmed: boolean;
-  buyer_confirmed: boolean;
-  ticket: {
-    title: string;
-    ticket_type: string;
-    quantity: number;
-    pdf_url?: string;
-    events: {
-      name: string;
-      venue: string;
-      city: string;
-      event_date: string;
-    };
-  };
-  seller: {
-    full_name: string;
-    is_verified: boolean;
-  };
-}
+import { PurchasedTicketCard } from '@/components/tickets/PurchasedTicketCard';
+import { EmptyTicketsState } from '@/components/tickets/EmptyTicketsState';
+import { usePurchasedTickets } from '@/hooks/usePurchasedTickets';
+import { useTicketDownload } from '@/hooks/useTicketDownload';
+import { PurchasedTicket } from '@/hooks/usePurchasedTickets';
+import { TransactionStatusCard } from '@/components/tickets/TransactionStatusCard';
+import { MapPin, Calendar, Download, Star, Clock, Shield, User, Eye, MessageSquare } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
 
 const MyTickets = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const { toast } = useToast();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
   const [viewingDetails, setViewingDetails] = useState<string | null>(null);
+
+  const { data: purchasedTickets = [], isLoading } = usePurchasedTickets();
+  const { downloadTicket } = useTicketDownload();
 
   // Get conversation ID from URL params if present
   useEffect(() => {
@@ -55,121 +33,6 @@ const MyTickets = () => {
       setSelectedConversation(conversationId);
     }
   }, [location.search]);
-
-  const { data: purchasedTickets = [], isLoading } = useQuery({
-    queryKey: ['purchased-tickets', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      console.log('Fetching purchased tickets for user:', user.id);
-      
-      // Get conversations where user is buyer and has purchase requests
-      const { data: conversations } = await supabase
-        .from('conversations')
-        .select(`
-          id,
-          ticket_id,
-          status,
-          created_at,
-          messages!inner (
-            message_type,
-            content,
-            created_at
-          )
-        `)
-        .eq('buyer_id', user.id);
-
-      if (!conversations) return [];
-
-      // Filter conversations that have purchase requests and get ticket details
-      const purchasedTickets = await Promise.all(
-        conversations
-          .filter(conv => conv.messages.some(msg => msg.message_type === 'purchase_request'))
-          .map(async (conv) => {
-            console.log('Processing conversation:', conv.id, 'for ticket:', conv.ticket_id);
-            
-            // Get ticket details including PDF URL
-            const { data: ticket, error: ticketError } = await supabase
-              .from('tickets')
-              .select(`
-                title,
-                ticket_type,
-                quantity,
-                selling_price,
-                pdf_url,
-                events!tickets_event_id_fkey (
-                  name,
-                  venue,
-                  city,
-                  event_date
-                ),
-                profiles!tickets_seller_id_fkey (
-                  full_name,
-                  is_verified
-                )
-              `)
-              .eq('id', conv.ticket_id)
-              .single();
-
-            if (ticketError) {
-              console.error('Error fetching ticket:', ticketError);
-              return null;
-            }
-
-            if (!ticket) {
-              console.log('No ticket found for ID:', conv.ticket_id);
-              return null;
-            }
-
-            console.log('Ticket data:', ticket);
-            console.log('PDF URL for ticket:', ticket.pdf_url);
-
-            // Determine status based on messages
-            const messages = conv.messages.sort((a, b) => 
-              new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-            );
-            
-            let status = 'pending';
-            let buyerConfirmed = false;
-            let sellerConfirmed = false;
-            
-            for (const msg of messages) {
-              if (msg.message_type === 'order_confirmed') {
-                status = 'confirmed';
-              } else if (msg.message_type === 'transfer_confirmation') {
-                buyerConfirmed = true;
-              } else if (msg.message_type === 'funds_received') {
-                sellerConfirmed = true;
-                status = 'completed';
-              }
-            }
-
-            return {
-              id: conv.id,
-              ticket_id: conv.ticket_id,
-              status,
-              amount_paid: ticket.selling_price,
-              transaction_date: conv.created_at,
-              seller_confirmed: sellerConfirmed,
-              buyer_confirmed: buyerConfirmed,
-              ticket: {
-                title: ticket.title,
-                ticket_type: ticket.ticket_type,
-                quantity: ticket.quantity,
-                pdf_url: ticket.pdf_url,
-                events: ticket.events,
-              },
-              seller: ticket.profiles,
-            };
-          })
-      );
-
-      const validTickets = purchasedTickets.filter(Boolean) as PurchasedTicket[];
-      console.log('Final purchased tickets:', validTickets);
-      return validTickets;
-    },
-    enabled: !!user,
-  });
 
   if (!user) {
     return (
@@ -209,52 +72,6 @@ const MyTickets = () => {
     ? purchasedTickets.find(ticket => ticket.id === viewingDetails)
     : null;
 
-  const handleDownloadTicket = async (ticket: PurchasedTicket) => {
-    try {
-      console.log('Downloading ticket for:', ticket.ticket_id);
-      console.log('PDF URL from ticket data:', ticket.ticket.pdf_url);
-      
-      if (!ticket.ticket.pdf_url) {
-        toast({
-          title: "No PDF Available",
-          description: "The seller hasn't uploaded a PDF for this ticket yet.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('Attempting to download PDF from URL:', ticket.ticket.pdf_url);
-
-      // Create a download link for the PDF
-      const response = await fetch(ticket.ticket.pdf_url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch PDF file: ${response.status} ${response.statusText}`);
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${ticket.ticket.title || 'ticket'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Ticket Downloaded",
-        description: "Your ticket PDF has been downloaded successfully.",
-      });
-    } catch (error) {
-      console.error('Error downloading ticket:', error);
-      toast({
-        title: "Download Error",
-        description: "Failed to download ticket PDF. Please try again or contact the seller.",
-        variant: "destructive"
-      });
-    }
-  };
-
   const TransactionDetailsView = ({ ticket }: { ticket: PurchasedTicket }) => (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
@@ -290,51 +107,7 @@ const MyTickets = () => {
       </Card>
 
       {/* Transaction Status */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center justify-between">
-            Transaction Status
-            <Badge 
-              variant={ticket.status === 'completed' ? 'default' : 'secondary'}
-              className="text-xs"
-            >
-              {ticket.status === 'completed' ? 'Completed' : 
-               ticket.buyer_confirmed ? 'Awaiting Seller Confirmation' : 
-               'Payment Pending'}
-            </Badge>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between py-2 border-b">
-            <span className="text-sm">Purchase Request Sent</span>
-            <div className="flex items-center text-green-600">
-              <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
-              Complete
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-2 border-b">
-            <span className="text-sm">Seller Accepted</span>
-            <div className="flex items-center text-green-600">
-              <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
-              Complete
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-2 border-b">
-            <span className="text-sm">Payment Transferred</span>
-            <div className="flex items-center text-green-600">
-              <div className="w-2 h-2 bg-green-600 rounded-full mr-2"></div>
-              Complete
-            </div>
-          </div>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-sm">Seller Confirms Receipt</span>
-            <div className="flex items-center text-yellow-600">
-              <Clock className="w-4 h-4 mr-2" />
-              {ticket.seller_confirmed ? 'Complete' : 'Pending'}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <TransactionStatusCard ticket={ticket} />
 
       {/* Event Details */}
       <Card>
@@ -408,115 +181,6 @@ const MyTickets = () => {
     </div>
   );
 
-  const TicketCard = ({ ticket }: { ticket: PurchasedTicket }) => (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex justify-between items-start mb-2">
-          <CardTitle className="text-lg font-semibold">
-            {ticket.ticket.events.name}
-          </CardTitle>
-          <Badge 
-            variant={
-              ticket.status === 'completed' ? 'default' : 
-              ticket.status === 'confirmed' ? 'secondary' : 
-              'outline'
-            }
-          >
-            {ticket.status === 'completed' ? 'Ready' : 
-             ticket.status === 'confirmed' ? 'Pending Transfer' : 
-             'Pending Seller'}
-          </Badge>
-        </div>
-        
-        <div className="space-y-2 text-sm text-gray-600">
-          <div className="flex items-center">
-            <MapPin className="h-4 w-4 mr-2" />
-            <span>{ticket.ticket.events.venue}, {ticket.ticket.events.city}</span>
-          </div>
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-2" />
-            <span>{new Date(ticket.ticket.events.event_date).toLocaleDateString()}</span>
-          </div>
-        </div>
-      </CardHeader>
-      
-      <CardContent>
-        <div className="space-y-3">
-          <div className="flex justify-between text-sm">
-            <span>{ticket.ticket.quantity} x {ticket.ticket.ticket_type}</span>
-            <span className="font-semibold">€{ticket.amount_paid}</span>
-          </div>
-          
-          <div className="flex items-center justify-between text-sm text-gray-600">
-            <div className="flex items-center">
-              <span>Seller: {ticket.seller.full_name}</span>
-              {ticket.seller.is_verified && (
-                <Star className="h-3 w-3 ml-1 fill-yellow-400 text-yellow-400" />
-              )}
-            </div>
-          </div>
-
-          {ticket.status === 'pending' && (
-            <div className="bg-yellow-50 p-3 rounded-lg">
-              <div className="flex items-center text-yellow-800">
-                <Clock className="h-4 w-4 mr-2" />
-                <span className="text-sm">Waiting for seller confirmation</span>
-              </div>
-            </div>
-          )}
-
-          {ticket.status === 'confirmed' && !ticket.buyer_confirmed && (
-            <div className="bg-blue-50 p-3 rounded-lg">
-              <p className="text-sm text-blue-800 mb-2">
-                Payment details have been shared. Please transfer funds and confirm in messages.
-              </p>
-              <Button 
-                size="sm" 
-                onClick={() => navigate('/messages')}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                Go to Messages
-              </Button>
-            </div>
-          )}
-
-          {ticket.status === 'confirmed' && ticket.buyer_confirmed && !ticket.seller_confirmed && (
-            <div className="bg-orange-50 p-3 rounded-lg">
-              <div className="flex items-center text-orange-800">
-                <Clock className="h-4 w-4 mr-2" />
-                <span className="text-sm">Transfer confirmed - waiting for seller</span>
-              </div>
-            </div>
-          )}
-          
-          {ticket.status === 'completed' && (
-            <div className="space-y-2">
-              <div className="flex gap-2">
-                <Button 
-                  size="sm" 
-                  className="flex-1 bg-green-600 hover:bg-green-700"
-                  onClick={() => handleDownloadTicket(ticket)}
-                >
-                  <Download className="h-4 w-4 mr-2" />
-                  Download Ticket
-                </Button>
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  className="flex-1"
-                  onClick={() => setViewingDetails(ticket.id)}
-                >
-                  <Eye className="h-4 w-4 mr-2" />
-                  View Details
-                </Button>
-              </div>
-            </div>
-          )}
-        </div>
-      </CardContent>
-    </Card>
-  );
-
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -559,21 +223,16 @@ const MyTickets = () => {
               
               <TabsContent value="upcoming" className="mt-6">
                 {upcomingTickets.length === 0 ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
-                      <h3 className="text-lg font-semibold mb-2">No upcoming tickets</h3>
-                      <p className="text-gray-600 mb-4">
-                        You don't have any confirmed tickets for upcoming events.
-                      </p>
-                      <Button onClick={() => navigate('/')}>
-                        Browse Events
-                      </Button>
-                    </CardContent>
-                  </Card>
+                  <EmptyTicketsState type="upcoming" />
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {upcomingTickets.map((ticket) => (
-                      <TicketCard key={ticket.id} ticket={ticket} />
+                      <PurchasedTicketCard 
+                        key={ticket.id} 
+                        ticket={ticket}
+                        onDownload={downloadTicket}
+                        onViewDetails={setViewingDetails}
+                      />
                     ))}
                   </div>
                 )}
@@ -581,18 +240,16 @@ const MyTickets = () => {
               
               <TabsContent value="pending" className="mt-6">
                 {pendingTickets.length === 0 ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
-                      <h3 className="text-lg font-semibold mb-2">No pending tickets</h3>
-                      <p className="text-gray-600">
-                        All your ticket purchases have been completed.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <EmptyTicketsState type="pending" />
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pendingTickets.map((ticket) => (
-                      <TicketCard key={ticket.id} ticket={ticket} />
+                      <PurchasedTicketCard 
+                        key={ticket.id} 
+                        ticket={ticket}
+                        onDownload={downloadTicket}
+                        onViewDetails={setViewingDetails}
+                      />
                     ))}
                   </div>
                 )}
@@ -600,18 +257,16 @@ const MyTickets = () => {
               
               <TabsContent value="past" className="mt-6">
                 {pastTickets.length === 0 ? (
-                  <Card>
-                    <CardContent className="p-8 text-center">
-                      <h3 className="text-lg font-semibold mb-2">No past events</h3>
-                      <p className="text-gray-600">
-                        You haven't attended any events yet.
-                      </p>
-                    </CardContent>
-                  </Card>
+                  <EmptyTicketsState type="past" />
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {pastTickets.map((ticket) => (
-                      <TicketCard key={ticket.id} ticket={ticket} />
+                      <PurchasedTicketCard 
+                        key={ticket.id} 
+                        ticket={ticket}
+                        onDownload={downloadTicket}
+                        onViewDetails={setViewingDetails}
+                      />
                     ))}
                   </div>
                 )}

@@ -1,39 +1,14 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { MapPin, Calendar, User, Star, Shield, MessageSquare, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { useToast } from '@/hooks/use-toast';
-import { supabase } from '@/integrations/supabase/client';
 import { SellerRatingDialog } from './SellerRatingDialog';
-
-interface PurchasedTicket {
-  id: string;
-  ticket_id: string;
-  status: 'pending' | 'confirmed' | 'completed';
-  amount_paid: number;
-  transaction_date: string;
-  seller_confirmed: boolean;
-  buyer_confirmed: boolean;
-  ticket: {
-    title: string;
-    ticket_type: string;
-    quantity: number;
-    pdf_url?: string;
-    events: {
-      name: string;
-      venue: string;
-      city: string;
-      event_date: string;
-    };
-  };
-  seller: {
-    full_name: string;
-    is_verified: boolean;
-  };
-}
+import { TransactionStatusCard } from './TransactionStatusCard';
+import { useTicketDownload } from '@/hooks/useTicketDownload';
+import { PurchasedTicket } from '@/hooks/usePurchasedTickets';
 
 interface BuyerTransactionDetailsViewProps {
   ticket: PurchasedTicket;
@@ -42,53 +17,11 @@ interface BuyerTransactionDetailsViewProps {
 
 export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransactionDetailsViewProps) => {
   const navigate = useNavigate();
-  const { toast } = useToast();
   const [showRatingDialog, setShowRatingDialog] = useState(false);
+  const { downloadTicket } = useTicketDownload();
 
-  const handleDownloadTicket = async () => {
-    try {
-      console.log('Downloading ticket for:', ticket.ticket_id);
-      console.log('PDF URL from ticket data:', ticket.ticket.pdf_url);
-
-      if (!ticket.ticket.pdf_url) {
-        toast({
-          title: "No PDF Available",
-          description: "The seller hasn't uploaded a PDF for this ticket yet.",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('Attempting to download PDF from URL:', ticket.ticket.pdf_url);
-
-      // Create a download link for the PDF
-      const response = await fetch(ticket.ticket.pdf_url);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch PDF file: ${response.status} ${response.statusText}`);
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `${ticket.ticket.title || 'ticket'}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-
-      toast({
-        title: "Ticket Downloaded",
-        description: "Your ticket PDF has been downloaded successfully.",
-      });
-    } catch (error) {
-      console.error('Error downloading ticket:', error);
-      toast({
-        title: "Download Error",
-        description: "Failed to download ticket PDF. Please try again or contact the seller.",
-        variant: "destructive"
-      });
-    }
+  const handleDownloadTicket = () => {
+    downloadTicket(ticket);
   };
 
   return (
