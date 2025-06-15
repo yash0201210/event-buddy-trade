@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -153,10 +152,10 @@ export const SuggestedEvents = () => {
                   >
                     <Heart className="h-4 w-4" />
                   </Button>
-                  <span className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs">
+                  <Badge className="absolute top-2 left-2 bg-red-600 text-white">
                     {event.category}
-                  </span>
-                  {event.ticket_count && event.ticket_count > 0 && (
+                  </Badge>
+                  {event.ticket_count !== undefined && event.ticket_count > 0 && (
                     <div className="absolute bottom-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
                       <Ticket className="h-3 w-3" />
                       <span>{event.ticket_count} tickets</span>
