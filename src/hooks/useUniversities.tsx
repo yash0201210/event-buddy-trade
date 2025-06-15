@@ -68,34 +68,24 @@ export const useUniversities = () => {
       if (editingUniversity) {
         console.log('Updating university with ID:', editingUniversity.id);
         
-        // First check if the university exists
-        const { data: existingUni, error: checkError } = await supabase
-          .from('universities')
-          .select('id')
-          .eq('id', editingUniversity.id)
-          .single();
-
-        if (checkError) {
-          console.error('Error checking existing university:', checkError);
-          throw new Error('University not found for update');
-        }
-
-        console.log('Found existing university:', existingUni);
-
-        // Now update the university
+        // Update the university without using .single() to avoid the error
         const { data, error } = await supabase
           .from('universities')
           .update(universityData)
           .eq('id', editingUniversity.id)
-          .select()
-          .single();
+          .select();
 
         if (error) {
           console.error('Update error:', error);
           throw error;
         }
         
-        console.log('University updated successfully:', data);
+        // Check if any rows were actually updated
+        if (!data || data.length === 0) {
+          throw new Error('University not found or no changes made');
+        }
+        
+        console.log('University updated successfully:', data[0]);
         
         toast({
           title: "University updated successfully!",
