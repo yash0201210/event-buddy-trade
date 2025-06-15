@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Calendar, ExternalLink, User, Clock } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { useNavigate } from 'react-router-dom';
 import {
   Dialog,
   DialogContent,
@@ -33,6 +34,7 @@ interface EventRequest {
 const AdminEventRequests = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [selectedRequest, setSelectedRequest] = useState<EventRequest | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
 
@@ -64,12 +66,33 @@ const AdminEventRequests = () => {
       
       if (error) throw error;
     },
-    onSuccess: () => {
+    onSuccess: (_, requestId) => {
       queryClient.invalidateQueries({ queryKey: ['admin-event-requests'] });
+      
+      // Find the approved request to get its details
+      const approvedRequest = eventRequests.find(req => req.id === requestId);
+      
       toast({
         title: "Event request approved",
-        description: "The event request has been approved. You can now create the event.",
+        description: "Redirecting to create the event...",
       });
+
+      // Navigate to events page with pre-fill data
+      if (approvedRequest) {
+        navigate('/admin/events', { 
+          state: { 
+            autoOpenForm: true,
+            prefillData: {
+              name: approvedRequest.event_name,
+              description: approvedRequest.description || ''
+            }
+          }
+        });
+      } else {
+        navigate('/admin/events', { 
+          state: { autoOpenForm: true }
+        });
+      }
     },
     onError: (error: any) => {
       toast({

@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Trash2, Edit, Plus, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { useLocation } from 'react-router-dom';
 
 interface Event {
   id: string;
@@ -54,6 +55,7 @@ const AdminEvents = () => {
     venue_id: ''
   });
   const [newTicketType, setNewTicketType] = useState('');
+  const location = useLocation();
   
   const { toast } = useToast();
 
@@ -61,7 +63,24 @@ const AdminEvents = () => {
     fetchEvents();
     fetchUniversities();
     fetchVenues();
-  }, []);
+
+    // Check if we should auto-open the form and pre-fill data
+    if (location.state?.autoOpenForm) {
+      setShowForm(true);
+      
+      if (location.state.prefillData) {
+        const prefillData = location.state.prefillData;
+        setFormData(prevData => ({
+          ...prevData,
+          name: prefillData.name || '',
+          description: prefillData.description || ''
+        }));
+      }
+      
+      // Clear the state to prevent auto-opening on refresh
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
 
   const fetchEvents = async () => {
     try {
