@@ -41,7 +41,7 @@ const Messages = () => {
     );
   }
 
-  const selectedConv = conversations.find(c => c.id === selectedConversation);
+  const selectedConv = conversations?.find(c => c.id === selectedConversation) || null;
 
   const handleSendMessage = () => {
     if (!selectedConversation || !newMessage.trim()) return;

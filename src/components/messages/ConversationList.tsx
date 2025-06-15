@@ -4,26 +4,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { MessageCircle, User } from 'lucide-react';
-
-interface Conversation {
-  id: string;
-  ticket_id: string;
-  buyer_id: string;
-  seller_id: string;
-  status: string;
-  created_at: string;
-  ticket_title?: string;
-  ticket_price?: number;
-  event_name?: string;
-  event_venue?: string;
-  event_date?: string;
-  buyer_name?: string;
-  seller_name?: string;
-  messages: any[];
-}
+import { ConversationWithDetails } from '@/hooks/useConversations';
 
 interface ConversationListProps {
-  conversations: Conversation[];
+  conversations: ConversationWithDetails[];
   selectedConversation: string | null;
   onSelectConversation: (conversationId: string) => void;
   currentUserId: string;
