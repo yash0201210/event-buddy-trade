@@ -121,11 +121,11 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 flex flex-col">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[600px]">
+      <main className="container mx-auto px-4 py-8 flex-1 flex flex-col">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
           <ConversationList
             conversations={conversations}
             selectedConversation={selectedConversation}

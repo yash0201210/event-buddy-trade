@@ -38,15 +38,8 @@ export const FundsReceivedMessage = ({
           </div>
         </div>
 
-        <p className={`text-xs mt-3 ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
-          {new Date(message.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-        </p>
-
         {isOwn && !isUserBuyer && (
-          <div className="mt-3">
+          <div className="mt-3 mb-2">
             <Button
               size="sm"
               variant="outline"
@@ -57,6 +50,13 @@ export const FundsReceivedMessage = ({
             </Button>
           </div>
         )}
+
+        <p className={`text-xs ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
+          {new Date(message.created_at).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </p>
       </div>
     </div>
   );

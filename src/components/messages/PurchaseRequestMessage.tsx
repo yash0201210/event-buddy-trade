@@ -51,16 +51,9 @@ export const PurchaseRequestMessage = ({
             Awaiting Seller Confirmation
           </p>
         </div>
-
-        <p className={`text-xs mt-3 ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
-          {new Date(message.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-        </p>
         
         {!isOwn && !isUserBuyer && (
-          <div className="mt-3 flex gap-2">
+          <div className="mt-3 mb-2 flex gap-2">
             <Button
               size="sm"
               onClick={() => onAcceptPurchaseRequest(conversationId)}
@@ -80,6 +73,13 @@ export const PurchaseRequestMessage = ({
             </Button>
           </div>
         )}
+
+        <p className={`text-xs ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
+          {new Date(message.created_at).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </p>
       </div>
     </div>
   );

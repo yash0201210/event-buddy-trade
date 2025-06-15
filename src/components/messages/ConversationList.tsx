@@ -2,7 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MessageCircle } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { MessageCircle, User } from 'lucide-react';
 
 interface Conversation {
   id: string;
@@ -34,6 +35,19 @@ export const ConversationList = ({
   onSelectConversation,
   currentUserId
 }: ConversationListProps) => {
+  const formatTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - date.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays <= 1) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    } else {
+      return date.toLocaleDateString();
+    }
+  };
+
   if (conversations.length === 0) {
     return (
       <Card className="h-full">
@@ -48,11 +62,11 @@ export const ConversationList = ({
   }
 
   return (
-    <Card className="h-full">
-      <CardHeader className="border-b border-gray-200">
+    <Card className="h-full flex flex-col">
+      <CardHeader className="border-b border-gray-200 flex-shrink-0">
         <CardTitle className="text-lg text-gray-900">Messages</CardTitle>
       </CardHeader>
-      <CardContent className="p-0">
+      <CardContent className="p-0 flex-1 overflow-y-auto">
         <div className="divide-y divide-gray-200">
           {conversations.map((conversation) => {
             const isUserBuyer = conversation.buyer_id === currentUserId;
@@ -68,21 +82,30 @@ export const ConversationList = ({
                   isSelected ? 'bg-red-50 border-l-4 border-red-600' : ''
                 }`}
               >
-                <div className="flex justify-between items-start mb-2">
-                  <h3 className="font-semibold text-sm text-gray-900 truncate">
-                    {conversation.ticket_title}
-                  </h3>
-                  <Badge variant="outline" className="text-xs border-red-200 text-red-700">
-                    €{conversation.ticket_price}
-                  </Badge>
+                <div className="flex items-center gap-3 mb-3">
+                  <Avatar className="w-8 h-8">
+                    <AvatarFallback className="bg-red-100 text-red-700">
+                      <User className="h-4 w-4" />
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start mb-1">
+                      <h3 className="font-semibold text-sm text-gray-900 truncate">
+                        {conversation.ticket_title}
+                      </h3>
+                      <Badge variant="outline" className="text-xs border-red-200 text-red-700 ml-2">
+                        €{conversation.ticket_price}
+                      </Badge>
+                    </div>
+                    
+                    <p className="text-xs text-gray-600 mb-1">
+                      {isUserBuyer ? 'Seller' : 'Buyer'}: {otherPartyName}
+                    </p>
+                  </div>
                 </div>
                 
-                <p className="text-xs text-gray-600 mb-2">
-                  {isUserBuyer ? 'Seller' : 'Buyer'}: {otherPartyName}
-                </p>
-                
                 {lastMessage && (
-                  <p className="text-xs text-gray-500 truncate">
+                  <p className="text-xs text-gray-500 truncate mb-1">
                     {lastMessage.message_type === 'purchase_request' ? 'Purchase request sent' :
                      lastMessage.message_type === 'order_confirmed' ? 'Order confirmed' :
                      lastMessage.message_type === 'transfer_confirmation' ? 'Transfer confirmed' :
@@ -91,8 +114,8 @@ export const ConversationList = ({
                   </p>
                 )}
                 
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(conversation.created_at).toLocaleDateString()}
+                <p className="text-xs text-gray-400">
+                  {formatTime(lastMessage?.created_at || conversation.created_at)}
                 </p>
               </div>
             );

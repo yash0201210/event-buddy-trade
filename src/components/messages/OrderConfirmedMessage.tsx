@@ -35,10 +35,10 @@ export const OrderConfirmedMessage = ({
               The order has now been confirmed. Transfer €9.73 to the seller using the bank details below:
             </p>
             
-            <div className="bg-gray-50 p-2 rounded text-xs space-y-1">
-              <div><span className="font-medium">Full Name:</span> Yash Agrawal</div>
-              <div><span className="font-medium">Sort Code:</span> XX - XX - XX</div>
-              <div><span className="font-medium">Account Number:</span> 12736892</div>
+            <div className="bg-gray-50 p-3 rounded text-xs space-y-1 border">
+              <div className="text-gray-800"><span className="font-medium text-gray-900">Full Name:</span> Yash Agrawal</div>
+              <div className="text-gray-800"><span className="font-medium text-gray-900">Sort Code:</span> XX - XX - XX</div>
+              <div className="text-gray-800"><span className="font-medium text-gray-900">Account Number:</span> 12736892</div>
             </div>
             
             <p className="text-xs text-gray-600 mt-2">
@@ -47,15 +47,8 @@ export const OrderConfirmedMessage = ({
           </div>
         </div>
 
-        <p className={`text-xs mt-3 ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
-          {new Date(message.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-        </p>
-
         {!isOwn && isUserBuyer && (
-          <div className="mt-3">
+          <div className="mt-3 mb-2">
             <Button
               size="sm"
               onClick={() => onConfirmTransfer(conversationId)}
@@ -65,6 +58,13 @@ export const OrderConfirmedMessage = ({
             </Button>
           </div>
         )}
+
+        <p className={`text-xs ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
+          {new Date(message.created_at).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </p>
       </div>
     </div>
   );

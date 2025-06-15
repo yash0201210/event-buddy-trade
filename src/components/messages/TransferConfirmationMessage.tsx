@@ -44,16 +44,9 @@ export const TransferConfirmationMessage = ({
           </div>
         </div>
 
-        <p className={`text-xs mt-3 ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
-          {new Date(message.created_at).toLocaleTimeString([], {
-            hour: '2-digit',
-            minute: '2-digit'
-          })}
-        </p>
-
         {isOwn && isUserBuyer && (
           <div 
-            className="mt-3 p-3 bg-blue-100 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
+            className="mt-3 mb-2 p-3 bg-blue-100 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-200 transition-colors"
             onClick={() => onViewTransactionDetails(selectedConv.id)}
           >
             <div className="flex items-center justify-between mb-2">
@@ -75,7 +68,7 @@ export const TransferConfirmationMessage = ({
         )}
 
         {!isOwn && !isUserBuyer && (
-          <div className="mt-3">
+          <div className="mt-3 mb-2">
             <Button
               size="sm"
               onClick={() => onFundsReceived(selectedConv.id)}
@@ -85,6 +78,13 @@ export const TransferConfirmationMessage = ({
             </Button>
           </div>
         )}
+
+        <p className={`text-xs ${isOwn ? 'text-red-100' : 'text-gray-500'}`}>
+          {new Date(message.created_at).toLocaleTimeString([], {
+            hour: '2-digit',
+            minute: '2-digit'
+          })}
+        </p>
       </div>
     </div>
   );

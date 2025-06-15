@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -104,9 +103,9 @@ export const ChatArea = ({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col flex-1 p-0">
+      <CardContent className="flex flex-col flex-1 p-0 min-h-0">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {selectedConv.messages?.map((message) => (
             <MessageBubble
               key={message.id}
@@ -124,18 +123,14 @@ export const ChatArea = ({
           ))}
         </div>
 
-        {/* Transaction Instructions - More compact */}
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-100 p-2 mx-4 rounded-lg mb-4 flex-shrink-0">
-          <h4 className="font-semibold text-xs text-red-800 mb-1">Transaction Steps</h4>
-          <div className="text-xs text-red-700 space-y-0.5">
+        {/* Transaction Instructions - Thinner and less prominent */}
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-100 p-2 mx-4 rounded-md mb-3 flex-shrink-0">
+          <h4 className="font-medium text-xs text-red-800 mb-1">Transaction Steps</h4>
+          <div className="text-xs text-red-600 opacity-80">
             {isUserBuyer ? (
-              <>
-                <p>1. Wait for seller acceptance • 2. Transfer payment • 3. Confirm transfer • 4. Receive tickets</p>
-              </>
+              <p>1. Wait for seller acceptance • 2. Transfer payment • 3. Confirm transfer • 4. Receive tickets</p>
             ) : (
-              <>
-                <p>1. Accept/counter offers • 2. Share bank details • 3. Confirm payment • 4. Transfer tickets</p>
-              </>
+              <p>1. Accept/counter offers • 2. Share bank details • 3. Confirm payment • 4. Transfer tickets</p>
             )}
           </div>
         </div>
