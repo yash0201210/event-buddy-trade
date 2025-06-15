@@ -18,9 +18,9 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
   const navigate = useNavigate();
 
   return (
-    <Card className="bg-white shadow-md rounded-md overflow-hidden">
-      <CardHeader className="p-4">
-        <CardTitle className="text-lg font-semibold">{ticket.ticket.events?.name || 'Event Name'}</CardTitle>
+    <Card className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
+      <CardHeader className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
+        <CardTitle className="text-xl font-bold text-gray-900">{ticket.ticket.events?.name || 'Event Name'}</CardTitle>
         <Badge 
           variant={
             ticket.status === 'completed' ? 'default' : 
@@ -35,15 +35,25 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
         </Badge>
       </CardHeader>
       
-      <CardContent className="p-4">
-        <p className="text-gray-600 mb-2">
-          {format(new Date(ticket.ticket.events?.event_date || ''), 'PPP')} - {ticket.ticket.events?.venue}, {ticket.ticket.events?.city}
-        </p>
-        <p className="text-gray-700 mb-4">
-          Price: €{ticket.amount_paid} | Quantity: {ticket.quantity}
-        </p>
+      <CardContent className="p-6">
+        <div className="space-y-4">
+          <div className="flex items-center text-gray-600">
+            <Calendar className="h-4 w-4 mr-2" />
+            <span>{format(new Date(ticket.ticket.events?.event_date || ''), 'PPP')}</span>
+          </div>
+          
+          <div className="flex items-center text-gray-600">
+            <MapPin className="h-4 w-4 mr-2" />
+            <span>{ticket.ticket.events?.venue}, {ticket.ticket.events?.city}</span>
+          </div>
+          
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="text-sm text-gray-600 mb-1">Price: €{ticket.amount_paid}</p>
+            <p className="text-sm text-gray-600">Quantity: {ticket.ticket.quantity}</p>
+          </div>
+        </div>
         
-        <div className="flex items-center justify-between text-sm text-gray-600 mb-4">
+        <div className="flex items-center justify-between text-sm text-gray-600 mt-4 pt-4 border-t">
           <div className="flex items-center">
             <span>Seller: {ticket.seller?.full_name || 'Unknown'}</span>
             {ticket.seller?.is_verified && (
@@ -53,7 +63,7 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
         </div>
 
         {ticket.status === 'pending' && (
-          <div className="bg-yellow-50 p-3 rounded-lg mb-4">
+          <div className="bg-yellow-50 p-3 rounded-lg mt-4">
             <div className="flex items-center text-yellow-800">
               <Clock className="h-4 w-4 mr-2" />
               <span className="text-sm">Waiting for seller confirmation</span>
@@ -62,7 +72,7 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
         )}
 
         {ticket.status === 'confirmed' && !ticket.buyer_confirmed && (
-          <div className="bg-blue-50 p-3 rounded-lg mb-4">
+          <div className="bg-blue-50 p-3 rounded-lg mt-4">
             <p className="text-sm text-blue-800 mb-2">
               Payment details have been shared. Please transfer funds and confirm in messages.
             </p>
@@ -77,7 +87,7 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
         )}
 
         {ticket.status === 'confirmed' && ticket.buyer_confirmed && !ticket.seller_confirmed && (
-          <div className="bg-orange-50 p-3 rounded-lg mb-4">
+          <div className="bg-orange-50 p-3 rounded-lg mt-4">
             <div className="flex items-center text-orange-800">
               <Clock className="h-4 w-4 mr-2" />
               <span className="text-sm">Transfer confirmed - waiting for seller</span>
@@ -86,7 +96,7 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
         )}
         
         {ticket.status === 'completed' && (
-          <div className="flex gap-2">
+          <div className="flex gap-2 mt-4">
             <Button 
               size="sm" 
               className="flex-1 bg-green-600 hover:bg-green-700"
