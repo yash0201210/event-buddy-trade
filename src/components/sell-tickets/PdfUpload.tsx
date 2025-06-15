@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -7,19 +6,23 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Upload, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
-
 interface PdfUploadProps {
   onUploadComplete: (pdfUrl: string, qrCodeHash: string) => void;
   eventName: string;
 }
-
-export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
-  const { user } = useAuth();
-  const { toast } = useToast();
+export const PdfUpload = ({
+  onUploadComplete,
+  eventName
+}: PdfUploadProps) => {
+  const {
+    user
+  } = useAuth();
+  const {
+    toast
+  } = useToast();
   const [uploading, setUploading] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verified' | 'rejected' | null>(null);
-
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
@@ -31,8 +34,8 @@ export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
         });
         return;
       }
-      
-      if (file.size > 10 * 1024 * 1024) { // 10MB limit
+      if (file.size > 10 * 1024 * 1024) {
+        // 10MB limit
         toast({
           title: "File too large",
           description: "Please upload a file smaller than 10MB",
@@ -40,51 +43,48 @@ export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
         });
         return;
       }
-      
       setUploadedFile(file);
     }
   };
-
   const uploadPdf = async () => {
     if (!uploadedFile || !user) return;
-
     setUploading(true);
     setVerificationStatus('pending');
-
     try {
       // Upload to Supabase Storage
       const fileExt = 'pdf';
       const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('ticket-pdfs')
-        .upload(fileName, uploadedFile);
-
+      const {
+        data: uploadData,
+        error: uploadError
+      } = await supabase.storage.from('ticket-pdfs').upload(fileName, uploadedFile);
       if (uploadError) throw uploadError;
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('ticket-pdfs')
-        .getPublicUrl(fileName);
+      const {
+        data: {
+          publicUrl
+        }
+      } = supabase.storage.from('ticket-pdfs').getPublicUrl(fileName);
 
       // Call verification edge function
-      const { data: verificationData, error: verificationError } = await supabase.functions
-        .invoke('verify-ticket-pdf', {
-          body: {
-            pdfUrl: publicUrl,
-            eventName: eventName,
-            fileName: fileName
-          }
-        });
-
+      const {
+        data: verificationData,
+        error: verificationError
+      } = await supabase.functions.invoke('verify-ticket-pdf', {
+        body: {
+          pdfUrl: publicUrl,
+          eventName: eventName,
+          fileName: fileName
+        }
+      });
       if (verificationError) throw verificationError;
-
       if (verificationData.success) {
         setVerificationStatus('verified');
         onUploadComplete(publicUrl, verificationData.qrCodeHash);
         toast({
           title: "Ticket verified successfully!",
-          description: "Your ticket has been uploaded and verified.",
+          description: "Your ticket has been uploaded and verified."
         });
       } else {
         setVerificationStatus('rejected');
@@ -106,7 +106,6 @@ export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
       setUploading(false);
     }
   };
-
   const getStatusIcon = () => {
     switch (verificationStatus) {
       case 'pending':
@@ -119,7 +118,6 @@ export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
         return null;
     }
   };
-
   const getStatusText = () => {
     switch (verificationStatus) {
       case 'pending':
@@ -132,16 +130,12 @@ export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
         return '';
     }
   };
-
-  return (
-    <div className="space-y-4">
+  return <div className="space-y-4">
       <div>
         <Label htmlFor="pdf-upload" className="text-sm font-medium">
           Upload Ticket PDF*
         </Label>
-        <p className="text-xs text-gray-500 mb-2">
-          Upload your ticket PDF for verification. We'll check for QR codes and event details.
-        </p>
+        <p className="text-xs text-gray-500 mb-2">Upload your ticket PDF for verification.</p>
         
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
           <div className="text-center">
@@ -155,48 +149,26 @@ export const PdfUpload = ({ onUploadComplete, eventName }: PdfUploadProps) => {
                   PDF files up to 10MB
                 </span>
               </Label>
-              <Input
-                id="pdf-upload"
-                type="file"
-                accept=".pdf"
-                onChange={handleFileSelect}
-                className="sr-only"
-              />
+              <Input id="pdf-upload" type="file" accept=".pdf" onChange={handleFileSelect} className="sr-only" />
             </div>
           </div>
         </div>
       </div>
 
-      {uploadedFile && (
-        <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+      {uploadedFile && <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
           <div className="flex items-center space-x-2">
             <FileText className="h-5 w-5 text-gray-500" />
             <span className="text-sm text-gray-900">{uploadedFile.name}</span>
             {getStatusIcon()}
           </div>
-          {verificationStatus !== 'verified' && (
-            <Button
-              onClick={uploadPdf}
-              disabled={uploading}
-              size="sm"
-              className="bg-red-600 hover:bg-red-700"
-            >
+          {verificationStatus !== 'verified' && <Button onClick={uploadPdf} disabled={uploading} size="sm" className="bg-red-600 hover:bg-red-700">
               {uploading ? 'Uploading...' : 'Upload & Verify'}
-            </Button>
-          )}
-        </div>
-      )}
+            </Button>}
+        </div>}
 
-      {verificationStatus && (
-        <div className={`p-3 rounded-lg flex items-center space-x-2 ${
-          verificationStatus === 'verified' ? 'bg-green-50 text-green-800' :
-          verificationStatus === 'rejected' ? 'bg-red-50 text-red-800' :
-          'bg-yellow-50 text-yellow-800'
-        }`}>
+      {verificationStatus && <div className={`p-3 rounded-lg flex items-center space-x-2 ${verificationStatus === 'verified' ? 'bg-green-50 text-green-800' : verificationStatus === 'rejected' ? 'bg-red-50 text-red-800' : 'bg-yellow-50 text-yellow-800'}`}>
           {getStatusIcon()}
           <span className="text-sm font-medium">{getStatusText()}</span>
-        </div>
-      )}
-    </div>
-  );
+        </div>}
+    </div>;
 };
