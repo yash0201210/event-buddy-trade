@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
+import { EventRequestsList } from '@/components/submit-event/EventRequestsList';
 
 const SubmitEvent = () => {
   const { user } = useAuth();
@@ -99,7 +100,7 @@ const SubmitEvent = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
+        <div className="max-w-2xl mx-auto space-y-8">
           <Button
             variant="ghost"
             onClick={() => navigate(-1)}
@@ -182,6 +183,8 @@ const SubmitEvent = () => {
               </form>
             </CardContent>
           </Card>
+
+          <EventRequestsList />
         </div>
       </main>
     </div>
