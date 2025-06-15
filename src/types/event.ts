@@ -18,6 +18,7 @@ export interface Event {
 export interface University {
   id: string;
   name: string;
+  city?: string;
 }
 
 export interface Venue {
@@ -39,4 +40,15 @@ export interface EventFormData {
   ticket_types: string[];
   university_id: string;
   venue_id: string;
+}
+
+export interface SearchResult {
+  id: string;
+  type: 'event' | 'venue' | 'university';
+  title: string;
+  description?: string;
+  image_url?: string;
+  start_date_time?: string;
+  venue?: string;
+  city?: string;
 }

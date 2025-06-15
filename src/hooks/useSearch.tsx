@@ -1,17 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-
-export interface SearchResult {
-  id: string;
-  type: 'event' | 'venue' | 'university';
-  title: string;
-  description?: string;
-  image_url?: string;
-  start_date_time?: string;
-  venue?: string;
-  city?: string;
-}
+import { SearchResult } from '@/types/event';
 
 export const useSearch = (searchQuery: string) => {
   const [results, setResults] = useState<SearchResult[]>([]);

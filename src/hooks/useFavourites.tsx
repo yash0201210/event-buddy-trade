@@ -8,6 +8,7 @@ import { Event } from '@/types/event';
 export const useFavourites = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const { data: favouriteEvents = [], isLoading } = useQuery({
     queryKey: ['favourite-events', user?.id],
@@ -48,6 +49,7 @@ export const useFavourites = () => {
   const toggleFavouriteMutation = useMutation({
     mutationFn: async (eventId: string) => {
       if (!user?.id) throw new Error('User not authenticated');
+      setIsUpdating(true);
 
       // Check if already favourite
       const { data: existing } = await supabase
@@ -80,16 +82,26 @@ export const useFavourites = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['favourite-events', user?.id] });
+      setIsUpdating(false);
     },
+    onError: () => {
+      setIsUpdating(false);
+    }
   });
 
   const toggleFavourite = (eventId: string) => {
     toggleFavouriteMutation.mutate(eventId);
   };
 
+  const isFavourite = (eventId: string) => {
+    return favouriteEvents.some(event => event.id === eventId);
+  };
+
   return {
     favouriteEvents,
     isLoading,
+    isUpdating,
     toggleFavourite,
+    isFavourite,
   };
 };
