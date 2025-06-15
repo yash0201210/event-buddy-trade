@@ -1,7 +1,8 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from './useAuth';
 
 interface Conversation {
   id: string;
@@ -10,196 +11,188 @@ interface Conversation {
   seller_id: string;
   status: string;
   created_at: string;
-  ticket_title?: string;
-  ticket_price?: number;
-  event_name?: string;
-  event_venue?: string;
-  event_date?: string;
-  buyer_name?: string;
-  seller_name?: string;
-  messages: Message[];
+  updated_at: string;
+  ticket?: {
+    id: string;
+    title: string;
+    selling_price: number;
+    quantity: number;
+    event?: {
+      id: string;
+      name: string;
+      venue: string;
+      start_date_time: string;
+    };
+  };
+  other_user?: {
+    id: string;
+    full_name: string;
+    email: string;
+  };
+  latest_message?: {
+    content: string;
+    created_at: string;
+    message_type: string;
+  };
 }
 
 interface Message {
   id: string;
-  content: string;
+  conversation_id: string;
   sender_id: string;
+  receiver_id: string;
+  content: string;
   message_type: string;
   created_at: string;
 }
 
-export const useConversations = (userId: string | undefined) => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+export const useConversations = () => {
+  const { user } = useAuth();
+  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
 
-  const { data: conversations = [], isLoading } = useQuery({
-    queryKey: ['conversations', userId],
+  const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useQuery({
+    queryKey: ['conversations', user?.id],
     queryFn: async () => {
-      if (!userId) return [];
-      
-      // Get conversations with related data
-      const { data: conversationsData, error: conversationsError } = await supabase
+      if (!user?.id) return [];
+
+      const { data: conversationsData, error } = await supabase
         .from('conversations')
-        .select('*')
-        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+        .select(`
+          *,
+          tickets!inner(
+            id,
+            title,
+            selling_price,
+            quantity,
+            events!inner(
+              id,
+              name,
+              venue,
+              start_date_time
+            )
+          )
+        `)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('updated_at', { ascending: false });
 
-      if (conversationsError) throw conversationsError;
+      if (error) {
+        console.error('Error fetching conversations:', error);
+        return [];
+      }
 
-      // Get related data for each conversation
-      const enrichedConversations = await Promise.all(
+      // Get the other user's details and latest message for each conversation
+      const conversationsWithDetails = await Promise.all(
         conversationsData.map(async (conv) => {
-          // Get ticket data
-          const { data: ticketData } = await supabase
-            .from('tickets')
-            .select(`
-              title,
-              selling_price,
-              events!tickets_event_id_fkey (
-                name,
-                venue,
-                event_date
-              )
-            `)
-            .eq('id', conv.ticket_id)
-            .single();
-
-          // Get buyer profile
-          const { data: buyerProfile } = await supabase
+          const otherUserId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
+          
+          // Get other user details
+          const { data: otherUser } = await supabase
             .from('profiles')
-            .select('full_name')
-            .eq('id', conv.buyer_id)
+            .select('id, full_name, email')
+            .eq('id', otherUserId)
             .single();
 
-          // Get seller profile
-          const { data: sellerProfile } = await supabase
-            .from('profiles')
-            .select('full_name')
-            .eq('id', conv.seller_id)
-            .single();
-
-          // Get messages
-          const { data: messages } = await supabase
+          // Get latest message
+          const { data: latestMessage } = await supabase
             .from('messages')
-            .select('*')
+            .select('content, created_at, message_type')
             .eq('conversation_id', conv.id)
-            .order('created_at', { ascending: true });
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
 
           return {
             ...conv,
-            ticket_title: ticketData?.title || 'Unknown Ticket',
-            ticket_price: ticketData?.selling_price || 0,
-            event_name: ticketData?.events?.name || 'Unknown Event',
-            event_venue: ticketData?.events?.venue || 'Unknown Venue',
-            event_date: ticketData?.events?.event_date || '',
-            buyer_name: buyerProfile?.full_name || 'Unknown User',
-            seller_name: sellerProfile?.full_name || 'Unknown User',
-            messages: messages || []
+            ticket: conv.tickets,
+            other_user: otherUser,
+            latest_message: latestMessage
           };
         })
       );
 
-      return enrichedConversations as Conversation[];
+      return conversationsWithDetails as Conversation[];
     },
-    enabled: !!userId,
+    enabled: !!user?.id,
   });
 
-  const sendMessageMutation = useMutation({
-    mutationFn: async ({ conversationId, content, messageType = 'text' }: {
-      conversationId: string;
-      content: string;
-      messageType?: string;
-    }) => {
-      const conversation = conversations.find(c => c.id === conversationId);
-      if (!conversation) throw new Error('Conversation not found');
+  const { data: messages = [], isLoading: messagesLoading, refetch: refetchMessages } = useQuery({
+    queryKey: ['messages', selectedConversation],
+    queryFn: async () => {
+      if (!selectedConversation) return [];
 
-      const receiverId = conversation.buyer_id === userId ? conversation.seller_id : conversation.buyer_id;
-
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: userId!,
-          receiver_id: receiverId,
-          content,
-          message_type: messageType,
-        });
+        .select('*')
+        .eq('conversation_id', selectedConversation)
+        .order('created_at', { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching messages:', error);
+        return [];
+      }
+
+      return data as Message[];
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-    },
+    enabled: !!selectedConversation,
   });
 
-  const markTicketAsSold = async (conversationId: string) => {
-    const conversation = conversations.find(c => c.id === conversationId);
-    if (!conversation) return;
+  // Listen for new messages
+  useEffect(() => {
+    if (!user?.id || !selectedConversation) return;
 
-    try {
-      console.log('Updating ticket status to sold for ticket:', conversation.ticket_id);
-      
-      // Update ticket status to 'sold' and set sold_at timestamp
-      const { error: ticketError } = await supabase
-        .from('tickets')
-        .update({ 
-          status: 'sold',
-          sold_at: new Date().toISOString()
-        })
-        .eq('id', conversation.ticket_id);
-
-      if (ticketError) {
-        console.error('Error updating ticket status:', ticketError);
-        toast({
-          title: "Error",
-          description: "Failed to update ticket status",
-          variant: "destructive"
-        });
-        return;
-      }
-
-      console.log('Ticket status updated successfully to sold');
-
-      // Invalidate all relevant queries to refresh data across the app
-      queryClient.invalidateQueries({ queryKey: ['event-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['event-sold-tickets-count'] });
-      queryClient.invalidateQueries({ queryKey: ['seller-tickets'] });
-      queryClient.invalidateQueries({ queryKey: ['conversations'] });
-      
-      // Also invalidate any event-specific queries
-      if (conversation.ticket_id) {
-        // Get the event ID from the ticket and invalidate event-specific queries
-        const { data: ticketData } = await supabase
-          .from('tickets')
-          .select('event_id')
-          .eq('id', conversation.ticket_id)
-          .single();
-          
-        if (ticketData?.event_id) {
-          queryClient.invalidateQueries({ queryKey: ['event-tickets', ticketData.event_id] });
-          queryClient.invalidateQueries({ queryKey: ['event-sold-tickets-count', ticketData.event_id] });
+    const channel = supabase
+      .channel('messages')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `conversation_id=eq.${selectedConversation}`,
+        },
+        () => {
+          refetchMessages();
         }
-      }
+      )
+      .subscribe();
 
-      toast({
-        title: "Success",
-        description: "Transaction completed successfully!",
-      });
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, selectedConversation, refetchMessages]);
 
-    } catch (error) {
-      console.error('Error in markTicketAsSold:', error);
-      toast({
-        title: "Error",
-        description: "Something went wrong",
-        variant: "destructive"
-      });
-    }
-  };
+  // Listen for conversation updates
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const channel = supabase
+      .channel('conversations')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'conversations',
+        },
+        () => {
+          refetchConversations();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user?.id, refetchConversations]);
 
   return {
     conversations,
-    isLoading,
-    sendMessageMutation,
-    markTicketAsSold
+    conversationsLoading,
+    messages,
+    messagesLoading,
+    selectedConversation,
+    setSelectedConversation,
+    refetchConversations,
+    refetchMessages,
   };
 };

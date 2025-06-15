@@ -1,22 +1,17 @@
 
 import React from 'react';
-import { Header } from '@/components/layout/Header';
-import { Footer } from '@/components/layout/Footer';
 import { useParams } from 'react-router-dom';
+import { Layout } from '@/components/layout/Layout';
 import { EventHeader } from '@/components/event/EventHeader';
-import { TicketAlert } from '@/components/event/TicketAlert';
-import { AvailableTickets } from '@/components/event/AvailableTickets';
 import { EventInformation } from '@/components/event/EventInformation';
-import { SellTicketPrompt } from '@/components/event/SellTicketPrompt';
+import { AvailableTickets } from '@/components/event/AvailableTickets';
 import { SimilarEvents } from '@/components/event/SimilarEvents';
-import { UniTicketingSolution } from '@/components/home/UniTicketingSolution';
-import { SoldTicketsCounter } from '@/components/event/SoldTicketsCounter';
-import { EventLoading } from '@/components/event/EventLoading';
 import { EventNotFound } from '@/components/event/EventNotFound';
-import { useEventData } from '@/hooks/useEventData';
+import { EventLoading } from '@/components/event/EventLoading';
+import { useEventDetails } from '@/hooks/useEventDetails';
 
 const Event = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   
   const {
     event,
@@ -26,50 +21,51 @@ const Event = () => {
     soldTicketsCount,
     eventLoading,
     ticketsLoading,
-  } = useEventData(id);
+  } = useEventDetails(id);
 
   if (eventLoading) {
-    return <EventLoading />;
+    return (
+      <Layout>
+        <EventLoading />
+      </Layout>
+    );
   }
 
   if (!event) {
-    return <EventNotFound />;
+    return (
+      <Layout>
+        <EventNotFound />
+      </Layout>
+    );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <Header />
-      <main className="container mx-auto px-4 py-8">
-        {/* Event Header - Full Width */}
-        <EventHeader event={event} venue={venue} university={university} />
-
-        {/* Narrow Content Area */}
-        <div className="max-w-4xl mx-auto mt-12">
-          {/* Available Tickets */}
-          <AvailableTickets tickets={tickets} isLoading={ticketsLoading} />
-
-          {/* Ticket Alert */}
-          <TicketAlert eventId={event.id} />
-
-          {/* Sold Tickets Counter */}
-          <SoldTicketsCounter count={soldTicketsCount} />
-
-          {/* Event Information */}
-          <EventInformation event={event} venue={venue} university={university} />
-
-          {/* Sell Ticket Prompt */}
-          <SellTicketPrompt eventId={event.id} />
-
-          {/* Similar Events */}
-          <SimilarEvents currentEvent={event} />
+    <Layout>
+      <div className="max-w-6xl mx-auto px-4 py-8">
+        <EventHeader 
+          event={event} 
+          venue={venue} 
+          university={university} 
+          soldTicketsCount={soldTicketsCount}
+        />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+          <div className="lg:col-span-2">
+            <EventInformation event={event} venue={venue} university={university} />
+          </div>
+          
+          <div className="lg:col-span-1">
+            <AvailableTickets 
+              eventId={event.id} 
+              tickets={tickets} 
+              loading={ticketsLoading}
+            />
+          </div>
         </div>
 
-        {/* University Ticketing Solution Banner - Full Width */}
-        <UniTicketingSolution />
-      </main>
-      
-      <Footer />
-    </div>
+        <SimilarEvents currentEvent={event} />
+      </div>
+    </Layout>
   );
 };
 

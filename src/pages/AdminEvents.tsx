@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -18,7 +17,8 @@ interface Event {
   name: string;
   venue: string;
   city: string;
-  event_date: string;
+  start_date_time: string;
+  end_date_time?: string;
   category: string;
   description?: string;
   image_url?: string;
@@ -33,7 +33,8 @@ const AdminEvents = () => {
     name: '',
     venue: '',
     city: '',
-    event_date: '',
+    start_date_time: '',
+    end_date_time: '',
     category: '',
     description: '',
     image_url: ''
@@ -64,7 +65,7 @@ const AdminEvents = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('event_date', { ascending: true });
+        .order('start_date_time', { ascending: true });
 
       if (error) throw error;
       setEvents(data || []);
@@ -84,10 +85,21 @@ const AdminEvents = () => {
     setLoading(true);
 
     try {
+      const eventData = {
+        name: formData.name,
+        venue: formData.venue,
+        city: formData.city,
+        start_date_time: formData.start_date_time ? new Date(formData.start_date_time).toISOString() : null,
+        end_date_time: formData.end_date_time ? new Date(formData.end_date_time).toISOString() : null,
+        category: formData.category,
+        description: formData.description || null,
+        image_url: formData.image_url || null
+      };
+
       if (editingEvent) {
         const { error } = await supabase
           .from('events')
-          .update(formData)
+          .update(eventData)
           .eq('id', editingEvent.id);
 
         if (error) throw error;
@@ -98,7 +110,7 @@ const AdminEvents = () => {
       } else {
         const { error } = await supabase
           .from('events')
-          .insert(formData);
+          .insert(eventData);
 
         if (error) throw error;
         
@@ -150,7 +162,8 @@ const AdminEvents = () => {
       name: '',
       venue: '',
       city: '',
-      event_date: '',
+      start_date_time: '',
+      end_date_time: '',
       category: '',
       description: '',
       image_url: ''
@@ -160,11 +173,22 @@ const AdminEvents = () => {
   };
 
   const startEdit = (event: Event) => {
+    const formatDateTimeLocal = (isoString: string): string => {
+      if (!isoString) return '';
+      try {
+        const date = new Date(isoString);
+        return date.toISOString().slice(0, 16);
+      } catch {
+        return '';
+      }
+    };
+
     setFormData({
       name: event.name,
       venue: event.venue,
       city: event.city,
-      event_date: event.event_date,
+      start_date_time: formatDateTimeLocal(event.start_date_time),
+      end_date_time: event.end_date_time ? formatDateTimeLocal(event.end_date_time) : '',
       category: event.category,
       description: event.description || '',
       image_url: event.image_url || ''
@@ -247,33 +271,43 @@ const AdminEvents = () => {
                       />
                     </div>
                     <div>
-                      <Label htmlFor="event_date">Event Date</Label>
+                      <Label htmlFor="start_date_time">Start Date & Time</Label>
                       <Input
-                        id="event_date"
-                        type="date"
-                        value={formData.event_date}
-                        onChange={(e) => setFormData({...formData, event_date: e.target.value})}
+                        id="start_date_time"
+                        type="datetime-local"
+                        value={formData.start_date_time}
+                        onChange={(e) => setFormData({...formData, start_date_time: e.target.value})}
                         required
                       />
                     </div>
                     <div>
-                      <Label htmlFor="category">Category</Label>
-                      <Select 
-                        value={formData.category} 
-                        onValueChange={(value) => setFormData({...formData, category: value})}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="concerts">Concerts</SelectItem>
-                          <SelectItem value="sports">Sports</SelectItem>
-                          <SelectItem value="theatre">Theatre</SelectItem>
-                          <SelectItem value="comedy">Comedy</SelectItem>
-                          <SelectItem value="festivals">Festivals</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <Label htmlFor="end_date_time">End Date & Time</Label>
+                      <Input
+                        id="end_date_time"
+                        type="datetime-local"
+                        value={formData.end_date_time}
+                        onChange={(e) => setFormData({...formData, end_date_time: e.target.value})}
+                      />
                     </div>
+                  </div>
+
+                  <div>
+                    <Label htmlFor="category">Category</Label>
+                    <Select 
+                      value={formData.category} 
+                      onValueChange={(value) => setFormData({...formData, category: value})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="concerts">Concerts</SelectItem>
+                        <SelectItem value="sports">Sports</SelectItem>
+                        <SelectItem value="theatre">Theatre</SelectItem>
+                        <SelectItem value="comedy">Comedy</SelectItem>
+                        <SelectItem value="festivals">Festivals</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
 
                   <div>
@@ -324,7 +358,10 @@ const AdminEvents = () => {
                       </h3>
                       <div className="text-gray-600 space-y-1">
                         <p><strong>Venue:</strong> {event.venue}, {event.city}</p>
-                        <p><strong>Date:</strong> {new Date(event.event_date).toLocaleDateString()}</p>
+                        <p><strong>Start:</strong> {new Date(event.start_date_time).toLocaleString()}</p>
+                        {event.end_date_time && (
+                          <p><strong>End:</strong> {new Date(event.end_date_time).toLocaleString()}</p>
+                        )}
                         <p><strong>Category:</strong> {event.category}</p>
                         {event.description && <p><strong>Description:</strong> {event.description}</p>}
                       </div>

@@ -12,7 +12,8 @@ interface Event {
   name: string;
   venue: string;
   city: string;
-  event_date: string;
+  start_date_time: string;
+  end_date_time?: string;
   category: string;
   description?: string;
   image_url?: string;
@@ -27,7 +28,7 @@ export const DiscoverMoreEvents = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('event_date', { ascending: true })
+        .order('start_date_time', { ascending: true })
         .limit(8);
 
       if (error) throw error;
@@ -90,7 +91,7 @@ export const DiscoverMoreEvents = () => {
                           <div className="flex items-center text-orange-500 text-sm mb-1">
                             <Calendar className="h-3 w-3 mr-1" />
                             <span className="font-medium">
-                              {new Date(event.event_date).toLocaleDateString('en-GB', { 
+                              {new Date(event.start_date_time).toLocaleDateString('en-GB', { 
                                 month: 'short', 
                                 day: 'numeric'
                               })}

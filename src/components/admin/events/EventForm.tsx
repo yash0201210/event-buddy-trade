@@ -1,13 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { X } from 'lucide-react';
+import { X, Link } from 'lucide-react';
 import { Event, University, Venue, EventFormData } from '@/types/event';
+import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 
 interface EventFormProps {
   editingEvent: Event | null;
@@ -34,6 +36,10 @@ export const EventForm = ({
   onSubmit,
   onCancel
 }: EventFormProps) => {
+  const [hyperlinkUrl, setHyperlinkUrl] = useState('');
+  const [scrapingLoading, setScrapingLoading] = useState(false);
+  const { toast } = useToast();
+
   const addTicketType = () => {
     if (newTicketType.trim() && !formData.ticket_types.includes(newTicketType.trim())) {
       setFormData({
@@ -51,12 +57,99 @@ export const EventForm = ({
     });
   };
 
+  const handleScrapeData = async () => {
+    if (!hyperlinkUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a valid URL",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setScrapingLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('scrape-event-details', {
+        body: { url: hyperlinkUrl }
+      });
+
+      if (error) throw error;
+
+      if (data?.success && data?.eventDetails) {
+        const eventDetails = data.eventDetails;
+        
+        setFormData(prevData => ({
+          ...prevData,
+          name: eventDetails.name || prevData.name,
+          venue: eventDetails.venue || prevData.venue,
+          city: eventDetails.city || prevData.city,
+          start_date_time: eventDetails.start_date_time ? 
+            new Date(eventDetails.start_date_time).toISOString().slice(0, 16) : prevData.start_date_time,
+          end_date_time: eventDetails.end_date_time ? 
+            new Date(eventDetails.end_date_time).toISOString().slice(0, 16) : prevData.end_date_time,
+          category: eventDetails.category || prevData.category,
+          description: eventDetails.description || prevData.description,
+          image_url: eventDetails.image_url || prevData.image_url,
+          ticket_types: eventDetails.ticket_types?.length > 0 ? eventDetails.ticket_types : prevData.ticket_types
+        }));
+
+        if (eventDetails.ticket_prices && eventDetails.ticket_prices.length > 0) {
+          console.log('Extracted ticket prices for reference:', eventDetails.ticket_prices);
+        }
+
+        toast({
+          title: "Data scraped successfully",
+          description: "Event information has been extracted and pre-filled in the form.",
+        });
+      } else {
+        throw new Error(data?.error || 'Failed to scrape event details');
+      }
+    } catch (error: any) {
+      console.error('Error scraping data:', error);
+      toast({
+        title: "Scraping failed",
+        description: "Could not extract event details from the URL. You can still fill the form manually.",
+        variant: "destructive"
+      });
+    } finally {
+      setScrapingLoading(false);
+    }
+  };
+
   return (
     <Card className="mb-8">
       <CardHeader>
         <CardTitle>{editingEvent ? 'Edit Event' : 'Create New Event'}</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* URL Scraping Section */}
+        <div className="mb-6 p-4 border rounded-lg bg-gray-50">
+          <Label htmlFor="hyperlink" className="text-sm font-medium mb-2 block">
+            Auto-fill from Event URL (Optional)
+          </Label>
+          <div className="flex gap-2">
+            <Input
+              id="hyperlink"
+              value={hyperlinkUrl}
+              onChange={(e) => setHyperlinkUrl(e.target.value)}
+              placeholder="https://example.com/event-page"
+              className="flex-1"
+            />
+            <Button 
+              type="button" 
+              onClick={handleScrapeData}
+              disabled={scrapingLoading || !hyperlinkUrl.trim()}
+              variant="outline"
+            >
+              <Link className="h-4 w-4 mr-2" />
+              {scrapingLoading ? 'Scraping...' : 'Extract Data'}
+            </Button>
+          </div>
+          <p className="text-xs text-gray-600 mt-1">
+            Enter an event URL to automatically extract event details and fill the form below.
+          </p>
+        </div>
+
         <form onSubmit={onSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>

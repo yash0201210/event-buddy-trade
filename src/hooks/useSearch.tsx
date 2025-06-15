@@ -1,114 +1,104 @@
 
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-export interface SearchResult {
+interface SearchResult {
   id: string;
-  type: 'event' | 'university' | 'venue' | 'city';
-  title: string;
-  subtitle: string;
-  image?: string;
-  date?: string;
+  type: 'event' | 'venue' | 'university';
+  name: string;
+  description?: string;
+  image_url?: string;
+  start_date_time?: string;
+  venue?: string;
+  city?: string;
 }
 
-export const useSearch = (query: string) => {
-  const [isOpen, setIsOpen] = useState(false);
+export const useSearch = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
-  const { data: results = [], isLoading } = useQuery({
-    queryKey: ['search', query],
-    queryFn: async () => {
-      if (!query || query.length < 2) return [];
-
-      const searchResults: SearchResult[] = [];
-
-      // Search events with date
-      const { data: events } = await supabase
-        .from('events')
-        .select('id, name, venue, city, image_url, event_date')
-        .ilike('name', `%${query}%`)
-        .limit(5);
-
-      if (events) {
-        events.forEach(event => {
-          searchResults.push({
-            id: event.id,
-            type: 'event',
-            title: event.name,
-            subtitle: `${event.venue}, ${event.city}`,
-            image: event.image_url || `https://images.unsplash.com/photo-1500375592092-40eb2168fd21?w=400&h=300&fit=crop`,
-            date: event.event_date
-          });
-        });
+  useEffect(() => {
+    const performSearch = async () => {
+      if (searchQuery.trim().length < 2) {
+        setSearchResults([]);
+        return;
       }
 
-      // Search universities with better image handling
-      const { data: universities } = await supabase
-        .from('universities')
-        .select('id, name, city, image_url')
-        .ilike('name', `%${query}%`)
-        .limit(3);
+      setIsSearching(true);
+      try {
+        // Search events
+        const { data: events, error: eventsError } = await supabase
+          .from('events')
+          .select('id, name, venue, city, image_url, start_date_time')
+          .or(`name.ilike.%${searchQuery}%,venue.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`)
+          .limit(5);
 
-      if (universities) {
-        universities.forEach(uni => {
-          searchResults.push({
-            id: uni.id,
-            type: 'university',
-            title: uni.name,
-            subtitle: uni.city || 'University',
-            image: uni.image_url || `https://images.unsplash.com/photo-1487958449943-2429e8be8625?w=400&h=300&fit=crop`
-          });
-        });
+        if (eventsError) throw eventsError;
+
+        const eventResults: SearchResult[] = (events || []).map(event => ({
+          id: event.id,
+          type: 'event' as const,
+          name: event.name,
+          description: `${event.venue}, ${event.city}`,
+          image_url: event.image_url,
+          start_date_time: event.start_date_time,
+          venue: event.venue,
+          city: event.city
+        }));
+
+        // Search venues
+        const { data: venues, error: venuesError } = await supabase
+          .from('venues')
+          .select('id, name, city, address')
+          .or(`name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`)
+          .limit(3);
+
+        if (venuesError) throw venuesError;
+
+        const venueResults: SearchResult[] = (venues || []).map(venue => ({
+          id: venue.id,
+          type: 'venue' as const,
+          name: venue.name,
+          description: venue.city,
+          city: venue.city
+        }));
+
+        // Search universities
+        const { data: universities, error: universitiesError } = await supabase
+          .from('universities')
+          .select('id, name, city, image_url')
+          .or(`name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`)
+          .limit(3);
+
+        if (universitiesError) throw universitiesError;
+
+        const universityResults: SearchResult[] = (universities || []).map(university => ({
+          id: university.id,
+          type: 'university' as const,
+          name: university.name,
+          description: university.city,
+          image_url: university.image_url,
+          city: university.city
+        }));
+
+        setSearchResults([...eventResults, ...venueResults, ...universityResults]);
+      } catch (error) {
+        console.error('Search error:', error);
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
       }
+    };
 
-      // Search venues with location
-      const { data: venues } = await supabase
-        .from('venues')
-        .select('id, name, city, address')
-        .ilike('name', `%${query}%`)
-        .limit(3);
-
-      if (venues) {
-        venues.forEach(venue => {
-          searchResults.push({
-            id: venue.id,
-            type: 'venue',
-            title: venue.name,
-            subtitle: venue.address ? `${venue.address}, ${venue.city}` : venue.city,
-            image: `https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop`
-          });
-        });
-      }
-
-      // Search cities from events
-      const { data: cities } = await supabase
-        .from('events')
-        .select('city')
-        .ilike('city', `%${query}%`)
-        .limit(3);
-
-      if (cities) {
-        const uniqueCities = [...new Set(cities.map(c => c.city))];
-        uniqueCities.forEach((city, index) => {
-          searchResults.push({
-            id: `city-${index}`,
-            type: 'city',
-            title: city,
-            subtitle: 'City',
-            image: `https://images.unsplash.com/photo-1466442929976-97f336a657be?w=400&h=300&fit=crop`
-          });
-        });
-      }
-
-      return searchResults.slice(0, 12);
-    },
-    enabled: query.length >= 2,
-  });
+    const debounceTimer = setTimeout(performSearch, 300);
+    return () => clearTimeout(debounceTimer);
+  }, [searchQuery]);
 
   return {
-    results,
-    isLoading,
-    isOpen,
-    setIsOpen
+    searchQuery,
+    setSearchQuery,
+    searchResults,
+    isSearching,
   };
 };
