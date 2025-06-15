@@ -5,7 +5,32 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Download, Star, Clock, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { PurchasedTicket } from '@/hooks/usePurchasedTickets';
+
+interface PurchasedTicket {
+  id: string;
+  ticket_id: string;
+  status: 'pending' | 'confirmed' | 'completed';
+  amount_paid: number;
+  transaction_date: string;
+  seller_confirmed: boolean;
+  buyer_confirmed: boolean;
+  ticket: {
+    title: string;
+    ticket_type: string;
+    quantity: number;
+    pdf_url?: string;
+    events: {
+      name: string;
+      venue: string;
+      city: string;
+      event_date: string;
+    };
+  };
+  seller: {
+    full_name: string;
+    is_verified: boolean;
+  };
+}
 
 interface PurchasedTicketCardProps {
   ticket: PurchasedTicket;
