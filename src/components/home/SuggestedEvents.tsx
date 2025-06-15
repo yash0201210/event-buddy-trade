@@ -56,7 +56,7 @@ export const SuggestedEvents = () => {
 
   if (isLoading) {
     return (
-      <section className="py-12 bg-white">
+      <section className="pt-4 pb-12 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -79,7 +79,7 @@ export const SuggestedEvents = () => {
 
   if (events.length === 0) {
     return (
-      <section className="py-12 bg-white">
+      <section className="pt-4 pb-12 bg-white">
         <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
@@ -97,7 +97,7 @@ export const SuggestedEvents = () => {
   }
 
   return (
-    <section className="py-12 bg-white">
+    <section className="pt-4 pb-12 bg-white">
       <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
