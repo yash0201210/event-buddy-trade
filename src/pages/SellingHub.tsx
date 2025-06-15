@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +9,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Layout } from '@/components/layout/Layout';
+import { SellingStats } from '@/components/selling/SellingStats';
 
 interface Ticket {
   id: string;
@@ -76,10 +76,21 @@ export default function SellingHub() {
   const currentListings = tickets?.filter(ticket => ticket.status === 'available') || [];
   const sellingHistory = tickets?.filter(ticket => ticket.status === 'sold') || [];
 
+  // Calculate analytics
+  const totalSold = sellingHistory.length;
+  const totalRevenue = sellingHistory.reduce((sum, ticket) => sum + ticket.selling_price, 0);
+  const activeListings = currentListings.length;
+
   return (
     <Layout>
       <div className="container mx-auto py-8">
         <h1 className="text-3xl font-bold mb-6">Selling Hub</h1>
+        
+        <SellingStats 
+          totalSold={totalSold}
+          totalRevenue={totalRevenue}
+          activeListings={activeListings}
+        />
         
         <Tabs defaultValue="current" className="space-y-6">
           <TabsList className="grid w-full grid-cols-2">
