@@ -2,89 +2,96 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import type { SearchResult } from '@/types/event';
+import { SearchResult } from '@/types/event';
 
-export const useSearch = (searchTerm?: string) => {
-  const [internalSearchTerm, setInternalSearchTerm] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
-  
-  // Use provided searchTerm or internal state
-  const currentSearchTerm = searchTerm !== undefined ? searchTerm : internalSearchTerm;
+export const useSearch = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [isSearching, setIsSearching] = useState(false);
 
   const { data: searchResults = [], isLoading } = useQuery({
-    queryKey: ['search', currentSearchTerm],
+    queryKey: ['search', searchTerm],
     queryFn: async () => {
-      if (!currentSearchTerm.trim()) return [];
+      if (!searchTerm.trim()) return [];
 
       const results: SearchResult[] = [];
 
       // Search events
       const { data: events } = await supabase
         .from('events')
-        .select('id, name, venue, city, start_date_time, image_url, description')
-        .ilike('name', `%${currentSearchTerm}%`)
+        .select('*')
+        .or(`name.ilike.%${searchTerm}%,venue.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`)
         .limit(5);
 
       if (events) {
-        results.push(...events.map(event => ({
-          id: event.id,
-          type: 'event' as const,
-          title: event.name,
-          description: event.description,
-          image_url: event.image_url,
-          start_date_time: event.start_date_time,
-          venue: event.venue,
-          city: event.city
-        })));
+        events.forEach(event => {
+          results.push({
+            id: event.id,
+            type: 'event',
+            title: event.name,
+            description: event.description,
+            image_url: event.image_url,
+            event_date: event.event_date,
+            venue: event.venue,
+            city: event.city
+          });
+        });
       }
 
       // Search venues
       const { data: venues } = await supabase
         .from('venues')
-        .select('id, name, city, address')
-        .ilike('name', `%${currentSearchTerm}%`)
+        .select('*')
+        .or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`)
         .limit(3);
 
       if (venues) {
-        results.push(...venues.map(venue => ({
-          id: venue.id,
-          type: 'venue' as const,
-          title: venue.name,
-          description: venue.address,
-          city: venue.city
-        })));
+        venues.forEach(venue => {
+          results.push({
+            id: venue.id,
+            type: 'venue',
+            title: venue.name,
+            description: venue.address,
+            city: venue.city
+          });
+        });
       }
 
       // Search universities
       const { data: universities } = await supabase
         .from('universities')
-        .select('id, name, city, image_url')
-        .ilike('name', `%${currentSearchTerm}%`)
+        .select('*')
+        .ilike('name', `%${searchTerm}%`)
         .limit(3);
 
       if (universities) {
-        results.push(...universities.map(university => ({
-          id: university.id,
-          type: 'university' as const,
-          title: university.name,
-          image_url: university.image_url,
-          city: university.city
-        })));
+        universities.forEach(university => {
+          results.push({
+            id: university.id,
+            type: 'university',
+            title: university.name,
+            description: university.city,
+            image_url: university.image_url,
+            city: university.city
+          });
+        });
       }
 
       return results;
     },
-    enabled: currentSearchTerm.length > 0,
+    enabled: searchTerm.length > 0,
   });
 
+  const handleSearch = (term: string) => {
+    setSearchTerm(term);
+    setIsSearching(term.length > 0);
+  };
+
   return {
-    searchTerm: currentSearchTerm,
-    setSearchTerm: setInternalSearchTerm,
+    searchTerm,
     searchResults,
     isLoading,
-    isOpen,
-    setIsOpen
+    isSearching,
+    handleSearch,
+    setIsSearching
   };
 };
-
-export type { SearchResult };

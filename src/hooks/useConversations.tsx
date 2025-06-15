@@ -1,134 +1,103 @@
 
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 
-export const useConversations = (userId?: string) => {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
+export interface ConversationWithDetails {
+  id: string;
+  ticket_id: string;
+  buyer_id: string;
+  seller_id: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  ticket: {
+    id: string;
+    title: string;
+    selling_price: number;
+    ticket_type: string;
+    event: {
+      name: string;
+      event_date: string;
+    };
+  };
+  other_user: {
+    full_name: string;
+    is_verified: boolean;
+  };
+  latest_message?: {
+    content: string;
+    created_at: string;
+    sender_id: string;
+  };
+}
 
-  const { data: conversations = [], refetch: refetchConversations, isLoading } = useQuery({
-    queryKey: ['conversations', userId],
+export const useConversations = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['conversations', user?.id],
     queryFn: async () => {
-      if (!userId) return [];
+      if (!user) return [];
 
-      const { data, error } = await supabase
+      // First get conversations where user is buyer or seller
+      const { data: conversations, error: convError } = await supabase
         .from('conversations')
         .select(`
           *,
-          tickets!inner(
+          tickets!inner (
             id,
             title,
             selling_price,
-            status
-          ),
-          messages(
-            id,
-            content,
-            created_at,
-            sender_id,
-            message_type
+            ticket_type,
+            events!inner (
+              name,
+              event_date
+            )
           )
         `)
-        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('updated_at', { ascending: false });
 
-      if (error) throw error;
+      if (convError) {
+        console.error('Error fetching conversations:', convError);
+        return [];
+      }
 
-      return data?.map(conversation => {
-        const otherUserId = conversation.buyer_id === userId ? conversation.seller_id : conversation.buyer_id;
-        const latestMessage = conversation.messages?.[conversation.messages.length - 1];
-        
-        return {
-          ...conversation,
-          other_user_id: otherUserId,
-          latest_message: latestMessage,
-          ticket: conversation.tickets,
-          ticket_price: conversation.tickets?.selling_price || 0
-        };
-      }) || [];
+      if (!conversations) return [];
+
+      // Get the other user profiles
+      const conversationsWithDetails = await Promise.all(
+        conversations.map(async (conv) => {
+          const otherUserId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
+          
+          // Get other user profile
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('full_name, is_verified')
+            .eq('id', otherUserId)
+            .single();
+
+          // Get latest message
+          const { data: latestMessage } = await supabase
+            .from('messages')
+            .select('content, created_at, sender_id')
+            .eq('conversation_id', conv.id)
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+
+          return {
+            ...conv,
+            ticket: conv.tickets,
+            other_user: profile || { full_name: 'Unknown User', is_verified: false },
+            latest_message: latestMessage
+          };
+        })
+      );
+
+      return conversationsWithDetails as ConversationWithDetails[];
     },
-    enabled: !!userId,
+    enabled: !!user,
   });
-
-  const { data: messages = [], refetch: refetchMessages } = useQuery({
-    queryKey: ['messages', userId],
-    queryFn: async () => {
-      if (!userId) return [];
-
-      const { data, error } = await supabase
-        .from('messages')
-        .select(`
-          *,
-          sender:profiles!messages_sender_id_fkey(full_name),
-          receiver:profiles!messages_receiver_id_fkey(full_name)
-        `)
-        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
-        .order('created_at', { ascending: true });
-
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !!userId,
-  });
-
-  const sendMessageMutation = useMutation({
-    mutationFn: async ({ conversationId, content, messageType = 'text' }: {
-      conversationId: string;
-      content: string;
-      messageType?: string;
-    }) => {
-      const conversation = conversations.find(c => c.id === conversationId);
-      if (!conversation || !userId) throw new Error('Invalid conversation or user');
-
-      const receiverId = conversation.buyer_id === userId ? conversation.seller_id : conversation.buyer_id;
-
-      const { data, error } = await supabase
-        .from('messages')
-        .insert({
-          conversation_id: conversationId,
-          sender_id: userId,
-          receiver_id: receiverId,
-          content,
-          message_type: messageType
-        });
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      refetchConversations();
-      refetchMessages();
-    },
-  });
-
-  const markTicketAsSold = async (conversationId: string) => {
-    const conversation = conversations.find(c => c.id === conversationId);
-    if (!conversation?.tickets?.id) return;
-
-    const { error } = await supabase
-      .from('tickets')
-      .update({ status: 'sold' })
-      .eq('id', conversation.tickets.id);
-
-    if (error) {
-      toast({
-        title: "Error",
-        description: "Failed to mark ticket as sold",
-        variant: "destructive"
-      });
-    } else {
-      refetchConversations();
-    }
-  };
-
-  return {
-    conversations,
-    messages,
-    refetchConversations,
-    refetchMessages,
-    isLoading,
-    sendMessageMutation,
-    markTicketAsSold
-  };
 };

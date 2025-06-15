@@ -5,6 +5,8 @@ import { Layout } from '@/components/layout/Layout';
 import { EventHeader } from '@/components/event/EventHeader';
 import { EventInformation } from '@/components/event/EventInformation';
 import { AvailableTickets } from '@/components/event/AvailableTickets';
+import { TicketAlert } from '@/components/event/TicketAlert';
+import { SellTicketPrompt } from '@/components/event/SellTicketPrompt';
 import { SimilarEvents } from '@/components/event/SimilarEvents';
 import { EventNotFound } from '@/components/event/EventNotFound';
 import { EventLoading } from '@/components/event/EventLoading';
@@ -50,14 +52,18 @@ const Event = () => {
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
           <div className="lg:col-span-2">
-            <EventInformation event={event} venue={venue} university={university} />
-          </div>
-          
-          <div className="lg:col-span-1">
             <AvailableTickets 
               tickets={tickets} 
               isLoading={ticketsLoading}
             />
+            
+            <TicketAlert eventId={event.id} />
+            
+            <EventInformation event={event} venue={venue} university={university} />
+          </div>
+          
+          <div className="lg:col-span-1">
+            <SellTicketPrompt eventId={event.id} />
           </div>
         </div>
 
