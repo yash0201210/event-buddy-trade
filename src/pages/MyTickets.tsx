@@ -47,15 +47,8 @@ const MyTickets = () => {
   if (isLoading) {
     return (
       <Layout>
-        <div className="max-w-4xl mx-auto p-6 space-y-6">
-          <div className="animate-pulse">
-            <div className="h-8 bg-gray-200 rounded w-48 mb-4"></div>
-            <div className="space-y-4">
-              {[...Array(3)].map((_, i) => (
-                <div key={i} className="h-32 bg-gray-200 rounded"></div>
-              ))}
-            </div>
-          </div>
+        <div className="container mx-auto py-8">
+          <div>Loading...</div>
         </div>
       </Layout>
     );
@@ -63,67 +56,91 @@ const MyTickets = () => {
 
   return (
     <Layout>
-      <div className="max-w-4xl mx-auto p-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Tickets</h1>
-            <p className="text-gray-600">Manage your purchased tickets</p>
-          </div>
-          <div className="flex items-center space-x-2 text-gray-600">
-            <Ticket className="h-5 w-5" />
-            <span className="font-medium">{tickets.length} Tickets</span>
-          </div>
-        </div>
-
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList>
+      <div className="container mx-auto py-8">
+        <h1 className="text-3xl font-bold mb-6">My Tickets</h1>
+        
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
             <TabsTrigger value="upcoming">Upcoming Events ({upcomingTickets.length})</TabsTrigger>
             <TabsTrigger value="pending">Pending Tickets ({pendingTickets.length})</TabsTrigger>
             <TabsTrigger value="past">Past Events ({pastTickets.length})</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="upcoming" className="space-y-4">
+          <TabsContent value="upcoming" className="space-y-6">
             {upcomingTickets.length === 0 ? (
-              <EmptyTicketsState type="upcoming" />
+              <Card className="bg-gray-50 border-gray-200">
+                <CardContent className="p-8 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    No upcoming events
+                  </h3>
+                  <p className="text-gray-600">
+                    You don't have any tickets for upcoming events yet.
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
-              upcomingTickets.map((ticket) => (
-                <PurchasedTicketCard
-                  key={ticket.id}
-                  ticket={ticket}
-                  onDownload={handleDownload}
-                  onViewDetails={handleViewDetails}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {upcomingTickets.map((ticket) => (
+                  <PurchasedTicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    onDownload={handleDownload}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+              </div>
             )}
           </TabsContent>
 
-          <TabsContent value="pending" className="space-y-4">
+          <TabsContent value="pending" className="space-y-6">
             {pendingTickets.length === 0 ? (
-              <EmptyTicketsState type="pending" />
+              <Card className="bg-gray-50 border-gray-200">
+                <CardContent className="p-8 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    No pending tickets
+                  </h3>
+                  <p className="text-gray-600">
+                    You don't have any pending ticket transactions.
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
-              pendingTickets.map((ticket) => (
-                <PurchasedTicketCard
-                  key={ticket.id}
-                  ticket={ticket}
-                  onDownload={handleDownload}
-                  onViewDetails={handleViewDetails}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pendingTickets.map((ticket) => (
+                  <PurchasedTicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    onDownload={handleDownload}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+              </div>
             )}
           </TabsContent>
 
-          <TabsContent value="past" className="space-y-4">
+          <TabsContent value="past" className="space-y-6">
             {pastTickets.length === 0 ? (
-              <EmptyTicketsState type="past" />
+              <Card className="bg-gray-50 border-gray-200">
+                <CardContent className="p-8 text-center">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                    No past events
+                  </h3>
+                  <p className="text-gray-600">
+                    You don't have any tickets for past events yet.
+                  </p>
+                </CardContent>
+              </Card>
             ) : (
-              pastTickets.map((ticket) => (
-                <PurchasedTicketCard
-                  key={ticket.id}
-                  ticket={ticket}
-                  onDownload={handleDownload}
-                  onViewDetails={handleViewDetails}
-                />
-              ))
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {pastTickets.map((ticket) => (
+                  <PurchasedTicketCard
+                    key={ticket.id}
+                    ticket={ticket}
+                    onDownload={handleDownload}
+                    onViewDetails={handleViewDetails}
+                  />
+                ))}
+              </div>
             )}
           </TabsContent>
         </Tabs>
