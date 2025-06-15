@@ -16,8 +16,10 @@ const Index = () => {
       
       <main className="space-y-0">
         <HeroSection />
+        <div className="py-8">
+          <CitySelector />
+        </div>
         <SuggestedEvents />
-        <CitySelector />
         <EventCategories />
         <DiscoverMoreEvents />
         <div className="bg-gray-100 py-12">
