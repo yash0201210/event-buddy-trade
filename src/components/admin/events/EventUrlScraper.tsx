@@ -37,23 +37,38 @@ export const EventUrlScraper = ({ onDataScraped }: EventUrlScraperProps) => {
       if (data?.success && data?.eventDetails) {
         const eventDetails = data.eventDetails;
         
-        // Only pass defined values to avoid overwriting with empty strings
-        const scrapedData = {
-          ...(eventDetails.name && { name: eventDetails.name }),
-          ...(eventDetails.venue && { venue: eventDetails.venue }),
-          ...(eventDetails.city && { city: eventDetails.city }),
-          ...(eventDetails.start_date_time && { 
-            start_date_time: new Date(eventDetails.start_date_time).toISOString().slice(0, 16) 
-          }),
-          ...(eventDetails.end_date_time && { 
-            end_date_time: new Date(eventDetails.end_date_time).toISOString().slice(0, 16) 
-          }),
-          ...(eventDetails.category && { category: eventDetails.category }),
-          ...(eventDetails.description && { description: eventDetails.description }),
-          ...(eventDetails.image_url && { image_url: eventDetails.image_url }),
-          ...(eventDetails.ticket_types?.length > 0 && { ticket_types: eventDetails.ticket_types })
-        };
+        // Create scraped data object with only valid values
+        const scrapedData: any = {};
+        
+        if (eventDetails.name && eventDetails.name.trim()) {
+          scrapedData.name = eventDetails.name.trim();
+        }
+        if (eventDetails.venue && eventDetails.venue.trim()) {
+          scrapedData.venue = eventDetails.venue.trim();
+        }
+        if (eventDetails.city && eventDetails.city.trim()) {
+          scrapedData.city = eventDetails.city.trim();
+        }
+        if (eventDetails.start_date_time) {
+          scrapedData.start_date_time = new Date(eventDetails.start_date_time).toISOString().slice(0, 16);
+        }
+        if (eventDetails.end_date_time) {
+          scrapedData.end_date_time = new Date(eventDetails.end_date_time).toISOString().slice(0, 16);
+        }
+        if (eventDetails.category && eventDetails.category.trim()) {
+          scrapedData.category = eventDetails.category.trim();
+        }
+        if (eventDetails.description && eventDetails.description.trim()) {
+          scrapedData.description = eventDetails.description.trim();
+        }
+        if (eventDetails.image_url && eventDetails.image_url.trim()) {
+          scrapedData.image_url = eventDetails.image_url.trim();
+        }
+        if (eventDetails.ticket_types && Array.isArray(eventDetails.ticket_types) && eventDetails.ticket_types.length > 0) {
+          scrapedData.ticket_types = eventDetails.ticket_types;
+        }
 
+        console.log('Scraped data being passed:', scrapedData);
         onDataScraped(scrapedData);
 
         if (eventDetails.ticket_prices && eventDetails.ticket_prices.length > 0) {
@@ -62,7 +77,7 @@ export const EventUrlScraper = ({ onDataScraped }: EventUrlScraperProps) => {
 
         toast({
           title: "Data scraped successfully",
-          description: "Event information has been extracted and pre-filled in the form. You can now edit any field as needed.",
+          description: "Event information has been extracted and pre-filled in the form. All fields remain editable.",
         });
       } else {
         throw new Error(data?.error || 'Failed to scrape event details');

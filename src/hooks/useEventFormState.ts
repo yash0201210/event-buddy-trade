@@ -68,19 +68,41 @@ export const useEventFormState = () => {
   };
 
   const prefillFormData = (prefillData: any) => {
-    setFormData(prevData => ({
-      ...prevData,
-      // Only update fields that have values, preserving existing data
-      ...(prefillData.name !== undefined && { name: prefillData.name }),
-      ...(prefillData.venue !== undefined && { venue: prefillData.venue }),
-      ...(prefillData.city !== undefined && { city: prefillData.city }),
-      ...(prefillData.start_date_time !== undefined && { start_date_time: prefillData.start_date_time }),
-      ...(prefillData.end_date_time !== undefined && { end_date_time: prefillData.end_date_time }),
-      ...(prefillData.category !== undefined && { category: prefillData.category }),
-      ...(prefillData.description !== undefined && { description: prefillData.description }),
-      ...(prefillData.image_url !== undefined && { image_url: prefillData.image_url }),
-      ...(prefillData.ticket_types !== undefined && { ticket_types: prefillData.ticket_types })
-    }));
+    // Use functional update to ensure we're working with the latest state
+    setFormData(currentFormData => {
+      const updatedFormData = { ...currentFormData };
+      
+      // Only update fields that have meaningful values
+      if (prefillData.name && prefillData.name.trim()) {
+        updatedFormData.name = prefillData.name;
+      }
+      if (prefillData.venue && prefillData.venue.trim()) {
+        updatedFormData.venue = prefillData.venue;
+      }
+      if (prefillData.city && prefillData.city.trim()) {
+        updatedFormData.city = prefillData.city;
+      }
+      if (prefillData.start_date_time) {
+        updatedFormData.start_date_time = prefillData.start_date_time;
+      }
+      if (prefillData.end_date_time) {
+        updatedFormData.end_date_time = prefillData.end_date_time;
+      }
+      if (prefillData.category && prefillData.category.trim()) {
+        updatedFormData.category = prefillData.category;
+      }
+      if (prefillData.description && prefillData.description.trim()) {
+        updatedFormData.description = prefillData.description;
+      }
+      if (prefillData.image_url && prefillData.image_url.trim()) {
+        updatedFormData.image_url = prefillData.image_url;
+      }
+      if (prefillData.ticket_types && Array.isArray(prefillData.ticket_types) && prefillData.ticket_types.length > 0) {
+        updatedFormData.ticket_types = prefillData.ticket_types;
+      }
+
+      return updatedFormData;
+    });
 
     if (prefillData.ticket_prices && prefillData.ticket_prices.length > 0) {
       console.log('Extracted ticket prices for reference:', prefillData.ticket_prices);
