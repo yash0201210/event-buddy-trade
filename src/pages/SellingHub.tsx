@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,6 +32,7 @@ interface Ticket {
 
 export default function SellingHub() {
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   const { data: tickets, isLoading } = useQuery({
     queryKey: ['seller-tickets', user?.id],
@@ -56,6 +57,10 @@ export default function SellingHub() {
     },
     enabled: !!user,
   });
+
+  const handleViewTransactionDetails = (ticketId: string) => {
+    navigate(`/seller-transaction/${ticketId}`);
+  };
 
   if (isLoading) {
     return (
@@ -143,9 +148,13 @@ export default function SellingHub() {
                       )}
 
                       <div className="mt-4">
-                        <Link to={`/ticket/${ticket.id}`}>
-                          <Button variant="outline" className="w-full">View Details</Button>
-                        </Link>
+                        <Button 
+                          variant="outline" 
+                          className="w-full"
+                          onClick={() => handleViewTransactionDetails(ticket.id)}
+                        >
+                          View Details
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>

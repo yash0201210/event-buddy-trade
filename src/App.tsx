@@ -15,6 +15,7 @@ import TicketDetails from "./pages/TicketDetails";
 import Messages from "./pages/Messages";
 import MyTickets from "./pages/MyTickets";
 import SellingHub from "./pages/SellingHub";
+import SellerTransactionDetails from "./pages/SellerTransactionDetails";
 import Help from "./pages/Help";
 import SellTickets from "./pages/SellTickets";
 import Settings from "./pages/Settings";
@@ -52,6 +53,7 @@ const App = () => (
             <Route path="/messages" element={<Messages />} />
             <Route path="/my-tickets" element={<MyTickets />} />
             <Route path="/selling-hub" element={<SellingHub />} />
+            <Route path="/seller-transaction/:ticketId" element={<SellerTransactionDetails />} />
             <Route path="/help" element={<Help />} />
             <Route path="/sell-tickets" element={<SellTickets />} />
             <Route path="/settings" element={<Settings />} />
