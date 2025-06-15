@@ -50,13 +50,15 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
             className="w-full h-full object-cover"
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=800&h=400&fit=crop';
+              target.src = 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop';
             }}
           />
         ) : (
-          <div className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
-            <span className="text-red-600 font-medium text-xl">{event.category}</span>
-          </div>
+          <img 
+            src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop"
+            alt="Event crowd"
+            className="w-full h-full object-cover"
+          />
         )}
         
         {/* Overlay */}
