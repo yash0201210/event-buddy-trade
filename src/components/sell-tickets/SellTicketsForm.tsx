@@ -22,8 +22,7 @@ interface TicketFormData {
   sellingPrice: number;
   description: string;
   isNegotiable: boolean;
-  pdfUrl?: string;
-  qrCodeHash?: string;
+  pdfUploads?: Array<{ pdfUrl: string; qrCodeHash: string; pages: number }>;
 }
 
 interface SellTicketsFormProps {

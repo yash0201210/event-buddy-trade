@@ -88,8 +88,7 @@ const SellTickets = () => {
     setTicketData({
       ...ticketData,
       ticketType: '',
-      pdfUrl: undefined,
-      qrCodeHash: undefined
+      pdfUploads: undefined
     });
   };
 
