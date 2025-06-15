@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -180,19 +179,17 @@ const SellTickets = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto">
-          <SellTicketsForm
-            events={events}
-            selectedEvent={selectedEvent}
-            ticketData={ticketData}
-            loading={loading}
-            onEventSelect={handleEventSelect}
-            onTicketDataChange={setTicketData}
-            onSubmitEventRequest={() => navigate('/submit-event')}
-            onSubmit={handleSubmit}
-          />
-        </div>
+      <main className="pb-8">
+        <SellTicketsForm
+          events={events}
+          selectedEvent={selectedEvent}
+          ticketData={ticketData}
+          loading={loading}
+          onEventSelect={handleEventSelect}
+          onTicketDataChange={setTicketData}
+          onSubmitEventRequest={() => navigate('/submit-event')}
+          onSubmit={handleSubmit}
+        />
       </main>
     </div>
   );

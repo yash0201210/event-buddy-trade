@@ -56,19 +56,26 @@ export const Header = () => {
             <span className="font-bold text-xl text-gray-900">socialdealr</span>
           </Link>
 
-          {/* Search Bar - only show on non-home pages */}
+          {/* Search Bar - only show on non-home pages, smaller and better positioned */}
           {!isHomePage && (
-            <div className="flex-1 max-w-xl mx-8">
-              <SearchBar 
-                value={searchQuery}
-                onChange={setSearchQuery}
-                onSearch={() => {
-                  if (searchQuery.trim()) {
-                    navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
-                  }
-                }}
-                placeholder="Search events..."
-              />
+            <div className="flex-1 max-w-md mx-6">
+              <div className="bg-white rounded-lg border border-gray-200 shadow-sm flex items-center">
+                <div className="flex items-center flex-1 px-4 py-2">
+                  <Search className="h-4 w-4 text-gray-400 mr-3" />
+                  <input
+                    type="text"
+                    placeholder="Search events..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === 'Enter' && searchQuery.trim()) {
+                        navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+                      }
+                    }}
+                    className="border-0 bg-transparent text-gray-900 placeholder-gray-500 text-sm focus:outline-none w-full"
+                  />
+                </div>
+              </div>
             </div>
           )}
 
@@ -76,13 +83,12 @@ export const Header = () => {
           <nav className="flex items-center space-x-6">
             {user ? (
               <>
-                <Link
-                  to="/sell-tickets"
-                  className="flex items-center space-x-1 text-red-600 hover:text-red-700 font-medium"
+                <Button
+                  onClick={() => navigate('/sell-tickets')}
+                  className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  <Plus className="h-4 w-4" />
-                  <span>Sell</span>
-                </Link>
+                  Sell
+                </Button>
 
                 <Link
                   to="/favourites"

@@ -5,25 +5,37 @@ import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal } from 'lucide-react';
 
 interface SearchBarProps {
-  searchQuery: string;
-  onSearchChange: (value: string) => void;
-  onFocus: () => void;
+  value: string;
+  onChange: (value: string) => void;
+  onSearch: () => void;
+  placeholder: string;
+  searchQuery?: string;
+  onSearchChange?: (value: string) => void;
+  onFocus?: () => void;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
+  value,
+  onChange,
+  onSearch,
+  placeholder,
   searchQuery,
   onSearchChange,
   onFocus
 }) => {
+  // Use the new props if provided, otherwise fall back to the old ones
+  const currentValue = searchQuery !== undefined ? searchQuery : value;
+  const handleChange = onSearchChange || onChange;
+  
   return (
     <div className="bg-white rounded-2xl p-1 shadow-xl flex items-center relative">
       <div className="flex items-center flex-1 px-6 py-3">
         <Search className="h-5 w-5 text-gray-400 mr-4" />
         <Input
           type="text"
-          placeholder="Search for an event, artist, venue or city"
-          value={searchQuery}
-          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder={placeholder}
+          value={currentValue}
+          onChange={(e) => handleChange(e.target.value)}
           onFocus={onFocus}
           className="border-0 bg-transparent text-gray-900 placeholder-gray-500 text-base focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0"
         />
