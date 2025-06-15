@@ -6,6 +6,7 @@ import { Toaster } from '@/components/ui/toaster';
 import Index from '@/pages/Index';
 import Auth from '@/pages/Auth';
 import Event from '@/pages/Event';
+import AllEvents from '@/pages/AllEvents';
 import SellTickets from '@/pages/SellTickets';
 import SubmitEvent from '@/pages/SubmitEvent';
 import TicketDetails from '@/pages/TicketDetails';
@@ -42,6 +43,7 @@ function App() {
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/events" element={<AllEvents />} />
             <Route path="/event/:id" element={<Event />} />
             <Route path="/sell-tickets" element={<SellTickets />} />
             <Route path="/submit-event" element={<SubmitEvent />} />

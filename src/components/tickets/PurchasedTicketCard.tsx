@@ -21,7 +21,7 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
       <CardHeader>
         <div className="flex justify-between items-start mb-2">
           <CardTitle className="text-lg font-semibold">
-            {ticket.ticket.events.name}
+            {ticket.ticket.events?.name || 'Event Name'}
           </CardTitle>
           <Badge 
             variant={
@@ -39,11 +39,11 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
         <div className="space-y-2 text-sm text-gray-600">
           <div className="flex items-center">
             <MapPin className="h-4 w-4 mr-2" />
-            <span>{ticket.ticket.events.venue}, {ticket.ticket.events.city}</span>
+            <span>{ticket.ticket.events?.venue}, {ticket.ticket.events?.city}</span>
           </div>
           <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-2" />
-            <span>{new Date(ticket.ticket.events.event_date).toLocaleDateString()}</span>
+            <span>{new Date(ticket.ticket.events?.event_date || '').toLocaleDateString()}</span>
           </div>
         </div>
       </CardHeader>
@@ -57,8 +57,8 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
           
           <div className="flex items-center justify-between text-sm text-gray-600">
             <div className="flex items-center">
-              <span>Seller: {ticket.seller.full_name}</span>
-              {ticket.seller.is_verified && (
+              <span>Seller: {ticket.seller?.full_name || 'Unknown'}</span>
+              {ticket.seller?.is_verified && (
                 <Star className="h-3 w-3 ml-1 fill-yellow-400 text-yellow-400" />
               )}
             </div>

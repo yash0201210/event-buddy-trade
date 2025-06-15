@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { EventCard } from './EventCard';
 import { EventCardSkeleton } from './EventCardSkeleton';
 import { EmptyEventsState } from './EmptyEventsState';
+import { useNavigate } from 'react-router-dom';
 
 interface Event {
   id: string;
@@ -20,6 +21,8 @@ interface Event {
 }
 
 export const SuggestedEvents = () => {
+  const navigate = useNavigate();
+  
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['suggested-events'],
     queryFn: async () => {
@@ -62,7 +65,11 @@ export const SuggestedEvents = () => {
             <h2 className="text-2xl font-bold text-gray-900">
               Suggested Events
             </h2>
-            <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+            <Button 
+              variant="outline" 
+              className="border-red-600 text-red-600 hover:bg-red-50"
+              onClick={() => navigate('/events')}
+            >
               View All
             </Button>
           </div>
@@ -85,7 +92,11 @@ export const SuggestedEvents = () => {
             <h2 className="text-2xl font-bold text-gray-900">
               Suggested Events
             </h2>
-            <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+            <Button 
+              variant="outline" 
+              className="border-red-600 text-red-600 hover:bg-red-50"
+              onClick={() => navigate('/events')}
+            >
               View All
             </Button>
           </div>
@@ -103,7 +114,11 @@ export const SuggestedEvents = () => {
           <h2 className="text-2xl font-bold text-gray-900">
             Suggested Events
           </h2>
-          <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-50">
+          <Button 
+            variant="outline" 
+            className="border-red-600 text-red-600 hover:bg-red-50"
+            onClick={() => navigate('/events')}
+          >
             View All
           </Button>
         </div>

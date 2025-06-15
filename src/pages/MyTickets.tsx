@@ -21,30 +21,21 @@ const MyTickets = () => {
 
   // Filter tickets based on date and status
   const upcomingTickets = tickets.filter(ticket => 
-    new Date(ticket.events?.event_date || '') > new Date() && 
-    ticket.transaction_status === 'completed'
+    new Date(ticket.ticket.events?.event_date || '') > new Date() && 
+    ticket.status === 'completed'
   );
 
   const pastTickets = tickets.filter(ticket => 
-    new Date(ticket.events?.event_date || '') <= new Date() && 
-    ticket.transaction_status === 'completed'
+    new Date(ticket.ticket.events?.event_date || '') <= new Date() && 
+    ticket.status === 'completed'
   );
 
   const handleDownload = (ticket: any) => {
-    downloadTicket(ticket.id);
+    downloadTicket(ticket);
   };
 
-  const handleViewDetails = (ticket: any) => {
-    navigate(`/ticket/${ticket.id}`);
-  };
-
-  const handleRateSeller = (ticket: any) => {
-    // Implementation for rating seller
-    console.log('Rating seller for ticket:', ticket.id);
-  };
-
-  const handleContactSeller = (ticket: any) => {
-    navigate(`/messages?conversation=${ticket.conversation_id}`);
+  const handleViewDetails = (ticketId: string) => {
+    navigate(`/ticket/${ticketId}`);
   };
 
   if (isLoading) {
@@ -84,7 +75,7 @@ const MyTickets = () => {
 
         <TabsContent value="all" className="space-y-4">
           {tickets.length === 0 ? (
-            <EmptyTicketsState />
+            <EmptyTicketsState type="upcoming" />
           ) : (
             tickets.map((ticket) => (
               <PurchasedTicketCard
@@ -92,8 +83,6 @@ const MyTickets = () => {
                 ticket={ticket}
                 onDownload={handleDownload}
                 onViewDetails={handleViewDetails}
-                onRateSeller={handleRateSeller}
-                onContactSeller={handleContactSeller}
               />
             ))
           )}
@@ -101,7 +90,7 @@ const MyTickets = () => {
 
         <TabsContent value="upcoming" className="space-y-4">
           {upcomingTickets.length === 0 ? (
-            <EmptyTicketsState message="No upcoming events found" />
+            <EmptyTicketsState type="upcoming" />
           ) : (
             upcomingTickets.map((ticket) => (
               <PurchasedTicketCard
@@ -109,8 +98,6 @@ const MyTickets = () => {
                 ticket={ticket}
                 onDownload={handleDownload}
                 onViewDetails={handleViewDetails}
-                onRateSeller={handleRateSeller}
-                onContactSeller={handleContactSeller}
               />
             ))
           )}
@@ -118,7 +105,7 @@ const MyTickets = () => {
 
         <TabsContent value="past" className="space-y-4">
           {pastTickets.length === 0 ? (
-            <EmptyTicketsState message="No past events found" />
+            <EmptyTicketsState type="past" />
           ) : (
             pastTickets.map((ticket) => (
               <PurchasedTicketCard
@@ -126,8 +113,6 @@ const MyTickets = () => {
                 ticket={ticket}
                 onDownload={handleDownload}
                 onViewDetails={handleViewDetails}
-                onRateSeller={handleRateSeller}
-                onContactSeller={handleContactSeller}
               />
             ))
           )}
