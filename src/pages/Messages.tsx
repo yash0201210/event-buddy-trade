@@ -121,33 +121,35 @@ const Messages = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col">
+    <div className="h-screen bg-gray-50 flex flex-col overflow-hidden">
       <Header />
       
-      <main className="container mx-auto px-4 py-8 flex-1 flex flex-col">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 flex-1">
-          <ConversationList
-            conversations={conversations}
-            selectedConversation={selectedConversation}
-            onSelectConversation={setSelectedConversation}
-            currentUserId={user.id}
-          />
+      <main className="flex-1 overflow-hidden">
+        <div className="container mx-auto px-4 h-full">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full py-4">
+            <ConversationList
+              conversations={conversations}
+              selectedConversation={selectedConversation}
+              onSelectConversation={setSelectedConversation}
+              currentUserId={user.id}
+            />
 
-          <ChatArea
-            selectedConv={selectedConv}
-            currentUserId={user.id}
-            newMessage={newMessage}
-            setNewMessage={setNewMessage}
-            onSendMessage={handleSendMessage}
-            isSending={sendMessageMutation.isPending}
-            onBack={() => setSelectedConversation(null)}
-            onAcceptPurchaseRequest={handleAcceptPurchaseRequest}
-            onRejectPurchaseRequest={handleRejectPurchaseRequest}
-            onConfirmTransfer={handleConfirmTransfer}
-            onViewTransactionDetails={handleViewTransactionDetails}
-            onFundsReceived={handleFundsReceived}
-            onNavigateToSellingHub={() => navigate('/selling-hub')}
-          />
+            <ChatArea
+              selectedConv={selectedConv}
+              currentUserId={user.id}
+              newMessage={newMessage}
+              setNewMessage={setNewMessage}
+              onSendMessage={handleSendMessage}
+              isSending={sendMessageMutation.isPending}
+              onBack={() => setSelectedConversation(null)}
+              onAcceptPurchaseRequest={handleAcceptPurchaseRequest}
+              onRejectPurchaseRequest={handleRejectPurchaseRequest}
+              onConfirmTransfer={handleConfirmTransfer}
+              onViewTransactionDetails={handleViewTransactionDetails}
+              onFundsReceived={handleFundsReceived}
+              onNavigateToSellingHub={() => navigate('/selling-hub')}
+            />
+          </div>
         </div>
       </main>
 

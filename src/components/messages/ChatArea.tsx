@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -77,8 +78,8 @@ export const ChatArea = ({
   const isUserBuyer = selectedConv.buyer_id === currentUserId;
 
   return (
-    <Card className="lg:col-span-2 h-full flex flex-col">
-      <CardHeader className="border-b border-gray-200 flex-shrink-0">
+    <Card className="lg:col-span-2 h-full flex flex-col overflow-hidden">
+      <CardHeader className="border-b border-gray-200 flex-shrink-0 py-3">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -103,7 +104,7 @@ export const ChatArea = ({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col flex-1 p-0 min-h-0">
+      <CardContent className="flex flex-col flex-1 p-0 min-h-0 overflow-hidden">
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {selectedConv.messages?.map((message) => (
@@ -124,7 +125,7 @@ export const ChatArea = ({
         </div>
 
         {/* Transaction Instructions - Thinner and less prominent */}
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-100 p-2 mx-4 rounded-md mb-3 flex-shrink-0">
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-100 p-2 mx-4 rounded-md mb-2 flex-shrink-0">
           <h4 className="font-medium text-xs text-red-800 mb-1">Transaction Steps</h4>
           <div className="text-xs text-red-600 opacity-80">
             {isUserBuyer ? (

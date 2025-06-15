@@ -62,8 +62,8 @@ export const ConversationList = ({
   }
 
   return (
-    <Card className="h-full flex flex-col">
-      <CardHeader className="border-b border-gray-200 flex-shrink-0">
+    <Card className="h-full flex flex-col overflow-hidden">
+      <CardHeader className="border-b border-gray-200 flex-shrink-0 py-3">
         <CardTitle className="text-lg text-gray-900">Messages</CardTitle>
       </CardHeader>
       <CardContent className="p-0 flex-1 overflow-y-auto">
