@@ -38,6 +38,9 @@ export const PdfUpload = ({
   const [uploads, setUploads] = useState<UploadedPdf[]>([]);
   const [uploading, setUploading] = useState<string | null>(null);
 
+  // VERIFICATION TEMPORARILY DISABLED FOR TESTING
+  const VERIFICATION_DISABLED = true;
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || []);
     
@@ -98,55 +101,80 @@ export const PdfUpload = ({
         .from('ticket-pdfs')
         .getPublicUrl(fileName);
 
-      // Call verification edge function
-      const { data: verificationData, error: verificationError } = await supabase.functions
-        .invoke('verify-ticket-pdf', {
-          body: {
-            pdfUrl: publicUrl,
-            eventName: eventName,
-            eventDate: eventDate,
-            fileName: fileName,
-            selectedPages: upload.selectedPages
-          }
-        });
-
-      if (verificationError) throw verificationError;
-
-      if (verificationData.success) {
+      if (VERIFICATION_DISABLED) {
+        // Skip verification for testing - auto-approve with mock data
+        const mockQrCodeHash = `mock_${uploadId}_${Date.now()}`;
+        
         setUploads(prev => prev.map(u => 
           u.id === uploadId 
             ? { 
                 ...u, 
                 verificationStatus: 'verified', 
                 pdfUrl: publicUrl, 
-                qrCodeHash: verificationData.qrCodeHash,
-                totalPages: verificationData.totalPages
+                qrCodeHash: mockQrCodeHash,
+                totalPages: upload.selectedPages
               }
             : u
         ));
         
         toast({
-          title: "Ticket verified successfully!",
-          description: "Your ticket has been uploaded and verified."
+          title: "Ticket uploaded successfully!",
+          description: "Verification is disabled for testing - ticket auto-approved."
         });
         
         updateParentComponent();
       } else {
-        setUploads(prev => prev.map(u => 
-          u.id === uploadId 
-            ? { 
-                ...u, 
-                verificationStatus: 'rejected',
-                errorMessage: verificationData.message 
-              }
-            : u
-        ));
-        
-        toast({
-          title: "Ticket verification failed",
-          description: verificationData.message || "Unable to verify your ticket. Please check the PDF and try again.",
-          variant: "destructive"
-        });
+        // Original verification logic (commented out for testing)
+        // Call verification edge function
+        const { data: verificationData, error: verificationError } = await supabase.functions
+          .invoke('verify-ticket-pdf', {
+            body: {
+              pdfUrl: publicUrl,
+              eventName: eventName,
+              eventDate: eventDate,
+              fileName: fileName,
+              selectedPages: upload.selectedPages
+            }
+          });
+
+        if (verificationError) throw verificationError;
+
+        if (verificationData.success) {
+          setUploads(prev => prev.map(u => 
+            u.id === uploadId 
+              ? { 
+                  ...u, 
+                  verificationStatus: 'verified', 
+                  pdfUrl: publicUrl, 
+                  qrCodeHash: verificationData.qrCodeHash,
+                  totalPages: verificationData.totalPages
+                }
+              : u
+          ));
+          
+          toast({
+            title: "Ticket verified successfully!",
+            description: "Your ticket has been uploaded and verified."
+          });
+          
+          updateParentComponent();
+        } else {
+          setUploads(prev => prev.map(u => 
+            u.id === uploadId 
+              ? { 
+                  ...u, 
+                  verificationStatus: 'rejected',
+                  errorMessage: verificationData.message 
+                }
+              : u
+          ));
+          
+          toast({
+            title: "Ticket verification failed",
+            description: verificationData.message || "Unable to verify your ticket. Please check the PDF and try again.",
+            variant: "destructive"
+          });
+        }
       }
     } catch (error: any) {
       console.error('Error uploading PDF:', error);
@@ -227,6 +255,12 @@ export const PdfUpload = ({
 
   return (
     <div className="space-y-4">
+      {VERIFICATION_DISABLED && (
+        <div className="p-3 bg-yellow-50 text-yellow-800 rounded text-sm">
+          ⚠️ Verification is temporarily disabled for testing purposes
+        </div>
+      )}
+      
       <div>
         <Label htmlFor="pdf-upload" className="text-sm font-medium">
           Upload Ticket PDFs*
@@ -321,20 +355,20 @@ export const PdfUpload = ({
                     size="sm"
                     className="w-full bg-red-600 hover:bg-red-700"
                   >
-                    {uploading === upload.id ? 'Uploading & Verifying...' : 'Upload & Verify'}
+                    {uploading === upload.id ? 'Uploading...' : VERIFICATION_DISABLED ? 'Upload' : 'Upload & Verify'}
                   </Button>
                 </div>
               )}
 
               {upload.verificationStatus === 'verified' && (
                 <div className="p-2 bg-green-50 text-green-800 rounded text-xs">
-                  ✓ Verified - {upload.selectedPages} ticket{upload.selectedPages > 1 ? 's' : ''} selected from this PDF
+                  ✓ {VERIFICATION_DISABLED ? 'Uploaded' : 'Verified'} - {upload.selectedPages} ticket{upload.selectedPages > 1 ? 's' : ''} selected from this PDF
                 </div>
               )}
 
               {upload.verificationStatus === 'rejected' && (
                 <div className="p-2 bg-red-50 text-red-800 rounded text-xs">
-                  ✗ Verification failed: {upload.errorMessage || 'Unknown error'}
+                  ✗ {VERIFICATION_DISABLED ? 'Upload' : 'Verification'} failed: {upload.errorMessage || 'Unknown error'}
                 </div>
               )}
             </div>

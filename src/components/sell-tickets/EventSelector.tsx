@@ -84,20 +84,16 @@ export const EventSelector = ({ events, selectedEvent, onEventSelect, onSubmitEv
                         className="w-full h-full object-cover rounded-lg"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.style.display = 'none';
-                          const fallback = target.nextElementSibling as HTMLElement;
-                          if (fallback) fallback.style.display = 'flex';
+                          target.src = 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop';
                         }}
                       />
-                    ) : null}
-                    <div 
-                      className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center"
-                      style={{ display: event.image_url ? 'none' : 'flex' }}
-                    >
-                      <span className="text-red-600 font-semibold text-xs text-center px-1">
-                        {event.category}
-                      </span>
-                    </div>
+                    ) : (
+                      <img 
+                        src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop"
+                        alt="Event crowd"
+                        className="w-full h-full object-cover rounded-lg"
+                      />
+                    )}
                   </div>
                   
                   <div className="flex-1 min-w-0">
