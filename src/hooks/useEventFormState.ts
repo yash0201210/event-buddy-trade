@@ -70,15 +70,16 @@ export const useEventFormState = () => {
   const prefillFormData = (prefillData: any) => {
     setFormData(prevData => ({
       ...prevData,
-      name: prefillData.name || '',
-      venue: prefillData.venue || '',
-      city: prefillData.city || '',
-      start_date_time: prefillData.start_date_time ? formatDateTimeLocal(prefillData.start_date_time) : '',
-      end_date_time: prefillData.end_date_time ? formatDateTimeLocal(prefillData.end_date_time) : '',
-      category: prefillData.category || 'concerts',
-      description: prefillData.description || '',
-      image_url: prefillData.image_url || '',
-      ticket_types: prefillData.ticket_types || []
+      // Only update fields that have values, preserving existing data
+      ...(prefillData.name !== undefined && { name: prefillData.name }),
+      ...(prefillData.venue !== undefined && { venue: prefillData.venue }),
+      ...(prefillData.city !== undefined && { city: prefillData.city }),
+      ...(prefillData.start_date_time !== undefined && { start_date_time: prefillData.start_date_time }),
+      ...(prefillData.end_date_time !== undefined && { end_date_time: prefillData.end_date_time }),
+      ...(prefillData.category !== undefined && { category: prefillData.category }),
+      ...(prefillData.description !== undefined && { description: prefillData.description }),
+      ...(prefillData.image_url !== undefined && { image_url: prefillData.image_url }),
+      ...(prefillData.ticket_types !== undefined && { ticket_types: prefillData.ticket_types })
     }));
 
     if (prefillData.ticket_prices && prefillData.ticket_prices.length > 0) {

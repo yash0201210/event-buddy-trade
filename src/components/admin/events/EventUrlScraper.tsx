@@ -37,19 +37,24 @@ export const EventUrlScraper = ({ onDataScraped }: EventUrlScraperProps) => {
       if (data?.success && data?.eventDetails) {
         const eventDetails = data.eventDetails;
         
-        onDataScraped({
-          name: eventDetails.name || '',
-          venue: eventDetails.venue || '',
-          city: eventDetails.city || '',
-          start_date_time: eventDetails.start_date_time ? 
-            new Date(eventDetails.start_date_time).toISOString().slice(0, 16) : '',
-          end_date_time: eventDetails.end_date_time ? 
-            new Date(eventDetails.end_date_time).toISOString().slice(0, 16) : '',
-          category: eventDetails.category || '',
-          description: eventDetails.description || '',
-          image_url: eventDetails.image_url || '',
-          ticket_types: eventDetails.ticket_types?.length > 0 ? eventDetails.ticket_types : []
-        });
+        // Only pass defined values to avoid overwriting with empty strings
+        const scrapedData = {
+          ...(eventDetails.name && { name: eventDetails.name }),
+          ...(eventDetails.venue && { venue: eventDetails.venue }),
+          ...(eventDetails.city && { city: eventDetails.city }),
+          ...(eventDetails.start_date_time && { 
+            start_date_time: new Date(eventDetails.start_date_time).toISOString().slice(0, 16) 
+          }),
+          ...(eventDetails.end_date_time && { 
+            end_date_time: new Date(eventDetails.end_date_time).toISOString().slice(0, 16) 
+          }),
+          ...(eventDetails.category && { category: eventDetails.category }),
+          ...(eventDetails.description && { description: eventDetails.description }),
+          ...(eventDetails.image_url && { image_url: eventDetails.image_url }),
+          ...(eventDetails.ticket_types?.length > 0 && { ticket_types: eventDetails.ticket_types })
+        };
+
+        onDataScraped(scrapedData);
 
         if (eventDetails.ticket_prices && eventDetails.ticket_prices.length > 0) {
           console.log('Extracted ticket prices for reference:', eventDetails.ticket_prices);
@@ -57,7 +62,7 @@ export const EventUrlScraper = ({ onDataScraped }: EventUrlScraperProps) => {
 
         toast({
           title: "Data scraped successfully",
-          description: "Event information has been extracted and pre-filled in the form.",
+          description: "Event information has been extracted and pre-filled in the form. You can now edit any field as needed.",
         });
       } else {
         throw new Error(data?.error || 'Failed to scrape event details');
@@ -98,7 +103,7 @@ export const EventUrlScraper = ({ onDataScraped }: EventUrlScraperProps) => {
         </Button>
       </div>
       <p className="text-xs text-gray-600 mt-1">
-        Enter an event URL to automatically extract event details and fill the form below.
+        Enter an event URL to automatically extract event details. All fields remain editable after extraction.
       </p>
     </div>
   );
