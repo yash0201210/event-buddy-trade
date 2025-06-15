@@ -8,6 +8,7 @@ import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { EventSelector } from '@/components/sell-tickets/EventSelector';
 import { TicketDetailsForm } from '@/components/sell-tickets/TicketDetailsForm';
+import { SubmitEventRequestDialog } from '@/components/sell-tickets/SubmitEventRequestDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -35,6 +36,7 @@ const SellTickets = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [showEventRequestDialog, setShowEventRequestDialog] = useState(false);
   const [ticketData, setTicketData] = useState<TicketFormData>({
     ticketType: '',
     quantity: 1,
@@ -161,19 +163,15 @@ const SellTickets = () => {
       <Header />
       
       <main className="container mx-auto px-4 py-8">
-        <div className="max-w-2xl mx-auto">
-          <h1 className="text-3xl font-bold text-gray-900 mb-8">Sell Your Tickets</h1>
-          
+        <div className="max-w-4xl mx-auto">
           <form onSubmit={handleSubmit} className="space-y-8">
             <Card>
-              <CardHeader>
-                <CardTitle>Select Event</CardTitle>
-              </CardHeader>
-              <CardContent>
+              <CardContent className="p-6">
                 <EventSelector
                   events={events}
                   selectedEvent={selectedEvent}
                   onEventSelect={handleEventSelect}
+                  onSubmitEventRequest={() => setShowEventRequestDialog(true)}
                 />
               </CardContent>
             </Card>
@@ -205,6 +203,11 @@ const SellTickets = () => {
           </form>
         </div>
       </main>
+
+      <SubmitEventRequestDialog
+        isOpen={showEventRequestDialog}
+        onClose={() => setShowEventRequestDialog(false)}
+      />
     </div>
   );
 };
