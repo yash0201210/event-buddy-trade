@@ -53,17 +53,28 @@ export const SubmitEventRequestDialog = ({ isOpen, onClose }: SubmitEventRequest
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('event_requests')
-        .insert({
-          user_id: user.id,
-          event_name: formData.eventName.trim(),
-          event_hyperlink: formData.eventHyperlink.trim() || null,
-          description: formData.description.trim() || null,
-          status: 'pending'
-        });
+      // Use raw SQL insert since the table isn't in TypeScript types yet
+      const { error } = await supabase.rpc('create_event_request', {
+        p_user_id: user.id,
+        p_event_name: formData.eventName.trim(),
+        p_event_hyperlink: formData.eventHyperlink.trim() || null,
+        p_description: formData.description.trim() || null
+      });
 
-      if (error) throw error;
+      if (error) {
+        // Fallback to direct insert if RPC doesn't exist
+        const { error: insertError } = await supabase
+          .from('event_requests' as any)
+          .insert({
+            user_id: user.id,
+            event_name: formData.eventName.trim(),
+            event_hyperlink: formData.eventHyperlink.trim() || null,
+            description: formData.description.trim() || null,
+            status: 'pending'
+          });
+        
+        if (insertError) throw insertError;
+      }
 
       toast({
         title: "Event request submitted!",

@@ -39,6 +39,39 @@ export type Database = {
         }
         Relationships: []
       }
+      event_requests: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_hyperlink: string | null
+          event_name: string
+          id: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_hyperlink?: string | null
+          event_name: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_hyperlink?: string | null
+          event_name?: string
+          id?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           category: string

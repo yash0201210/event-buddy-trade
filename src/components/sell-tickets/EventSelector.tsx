@@ -4,7 +4,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Search, Calendar, MapPin, Plus } from 'lucide-react';
+import { Search, Calendar, MapPin } from 'lucide-react';
 
 interface Event {
   id: string;
@@ -63,7 +63,7 @@ export const EventSelector = ({ events, selectedEvent, onEventSelect, onSubmitEv
           >
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">
-                <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center flex-shrink-0">
+                <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {event.image_url ? (
                     <img 
                       src={event.image_url} 

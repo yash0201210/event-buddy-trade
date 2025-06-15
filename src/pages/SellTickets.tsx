@@ -1,13 +1,12 @@
 
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
-import { EventSelector } from '@/components/sell-tickets/EventSelector';
-import { TicketDetailsForm } from '@/components/sell-tickets/TicketDetailsForm';
+import { SellTicketsForm } from '@/components/sell-tickets/SellTicketsForm';
 import { SubmitEventRequestDialog } from '@/components/sell-tickets/SubmitEventRequestDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,6 +18,7 @@ interface Event {
   city: string;
   event_date: string;
   category: string;
+  image_url?: string;
   ticket_types?: string[];
 }
 
@@ -164,43 +164,16 @@ const SellTickets = () => {
       
       <main className="container mx-auto px-4 py-8">
         <div className="max-w-4xl mx-auto">
-          <form onSubmit={handleSubmit} className="space-y-8">
-            <Card>
-              <CardContent className="p-6">
-                <EventSelector
-                  events={events}
-                  selectedEvent={selectedEvent}
-                  onEventSelect={handleEventSelect}
-                  onSubmitEventRequest={() => setShowEventRequestDialog(true)}
-                />
-              </CardContent>
-            </Card>
-
-            {selectedEvent && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Ticket Details</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <TicketDetailsForm
-                    data={ticketData}
-                    onChange={setTicketData}
-                    selectedEvent={selectedEvent}
-                  />
-                </CardContent>
-              </Card>
-            )}
-
-            {selectedEvent && (
-              <Button 
-                type="submit" 
-                className="w-full bg-red-600 hover:bg-red-700"
-                disabled={loading}
-              >
-                {loading ? 'Listing Ticket...' : 'List Ticket for Sale'}
-              </Button>
-            )}
-          </form>
+          <SellTicketsForm
+            events={events}
+            selectedEvent={selectedEvent}
+            ticketData={ticketData}
+            loading={loading}
+            onEventSelect={handleEventSelect}
+            onTicketDataChange={setTicketData}
+            onSubmitEventRequest={() => setShowEventRequestDialog(true)}
+            onSubmit={handleSubmit}
+          />
         </div>
       </main>
 
