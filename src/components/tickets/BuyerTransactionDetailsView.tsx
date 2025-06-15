@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +21,7 @@ interface PurchasedTicket {
     title: string;
     ticket_type: string;
     quantity: number;
+    pdf_url?: string;
     events: {
       name: string;
       venue: string;
@@ -48,20 +48,9 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
   const handleDownloadTicket = async () => {
     try {
       console.log('Downloading ticket for:', ticket.ticket_id);
-      
-      // Get the actual ticket details to find the PDF URL
-      const { data: ticketData, error } = await supabase
-        .from('tickets')
-        .select('pdf_url, title')
-        .eq('id', ticket.ticket_id)
-        .single();
+      console.log('PDF URL from ticket data:', ticket.ticket.pdf_url);
 
-      if (error) {
-        console.error('Error fetching ticket data:', error);
-        throw error;
-      }
-
-      if (!ticketData?.pdf_url) {
+      if (!ticket.ticket.pdf_url) {
         toast({
           title: "No PDF Available",
           description: "The seller hasn't uploaded a PDF for this ticket yet.",
@@ -70,19 +59,19 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
         return;
       }
 
-      console.log('PDF URL found:', ticketData.pdf_url);
+      console.log('Attempting to download PDF from URL:', ticket.ticket.pdf_url);
 
       // Create a download link for the PDF
-      const response = await fetch(ticketData.pdf_url);
+      const response = await fetch(ticket.ticket.pdf_url);
       if (!response.ok) {
-        throw new Error('Failed to fetch PDF file');
+        throw new Error(`Failed to fetch PDF file: ${response.status} ${response.statusText}`);
       }
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${ticketData.title || 'ticket'}.pdf`;
+      link.download = `${ticket.ticket.title || 'ticket'}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

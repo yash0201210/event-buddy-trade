@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,6 +25,7 @@ interface PurchasedTicket {
     title: string;
     ticket_type: string;
     quantity: number;
+    pdf_url?: string;
     events: {
       name: string;
       venue: string;
@@ -59,6 +61,8 @@ const MyTickets = () => {
     queryFn: async () => {
       if (!user) return [];
       
+      console.log('Fetching purchased tickets for user:', user.id);
+      
       // Get conversations where user is buyer and has purchase requests
       const { data: conversations } = await supabase
         .from('conversations')
@@ -82,14 +86,17 @@ const MyTickets = () => {
         conversations
           .filter(conv => conv.messages.some(msg => msg.message_type === 'purchase_request'))
           .map(async (conv) => {
-            // Get ticket details
-            const { data: ticket } = await supabase
+            console.log('Processing conversation:', conv.id, 'for ticket:', conv.ticket_id);
+            
+            // Get ticket details including PDF URL
+            const { data: ticket, error: ticketError } = await supabase
               .from('tickets')
               .select(`
                 title,
                 ticket_type,
                 quantity,
                 selling_price,
+                pdf_url,
                 events!tickets_event_id_fkey (
                   name,
                   venue,
@@ -104,7 +111,18 @@ const MyTickets = () => {
               .eq('id', conv.ticket_id)
               .single();
 
-            if (!ticket) return null;
+            if (ticketError) {
+              console.error('Error fetching ticket:', ticketError);
+              return null;
+            }
+
+            if (!ticket) {
+              console.log('No ticket found for ID:', conv.ticket_id);
+              return null;
+            }
+
+            console.log('Ticket data:', ticket);
+            console.log('PDF URL for ticket:', ticket.pdf_url);
 
             // Determine status based on messages
             const messages = conv.messages.sort((a, b) => 
@@ -138,6 +156,7 @@ const MyTickets = () => {
                 title: ticket.title,
                 ticket_type: ticket.ticket_type,
                 quantity: ticket.quantity,
+                pdf_url: ticket.pdf_url,
                 events: ticket.events,
               },
               seller: ticket.profiles,
@@ -145,7 +164,9 @@ const MyTickets = () => {
           })
       );
 
-      return purchasedTickets.filter(Boolean) as PurchasedTicket[];
+      const validTickets = purchasedTickets.filter(Boolean) as PurchasedTicket[];
+      console.log('Final purchased tickets:', validTickets);
+      return validTickets;
     },
     enabled: !!user,
   });
@@ -191,20 +212,9 @@ const MyTickets = () => {
   const handleDownloadTicket = async (ticket: PurchasedTicket) => {
     try {
       console.log('Downloading ticket for:', ticket.ticket_id);
+      console.log('PDF URL from ticket data:', ticket.ticket.pdf_url);
       
-      // Get the actual ticket details to find the PDF URL
-      const { data: ticketData, error } = await supabase
-        .from('tickets')
-        .select('pdf_url, title')
-        .eq('id', ticket.ticket_id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching ticket data:', error);
-        throw error;
-      }
-
-      if (!ticketData?.pdf_url) {
+      if (!ticket.ticket.pdf_url) {
         toast({
           title: "No PDF Available",
           description: "The seller hasn't uploaded a PDF for this ticket yet.",
@@ -213,19 +223,19 @@ const MyTickets = () => {
         return;
       }
 
-      console.log('PDF URL found:', ticketData.pdf_url);
+      console.log('Attempting to download PDF from URL:', ticket.ticket.pdf_url);
 
       // Create a download link for the PDF
-      const response = await fetch(ticketData.pdf_url);
+      const response = await fetch(ticket.ticket.pdf_url);
       if (!response.ok) {
-        throw new Error('Failed to fetch PDF file');
+        throw new Error(`Failed to fetch PDF file: ${response.status} ${response.statusText}`);
       }
 
       const blob = await response.blob();
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `${ticketData.title || 'ticket'}.pdf`;
+      link.download = `${ticket.ticket.title || 'ticket'}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
