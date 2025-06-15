@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
 import { User } from 'lucide-react';
 
 const Auth = () => {
@@ -18,17 +19,15 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   useEffect(() => {
-    // Check if user is already logged in
-    const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/');
-      }
-    };
-    checkUser();
-  }, [navigate]);
+    // If user is already authenticated, redirect to home
+    if (user) {
+      console.log('User already authenticated, redirecting to home');
+      navigate('/', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -97,7 +96,8 @@ const Auth = () => {
           throw error;
         }
       } else {
-        navigate('/');
+        console.log('Sign in successful, redirecting...');
+        navigate('/', { replace: true });
       }
     } catch (error: any) {
       toast({
@@ -109,6 +109,11 @@ const Auth = () => {
       setLoading(false);
     }
   };
+
+  // Don't render the auth form if user is already authenticated
+  if (user) {
+    return null;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">

@@ -20,20 +20,33 @@ export const Header = () => {
   const location = useLocation();
   const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
+    if (isSigningOut) return; // Prevent multiple calls
+    
+    setIsSigningOut(true);
+    
     try {
+      console.log('Starting sign out process...');
       await signOut();
+      
       toast({
         title: "Signed out successfully",
       });
-      navigate('/');
+      
+      // Navigate to home page after successful logout
+      navigate('/', { replace: true });
+      
     } catch (error: any) {
+      console.error('Sign out error:', error);
       toast({
         title: "Error signing out",
-        description: error.message,
+        description: error.message || "Please try again",
         variant: "destructive"
       });
+    } finally {
+      setIsSigningOut(false);
     }
   };
 
@@ -132,9 +145,9 @@ export const Header = () => {
                       <span>Settings</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
+                    <DropdownMenuItem onClick={handleSignOut} disabled={isSigningOut}>
                       <LogOut className="mr-2 h-4 w-4" />
-                      <span>Sign out</span>
+                      <span>{isSigningOut ? 'Signing out...' : 'Sign out'}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
