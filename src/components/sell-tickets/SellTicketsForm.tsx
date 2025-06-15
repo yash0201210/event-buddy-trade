@@ -22,6 +22,8 @@ interface TicketFormData {
   sellingPrice: number;
   description: string;
   isNegotiable: boolean;
+  pdfUrl?: string;
+  qrCodeHash?: string;
 }
 
 interface SellTicketsFormProps {
@@ -29,7 +31,7 @@ interface SellTicketsFormProps {
   selectedEvent: Event | null;
   ticketData: TicketFormData;
   loading: boolean;
-  onEventSelect: (eventId: string) => void;
+  onEventSelect: (eventId: string | null) => void;
   onTicketDataChange: (data: TicketFormData) => void;
   onSubmitEventRequest: () => void;
   onSubmit: (e: React.FormEvent) => void;
@@ -46,42 +48,40 @@ export const SellTicketsForm = ({
   onSubmit
 }: SellTicketsFormProps) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-8">
-      <Card>
-        <CardContent className="p-6">
-          <EventSelector
-            events={events}
-            selectedEvent={selectedEvent}
-            onEventSelect={onEventSelect}
-            onSubmitEventRequest={onSubmitEventRequest}
-          />
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <EventSelector
+        events={events}
+        selectedEvent={selectedEvent}
+        onEventSelect={onEventSelect}
+        onSubmitEventRequest={onSubmitEventRequest}
+      />
 
       {selectedEvent && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Ticket Details</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <TicketDetailsForm
-              data={ticketData}
-              onChange={onTicketDataChange}
-              selectedEvent={selectedEvent}
-            />
-          </CardContent>
-        </Card>
-      )}
+        <form onSubmit={onSubmit} className="space-y-8">
+          <Card className="max-w-4xl mx-auto">
+            <CardHeader>
+              <CardTitle>Ticket Details</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <TicketDetailsForm
+                data={ticketData}
+                onChange={onTicketDataChange}
+                selectedEvent={selectedEvent}
+              />
+            </CardContent>
+          </Card>
 
-      {selectedEvent && (
-        <Button 
-          type="submit" 
-          className="w-full bg-red-600 hover:bg-red-700"
-          disabled={loading}
-        >
-          {loading ? 'Listing Ticket...' : 'List Ticket for Sale'}
-        </Button>
+          <div className="max-w-4xl mx-auto px-4">
+            <Button 
+              type="submit" 
+              className="w-full bg-red-600 hover:bg-red-700"
+              disabled={loading}
+            >
+              {loading ? 'Listing Ticket...' : 'List Ticket for Sale'}
+            </Button>
+          </div>
+        </form>
       )}
-    </form>
+    </div>
   );
 };

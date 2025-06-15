@@ -4,8 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { SearchBar } from '@/components/home/SearchBar';
-import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar } from 'lucide-react';
+import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -58,10 +57,10 @@ export const Header = () => {
 
           {/* Search Bar - only show on non-home pages, smaller and better positioned */}
           {!isHomePage && (
-            <div className="flex-1 max-w-md mx-6">
+            <div className="flex-1 max-w-sm mx-6">
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm flex items-center">
-                <div className="flex items-center flex-1 px-4 py-2">
-                  <Search className="h-4 w-4 text-gray-400 mr-3" />
+                <div className="flex items-center flex-1 px-3 py-2">
+                  <Search className="h-4 w-4 text-gray-400 mr-2" />
                   <input
                     type="text"
                     placeholder="Search events..."

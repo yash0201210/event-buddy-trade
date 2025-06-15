@@ -5,28 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Search, SlidersHorizontal } from 'lucide-react';
 
 interface SearchBarProps {
-  value: string;
-  onChange: (value: string) => void;
-  onSearch: () => void;
-  placeholder: string;
-  searchQuery?: string;
-  onSearchChange?: (value: string) => void;
+  searchQuery: string;
+  onSearchChange: (value: string) => void;
   onFocus?: () => void;
+  placeholder?: string;
+  onSearch?: () => void;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
-  value,
-  onChange,
-  onSearch,
-  placeholder,
   searchQuery,
   onSearchChange,
-  onFocus
+  onFocus,
+  placeholder = "Search events...",
+  onSearch
 }) => {
-  // Use the new props if provided, otherwise fall back to the old ones
-  const currentValue = searchQuery !== undefined ? searchQuery : value;
-  const handleChange = onSearchChange || onChange;
-  
   return (
     <div className="bg-white rounded-2xl p-1 shadow-xl flex items-center relative">
       <div className="flex items-center flex-1 px-6 py-3">
@@ -34,8 +26,8 @@ export const SearchBar: React.FC<SearchBarProps> = ({
         <Input
           type="text"
           placeholder={placeholder}
-          value={currentValue}
-          onChange={(e) => handleChange(e.target.value)}
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
           onFocus={onFocus}
           className="border-0 bg-transparent text-gray-900 placeholder-gray-500 text-base focus-visible:ring-0 focus-visible:ring-offset-0 h-auto p-0"
         />
@@ -43,6 +35,7 @@ export const SearchBar: React.FC<SearchBarProps> = ({
       <Button 
         className="bg-gray-100 hover:bg-gray-200 text-gray-600 rounded-xl p-3 mr-1"
         size="sm"
+        onClick={onSearch}
       >
         <SlidersHorizontal className="h-4 w-4" />
       </Button>
