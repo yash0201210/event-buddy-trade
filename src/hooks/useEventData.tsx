@@ -70,7 +70,7 @@ export const useEventData = (eventId?: string) => {
     enabled: !!event?.university_id,
   });
 
-  // Use the new event tickets hook
+  // Use the event tickets hook
   const { data: tickets = [], isLoading: ticketsLoading } = useEventTickets(eventId);
 
   // Sold tickets count query
