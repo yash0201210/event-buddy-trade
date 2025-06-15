@@ -17,34 +17,64 @@ export default function SellerTransactionDetails() {
     queryFn: async () => {
       if (!ticketId || !user) return null;
       
-      const { data, error } = await supabase
+      // First, fetch the ticket with event details
+      const { data: ticketData, error: ticketError } = await supabase
         .from('tickets')
         .select(`
           *,
-          events!inner(name, event_date, venue, city),
-          conversations!inner(
-            id,
-            buyer_id,
-            transaction_status,
-            buyer_confirmed,
-            seller_confirmed,
-            buyer:profiles!conversations_buyer_id_fkey(
-              full_name,
-              is_verified
-            )
-          )
+          events!inner(name, event_date, venue, city)
         `)
         .eq('id', ticketId)
         .eq('seller_id', user.id)
         .eq('status', 'sold')
         .single();
 
-      if (error) {
-        console.error('Error fetching transaction details:', error);
-        throw error;
+      if (ticketError) {
+        console.error('Error fetching ticket details:', ticketError);
+        throw ticketError;
       }
 
-      return data;
+      // Then, fetch the conversation for this ticket
+      const { data: conversationData, error: conversationError } = await supabase
+        .from('conversations')
+        .select(`
+          id,
+          buyer_id,
+          status,
+          created_at,
+          updated_at
+        `)
+        .eq('ticket_id', ticketId)
+        .eq('seller_id', user.id)
+        .single();
+
+      // If there's a conversation, fetch buyer details
+      let buyerData = null;
+      if (conversationData && !conversationError) {
+        const { data: buyer, error: buyerError } = await supabase
+          .from('profiles')
+          .select('full_name, is_verified')
+          .eq('id', conversationData.buyer_id)
+          .single();
+
+        if (!buyerError) {
+          buyerData = buyer;
+        }
+      }
+
+      // Combine the data
+      const result = {
+        ...ticketData,
+        conversation: conversationData ? {
+          ...conversationData,
+          transaction_status: 'completed',
+          buyer_confirmed: true,
+          seller_confirmed: true,
+          buyer: buyerData
+        } : null
+      };
+
+      return result;
     },
     enabled: !!ticketId && !!user,
   });
