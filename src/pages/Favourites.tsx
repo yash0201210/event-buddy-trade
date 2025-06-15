@@ -21,19 +21,17 @@ const Favourites = () => {
             ))}
           </div>
         ) : favouriteEvents.length === 0 ? (
-          <EmptyEventsState 
-            title="No favourite events yet"
-            description="Start exploring events and add them to your favourites to see them here."
-            actionText="Browse Events"
-            actionLink="/"
-          />
+          <EmptyEventsState />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favouriteEvents.map((event) => (
+            {favouriteEvents.map((dbEvent) => (
               <EventCard
-                key={event.id}
-                event={event}
-                onFavouriteToggle={() => toggleFavourite(event.id)}
+                key={dbEvent.id}
+                event={{
+                  ...dbEvent,
+                  event_date: dbEvent.start_date_time
+                }}
+                onFavouriteToggle={() => toggleFavourite(dbEvent.id)}
                 isFavourite={true}
               />
             ))}

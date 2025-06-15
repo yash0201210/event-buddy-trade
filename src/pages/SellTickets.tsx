@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -9,6 +8,17 @@ import { useToast } from '@/hooks/use-toast';
 import { SellTicketsForm } from '@/components/sell-tickets/SellTicketsForm';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+
+interface DatabaseEvent {
+  id: string;
+  name: string;
+  venue: string;
+  city: string;
+  start_date_time: string;
+  category: string;
+  image_url?: string;
+  ticket_types?: string[];
+}
 
 interface Event {
   id: string;
@@ -53,10 +63,15 @@ const SellTickets = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('event_date', { ascending: true });
+        .order('start_date_time', { ascending: true });
       
       if (error) throw error;
-      return data;
+      
+      // Convert database events to frontend Event format
+      return data.map((dbEvent: DatabaseEvent): Event => ({
+        ...dbEvent,
+        event_date: dbEvent.start_date_time
+      }));
     },
   });
 

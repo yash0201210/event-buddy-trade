@@ -87,13 +87,7 @@ export const SuggestedEvents = ({ selectedCity, selectedCategory, searchTerm }: 
   }
 
   if (events.length === 0) {
-    return (
-      <EmptyEventsState 
-        selectedCity={selectedCity}
-        selectedCategory={selectedCategory}
-        searchTerm={searchTerm}
-      />
-    );
+    return <EmptyEventsState />;
   }
 
   return (
@@ -101,11 +95,7 @@ export const SuggestedEvents = ({ selectedCity, selectedCategory, searchTerm }: 
       {events.map((event) => (
         <EventCard
           key={event.id}
-          event={{
-            ...event,
-            event_date: event.start_date_time // Map start_date_time to event_date for EventCard
-          }}
-          showTicketCount={true}
+          event={event}
         />
       ))}
     </div>
