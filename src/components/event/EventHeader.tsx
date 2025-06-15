@@ -62,13 +62,13 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
         {/* Overlay */}
         <div className="absolute inset-0 bg-black bg-opacity-40" />
         
-        {/* Content Overlay */}
+        {/* Content Overlay - Left Aligned */}
         <div className="absolute inset-0 flex flex-col justify-end p-6">
           <div className="text-white">
-            <Badge variant="secondary" className="mb-3 bg-[#E8550D] text-white border-none hover:bg-[#D44B0B]">
+            <Badge variant="secondary" className="mb-3 bg-[#E8550D] text-white border-none hover:bg-[#D44B0B] w-fit">
               {event.category}
             </Badge>
-            <h1 className="text-3xl md:text-4xl font-bold mb-3">
+            <h1 className="text-3xl md:text-4xl font-bold mb-3 text-left">
               {event.name}
             </h1>
             
