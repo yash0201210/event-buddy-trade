@@ -67,9 +67,11 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
         {/* Content Overlay - Left Aligned */}
         <div className="absolute inset-0 flex flex-col justify-end p-6">
           <div className="text-white">
-            <Badge variant="secondary" className="mb-3 bg-[#E8550D] text-white border-none hover:bg-[#D44B0B] w-fit">
-              {event.category}
-            </Badge>
+            <div className="flex justify-start">
+              <Badge variant="secondary" className="mb-3 bg-[#E8550D] text-white border-none hover:bg-[#D44B0B] w-fit">
+                {event.category}
+              </Badge>
+            </div>
             <h1 className="text-3xl md:text-4xl font-bold mb-3 text-left">
               {event.name}
             </h1>
