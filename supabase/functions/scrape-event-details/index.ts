@@ -44,13 +44,21 @@ serve(async (req) => {
                 type: "string",
                 description: "The name/title of the event"
               },
-              eventDate: {
+              startDateTime: {
                 type: "string", 
-                description: "The date of the event in ISO format or readable format"
+                description: "The start date and time of the event in ISO format or readable format"
+              },
+              endDateTime: {
+                type: "string", 
+                description: "The end date and time of the event in ISO format or readable format"
               },
               venue: {
                 type: "string",
                 description: "The venue or location name where the event is taking place"
+              },
+              venueAddress: {
+                type: "string",
+                description: "The full address of the venue including street, city, postcode"
               },
               city: {
                 type: "string",
@@ -67,9 +75,23 @@ serve(async (req) => {
               ticketTypes: {
                 type: "array",
                 items: {
-                  type: "string"
+                  type: "object",
+                  properties: {
+                    name: {
+                      type: "string",
+                      description: "The name/title of the ticket type (e.g., 'General Admission', 'VIP', 'Early Bird')"
+                    },
+                    price: {
+                      type: "string",
+                      description: "The price of this ticket type (e.g., 'Free', '£25', '$30')"
+                    },
+                    description: {
+                      type: "string",
+                      description: "Additional details about this ticket type"
+                    }
+                  }
                 },
-                description: "Available ticket types or tiers"
+                description: "Available ticket types with their names and prices"
               },
               imageUrl: {
                 type: "string",
@@ -101,12 +123,15 @@ serve(async (req) => {
     const eventDetails = {
       name: extractedData.eventName || '',
       venue: extractedData.venue || '',
+      venue_address: extractedData.venueAddress || '',
       city: extractedData.city || '',
-      event_date: formatEventDate(extractedData.eventDate) || '',
+      start_date_time: formatDateTime(extractedData.startDateTime) || '',
+      end_date_time: formatDateTime(extractedData.endDateTime) || '',
       category: mapCategory(extractedData.category) || 'concerts',
       description: extractedData.description || '',
       image_url: extractedData.imageUrl || '',
-      ticket_types: Array.isArray(extractedData.ticketTypes) ? extractedData.ticketTypes : []
+      ticket_types: formatTicketTypes(extractedData.ticketTypes) || [],
+      ticket_prices: extractTicketPrices(extractedData.ticketTypes) || []
     };
 
     console.log('Extracted event details:', eventDetails);
@@ -131,29 +156,30 @@ serve(async (req) => {
   }
 });
 
-function formatEventDate(dateString: string): string {
-  if (!dateString) return '';
+function formatDateTime(dateTimeString: string): string {
+  if (!dateTimeString) return '';
   
   try {
     // Try to parse various date formats
-    const date = new Date(dateString);
+    const date = new Date(dateTimeString);
     if (!isNaN(date.getTime())) {
-      return date.toISOString().split('T')[0]; // Return YYYY-MM-DD format
+      return date.toISOString(); // Return full ISO format with time
     }
     
     // If direct parsing fails, try to extract date patterns
     const datePatterns = [
-      /(\d{4}-\d{2}-\d{2})/,
-      /(\d{1,2}\/\d{1,2}\/\d{4})/,
-      /(\d{1,2}-\d{1,2}-\d{4})/
+      /(\d{4}-\d{2}-\d{2}T\d{2}:\d{2})/,
+      /(\d{4}-\d{2}-\d{2} \d{2}:\d{2})/,
+      /(\d{1,2}\/\d{1,2}\/\d{4} \d{1,2}:\d{2})/,
+      /(\d{1,2}-\d{1,2}-\d{4} \d{1,2}:\d{2})/
     ];
     
     for (const pattern of datePatterns) {
-      const match = dateString.match(pattern);
+      const match = dateTimeString.match(pattern);
       if (match) {
         const parsedDate = new Date(match[1]);
         if (!isNaN(parsedDate.getTime())) {
-          return parsedDate.toISOString().split('T')[0];
+          return parsedDate.toISOString();
         }
       }
     }
@@ -162,6 +188,25 @@ function formatEventDate(dateString: string): string {
   } catch {
     return '';
   }
+}
+
+function formatTicketTypes(ticketTypes: any[]): string[] {
+  if (!Array.isArray(ticketTypes)) return [];
+  
+  return ticketTypes
+    .map(ticket => ticket?.name || ticket)
+    .filter(name => name && typeof name === 'string');
+}
+
+function extractTicketPrices(ticketTypes: any[]): Array<{name: string, price: string}> {
+  if (!Array.isArray(ticketTypes)) return [];
+  
+  return ticketTypes
+    .map(ticket => ({
+      name: ticket?.name || 'Unknown',
+      price: ticket?.price || 'Unknown'
+    }))
+    .filter(ticket => ticket.name !== 'Unknown');
 }
 
 function mapCategory(category: string): string {

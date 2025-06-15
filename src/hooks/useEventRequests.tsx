@@ -20,12 +20,15 @@ interface EventRequest {
 interface ScrapedEventDetails {
   name: string;
   venue: string;
+  venue_address: string;
   city: string;
-  event_date: string;
+  start_date_time: string;
+  end_date_time: string;
   category: string;
   description: string;
   image_url: string;
   ticket_types: string[];
+  ticket_prices: Array<{name: string, price: string}>;
 }
 
 export const useEventRequests = () => {

@@ -24,7 +24,8 @@ interface Event {
   name: string;
   venue: string;
   city: string;
-  event_date: string;
+  start_date_time: string;
+  end_date_time: string;
   category: string;
   description?: string;
   image_url?: string;
@@ -39,7 +40,8 @@ interface EventFormProps {
     name: string;
     venue: string;
     city: string;
-    event_date: string;
+    start_date_time: string;
+    end_date_time: string;
     category: string;
     description: string;
     image_url: string;
@@ -109,6 +111,7 @@ export const EventForm = ({
                 id="venue"
                 value={formData.venue}
                 onChange={(e) => setFormData({...formData, venue: e.target.value})}
+                placeholder="Enter venue name (will create if not in list)"
                 required
               />
             </div>
@@ -125,15 +128,27 @@ export const EventForm = ({
               />
             </div>
             <div>
-              <Label htmlFor="event_date">Event Date</Label>
+              <Label htmlFor="start_date_time">Start Date & Time</Label>
               <Input
-                id="event_date"
-                type="date"
-                value={formData.event_date}
-                onChange={(e) => setFormData({...formData, event_date: e.target.value})}
+                id="start_date_time"
+                type="datetime-local"
+                value={formData.start_date_time}
+                onChange={(e) => setFormData({...formData, start_date_time: e.target.value})}
                 required
               />
             </div>
+            <div>
+              <Label htmlFor="end_date_time">End Date & Time</Label>
+              <Input
+                id="end_date_time"
+                type="datetime-local"
+                value={formData.end_date_time}
+                onChange={(e) => setFormData({...formData, end_date_time: e.target.value})}
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <Label htmlFor="category">Category</Label>
               <Select 
@@ -149,28 +164,6 @@ export const EventForm = ({
                   <SelectItem value="theatre">Theatre</SelectItem>
                   <SelectItem value="comedy">Comedy</SelectItem>
                   <SelectItem value="festivals">Festivals</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <Label htmlFor="university">University</Label>
-              <Select 
-                value={formData.university_id} 
-                onValueChange={(value) => setFormData({...formData, university_id: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select university (optional)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No university</SelectItem>
-                  {universities.map((university) => (
-                    <SelectItem key={university.id} value={university.id}>
-                      {university.name}
-                    </SelectItem>
-                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -193,6 +186,26 @@ export const EventForm = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div>
+            <Label htmlFor="university">University</Label>
+            <Select 
+              value={formData.university_id} 
+              onValueChange={(value) => setFormData({...formData, university_id: value})}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select university (optional)" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No university</SelectItem>
+                {universities.map((university) => (
+                  <SelectItem key={university.id} value={university.id}>
+                    {university.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div>
@@ -222,7 +235,7 @@ export const EventForm = ({
                 <Input
                   value={newTicketType}
                   onChange={(e) => setNewTicketType(e.target.value)}
-                  placeholder="e.g., Premium, General Admission, VIP"
+                  placeholder="e.g., General Admission, VIP, Early Bird"
                   onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addTicketType())}
                 />
                 <Button type="button" onClick={addTicketType} variant="outline">

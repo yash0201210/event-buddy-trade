@@ -8,7 +8,8 @@ interface Event {
   name: string;
   venue: string;
   city: string;
-  event_date: string;
+  start_date_time: string;
+  end_date_time: string;
   category: string;
   description?: string;
   image_url?: string;
@@ -26,6 +27,7 @@ interface Venue {
   id: string;
   name: string;
   city: string;
+  address?: string;
 }
 
 export const useAdminEvents = () => {
@@ -39,7 +41,8 @@ export const useAdminEvents = () => {
     name: '',
     venue: '',
     city: '',
-    event_date: '',
+    start_date_time: '',
+    end_date_time: '',
     category: '',
     description: '',
     image_url: '',
@@ -66,7 +69,8 @@ export const useAdminEvents = () => {
           name: prefillData.name || '',
           venue: prefillData.venue || '',
           city: prefillData.city || '',
-          event_date: prefillData.event_date || '',
+          start_date_time: prefillData.start_date_time ? formatDateTimeLocal(prefillData.start_date_time) : '',
+          end_date_time: prefillData.end_date_time ? formatDateTimeLocal(prefillData.end_date_time) : '',
           category: prefillData.category || 'concerts',
           description: prefillData.description || '',
           image_url: prefillData.image_url || '',
@@ -77,11 +81,27 @@ export const useAdminEvents = () => {
           title: "Event details pre-filled",
           description: "Event information has been automatically extracted from the submitted URL.",
         });
+
+        // Log ticket prices for admin reference
+        if (prefillData.ticket_prices && prefillData.ticket_prices.length > 0) {
+          console.log('Extracted ticket prices for reference:', prefillData.ticket_prices);
+        }
       }
       
       window.history.replaceState({}, document.title);
     }
   }, [location.state, toast]);
+
+  const formatDateTimeLocal = (isoString: string): string => {
+    if (!isoString) return '';
+    try {
+      const date = new Date(isoString);
+      // Format to YYYY-MM-DDTHH:MM for datetime-local input
+      return date.toISOString().slice(0, 16);
+    } catch {
+      return '';
+    }
+  };
 
   const fetchEvents = async () => {
     try {
@@ -92,7 +112,7 @@ export const useAdminEvents = () => {
           universities(name),
           venues(name, city)
         `)
-        .order('event_date', { ascending: true });
+        .order('start_date_time', { ascending: true });
 
       if (error) throw error;
       setEvents(data || []);
@@ -141,15 +161,70 @@ export const useAdminEvents = () => {
     }
   };
 
+  const createVenueIfNotExists = async (venueName: string, city: string, address?: string): Promise<string | null> => {
+    // Check if venue already exists
+    const existingVenue = venues.find(v => 
+      v.name.toLowerCase() === venueName.toLowerCase() && 
+      v.city.toLowerCase() === city.toLowerCase()
+    );
+    
+    if (existingVenue) {
+      return existingVenue.id;
+    }
+
+    // Create new venue
+    try {
+      const { data, error } = await supabase
+        .from('venues')
+        .insert({
+          name: venueName,
+          city: city,
+          address: address || null
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      
+      // Refresh venues list
+      await fetchVenues();
+      
+      toast({
+        title: "New venue created",
+        description: `${venueName} has been added to the venues list.`,
+      });
+      
+      return data.id;
+    } catch (error: any) {
+      console.error('Error creating venue:', error);
+      return null;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      let venueId = formData.venue_id === 'none' ? null : formData.venue_id || null;
+      
+      // If no venue is selected from dropdown but venue name is provided, create new venue
+      if (!venueId && formData.venue && formData.city) {
+        venueId = await createVenueIfNotExists(formData.venue, formData.city);
+      }
+
       const eventData = {
-        ...formData,
+        name: formData.name,
+        venue: formData.venue,
+        city: formData.city,
+        start_date_time: formData.start_date_time ? new Date(formData.start_date_time).toISOString() : null,
+        end_date_time: formData.end_date_time ? new Date(formData.end_date_time).toISOString() : null,
+        category: formData.category,
+        description: formData.description || null,
+        image_url: formData.image_url || null,
+        ticket_types: formData.ticket_types,
         university_id: formData.university_id === 'none' ? null : formData.university_id || null,
-        venue_id: formData.venue_id === 'none' ? null : formData.venue_id || null
+        venue_id: venueId
       };
 
       if (editingEvent) {
@@ -218,7 +293,8 @@ export const useAdminEvents = () => {
       name: '',
       venue: '',
       city: '',
-      event_date: '',
+      start_date_time: '',
+      end_date_time: '',
       category: '',
       description: '',
       image_url: '',
@@ -236,7 +312,8 @@ export const useAdminEvents = () => {
       name: event.name,
       venue: event.venue,
       city: event.city,
-      event_date: event.event_date,
+      start_date_time: event.start_date_time ? formatDateTimeLocal(event.start_date_time) : '',
+      end_date_time: event.end_date_time ? formatDateTimeLocal(event.end_date_time) : '',
       category: event.category,
       description: event.description || '',
       image_url: event.image_url || '',
