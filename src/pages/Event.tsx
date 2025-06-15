@@ -182,11 +182,11 @@ const Event = () => {
 
         {/* Narrow Content Area */}
         <div className="max-w-4xl mx-auto">
-          {/* Ticket Alert */}
-          <TicketAlert eventId={event.id} />
-
           {/* Available Tickets */}
           <AvailableTickets tickets={tickets} isLoading={ticketsLoading} />
+
+          {/* Ticket Alert */}
+          <TicketAlert eventId={event.id} />
 
           {/* Sold Tickets Counter */}
           {soldTicketsCount > 0 && (

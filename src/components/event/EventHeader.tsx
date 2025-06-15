@@ -125,15 +125,6 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
           <Heart className={`h-5 w-5 ${isFavourite ? 'fill-current' : ''}`} />
         </Button>
       </div>
-      
-      {/* Event Description */}
-      {event.description && (
-        <div className="bg-white rounded-lg shadow-sm p-6 mt-4">
-          <p className="text-gray-700 leading-relaxed">
-            {event.description}
-          </p>
-        </div>
-      )}
     </div>
   );
 };
