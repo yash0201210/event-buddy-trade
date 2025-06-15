@@ -47,54 +47,56 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
 
   const handleDownloadTicket = async () => {
     try {
+      console.log('Downloading ticket for:', ticket.ticket_id);
+      
       // Get the actual ticket details to find the PDF URL
-      const { data: ticketData } = await supabase
+      const { data: ticketData, error } = await supabase
         .from('tickets')
         .select('pdf_url, title')
         .eq('id', ticket.ticket_id)
         .single();
 
-      if (ticketData?.pdf_url) {
-        // Create a download link
-        const link = document.createElement('a');
-        link.href = ticketData.pdf_url;
-        link.download = `${ticketData.title || 'ticket'}.pdf`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } else {
-        // For testing purposes when no PDF exists, generate a dummy PDF download
-        const dummyContent = `
-Ticket for ${ticket.ticket.events.name}
-Event: ${ticket.ticket.events.name}
-Venue: ${ticket.ticket.events.venue}, ${ticket.ticket.events.city}
-Date: ${new Date(ticket.ticket.events.event_date).toLocaleDateString()}
-Ticket Type: ${ticket.ticket.ticket_type}
-Quantity: ${ticket.ticket.quantity}
-Price Paid: €${ticket.amount_paid}
-Transaction ID: ${ticket.id}
-        `;
-        
-        const blob = new Blob([dummyContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `${ticket.ticket.events.name}-ticket.txt`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-        
-        toast({
-          title: "Ticket Downloaded",
-          description: "Your ticket has been downloaded successfully.",
-        });
+      if (error) {
+        console.error('Error fetching ticket data:', error);
+        throw error;
       }
+
+      if (!ticketData?.pdf_url) {
+        toast({
+          title: "No PDF Available",
+          description: "The seller hasn't uploaded a PDF for this ticket yet.",
+          variant: "destructive"
+        });
+        return;
+      }
+
+      console.log('PDF URL found:', ticketData.pdf_url);
+
+      // Create a download link for the PDF
+      const response = await fetch(ticketData.pdf_url);
+      if (!response.ok) {
+        throw new Error('Failed to fetch PDF file');
+      }
+
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `${ticketData.title || 'ticket'}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast({
+        title: "Ticket Downloaded",
+        description: "Your ticket PDF has been downloaded successfully.",
+      });
     } catch (error) {
       console.error('Error downloading ticket:', error);
       toast({
         title: "Download Error",
-        description: "Failed to download ticket. Please try again.",
+        description: "Failed to download ticket PDF. Please try again or contact the seller.",
         variant: "destructive"
       });
     }
