@@ -19,6 +19,7 @@ export interface University {
   id: string;
   name: string;
   city?: string;
+  image_url?: string;
 }
 
 export interface Venue {

@@ -1,18 +1,28 @@
 
-import { useState, useEffect } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { useToast } from './use-toast';
 
-interface Conversation {
+export interface Message {
   id: string;
-  ticket_id: string;
+  content: string;
+  sender_id: string;
+  receiver_id: string;
+  created_at: string;
+  message_type?: string;
+}
+
+export interface Conversation {
+  id: string;
   buyer_id: string;
   seller_id: string;
+  ticket_id: string;
   status: string;
   created_at: string;
   updated_at: string;
-  ticket?: {
+  ticket: {
     id: string;
     title: string;
     selling_price: number;
@@ -24,47 +34,40 @@ interface Conversation {
       start_date_time: string;
     };
   };
-  other_user?: {
+  other_user: {
     id: string;
     full_name: string;
     email: string;
   };
-  latest_message?: {
+  latest_message: {
     content: string;
     created_at: string;
-    message_type: string;
+    sender_id: string;
   };
-}
-
-interface Message {
-  id: string;
-  conversation_id: string;
-  sender_id: string;
-  receiver_id: string;
-  content: string;
-  message_type: string;
-  created_at: string;
+  messages: Message[];
 }
 
 export const useConversations = () => {
   const { user } = useAuth();
-  const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const [selectedConversation, setSelectedConversation] = useState<string>('');
 
   const { data: conversations = [], isLoading: conversationsLoading, refetch: refetchConversations } = useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async () => {
       if (!user?.id) return [];
 
-      const { data: conversationsData, error } = await supabase
+      const { data, error } = await supabase
         .from('conversations')
         .select(`
           *,
-          tickets (
+          tickets!inner(
             id,
             title,
             selling_price,
             quantity,
-            events (
+            events(
               id,
               name,
               venue,
@@ -80,37 +83,40 @@ export const useConversations = () => {
         return [];
       }
 
-      // Get the other user's details and latest message for each conversation
+      // Get additional user data and latest messages for each conversation
       const conversationsWithDetails = await Promise.all(
-        conversationsData.map(async (conv) => {
-          const otherUserId = conv.buyer_id === user.id ? conv.seller_id : conv.buyer_id;
-          
-          // Get other user details
+        data.map(async (conversation) => {
+          // Get the other user's details
+          const otherUserId = conversation.buyer_id === user.id 
+            ? conversation.seller_id 
+            : conversation.buyer_id;
+
           const { data: otherUser } = await supabase
             .from('profiles')
             .select('id, full_name, email')
             .eq('id', otherUserId)
             .single();
 
-          // Get latest message
+          // Get the latest message
           const { data: latestMessage } = await supabase
             .from('messages')
-            .select('content, created_at, message_type')
-            .eq('conversation_id', conv.id)
+            .select('content, created_at, sender_id')
+            .eq('conversation_id', conversation.id)
             .order('created_at', { ascending: false })
             .limit(1)
             .single();
 
           return {
-            ...conv,
-            ticket: conv.tickets,
-            other_user: otherUser,
-            latest_message: latestMessage
+            ...conversation,
+            ticket: conversation.tickets,
+            other_user: otherUser || { id: otherUserId, full_name: 'Unknown User', email: '' },
+            latest_message: latestMessage || { content: '', created_at: conversation.created_at, sender_id: '' },
+            messages: []
           };
         })
       );
 
-      return conversationsWithDetails as Conversation[];
+      return conversationsWithDetails;
     },
     enabled: !!user?.id,
   });
@@ -131,59 +137,10 @@ export const useConversations = () => {
         return [];
       }
 
-      return data as Message[];
+      return data;
     },
     enabled: !!selectedConversation,
   });
-
-  // Listen for new messages
-  useEffect(() => {
-    if (!user?.id || !selectedConversation) return;
-
-    const channel = supabase
-      .channel('messages')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'messages',
-          filter: `conversation_id=eq.${selectedConversation}`,
-        },
-        () => {
-          refetchMessages();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, selectedConversation, refetchMessages]);
-
-  // Listen for conversation updates
-  useEffect(() => {
-    if (!user?.id) return;
-
-    const channel = supabase
-      .channel('conversations')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'conversations',
-        },
-        () => {
-          refetchConversations();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user?.id, refetchConversations]);
 
   return {
     conversations,
@@ -193,6 +150,6 @@ export const useConversations = () => {
     selectedConversation,
     setSelectedConversation,
     refetchConversations,
-    refetchMessages,
+    refetchMessages
   };
 };

@@ -31,7 +31,8 @@ export const useFavourites = () => {
             image_url,
             ticket_types,
             university_id,
-            venue_id
+            venue_id,
+            created_at
           )
         `)
         .eq('user_id', user.id);

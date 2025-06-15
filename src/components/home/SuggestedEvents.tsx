@@ -7,12 +7,12 @@ import { EventCard } from './EventCard';
 import { EventCardSkeleton } from './EventCardSkeleton';
 import { EmptyEventsState } from './EmptyEventsState';
 
-interface Event {
+interface EventWithTicketCount {
   id: string;
   name: string;
   venue: string;
   city: string;
-  event_date: string;
+  start_date_time: string;
   category: string;
   description?: string;
   image_url?: string;
@@ -26,7 +26,7 @@ export const SuggestedEvents = () => {
       const { data: eventsData, error } = await supabase
         .from('events')
         .select('*')
-        .order('event_date', { ascending: true })
+        .order('start_date_time', { ascending: true })
         .limit(6);
 
       if (error) throw error;
@@ -42,15 +42,25 @@ export const SuggestedEvents = () => {
 
           if (ticketError) {
             console.error('Error fetching ticket count:', ticketError);
-            return { ...event, ticket_count: 0 };
+            return { 
+              ...event, 
+              ticket_count: 0,
+              // Map start_date_time to event_date for compatibility
+              event_date: event.start_date_time 
+            };
           }
 
           const totalTickets = ticketData?.reduce((sum, ticket) => sum + ticket.quantity, 0) || 0;
-          return { ...event, ticket_count: totalTickets };
+          return { 
+            ...event, 
+            ticket_count: totalTickets,
+            // Map start_date_time to event_date for compatibility
+            event_date: event.start_date_time
+          };
         })
       );
 
-      return eventsWithTicketCounts as Event[];
+      return eventsWithTicketCounts as EventWithTicketCount[];
     },
   });
 
