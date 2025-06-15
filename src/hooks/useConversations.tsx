@@ -62,7 +62,7 @@ export const useConversations = () => {
         .from('conversations')
         .select(`
           *,
-          tickets!inner(
+          tickets(
             id,
             title,
             selling_price,

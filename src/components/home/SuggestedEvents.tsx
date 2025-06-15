@@ -44,18 +44,14 @@ export const SuggestedEvents = () => {
             console.error('Error fetching ticket count:', ticketError);
             return { 
               ...event, 
-              ticket_count: 0,
-              // Map start_date_time to event_date for compatibility
-              event_date: event.start_date_time 
+              ticket_count: 0
             };
           }
 
           const totalTickets = ticketData?.reduce((sum, ticket) => sum + ticket.quantity, 0) || 0;
           return { 
             ...event, 
-            ticket_count: totalTickets,
-            // Map start_date_time to event_date for compatibility
-            event_date: event.start_date_time
+            ticket_count: totalTickets
           };
         })
       );

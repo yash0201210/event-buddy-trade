@@ -2,16 +2,19 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SearchResult } from '@/types/event';
+import type { SearchResult } from '@/types/event';
 
-export const useSearch = () => {
-  const [searchTerm, setSearchTerm] = useState('');
+export const useSearch = (searchTerm?: string) => {
+  const [internalSearchTerm, setInternalSearchTerm] = useState('');
   const [isOpen, setIsOpen] = useState(false);
+  
+  // Use provided searchTerm or internal state
+  const currentSearchTerm = searchTerm !== undefined ? searchTerm : internalSearchTerm;
 
   const { data: searchResults = [], isLoading } = useQuery({
-    queryKey: ['search', searchTerm],
+    queryKey: ['search', currentSearchTerm],
     queryFn: async () => {
-      if (!searchTerm.trim()) return [];
+      if (!currentSearchTerm.trim()) return [];
 
       const results: SearchResult[] = [];
 
@@ -19,7 +22,7 @@ export const useSearch = () => {
       const { data: events } = await supabase
         .from('events')
         .select('id, name, venue, city, start_date_time, image_url, description')
-        .ilike('name', `%${searchTerm}%`)
+        .ilike('name', `%${currentSearchTerm}%`)
         .limit(5);
 
       if (events) {
@@ -39,7 +42,7 @@ export const useSearch = () => {
       const { data: venues } = await supabase
         .from('venues')
         .select('id, name, city, address')
-        .ilike('name', `%${searchTerm}%`)
+        .ilike('name', `%${currentSearchTerm}%`)
         .limit(3);
 
       if (venues) {
@@ -56,7 +59,7 @@ export const useSearch = () => {
       const { data: universities } = await supabase
         .from('universities')
         .select('id, name, city, image_url')
-        .ilike('name', `%${searchTerm}%`)
+        .ilike('name', `%${currentSearchTerm}%`)
         .limit(3);
 
       if (universities) {
@@ -71,12 +74,12 @@ export const useSearch = () => {
 
       return results;
     },
-    enabled: searchTerm.length > 0,
+    enabled: currentSearchTerm.length > 0,
   });
 
   return {
-    searchTerm,
-    setSearchTerm,
+    searchTerm: currentSearchTerm,
+    setSearchTerm: setInternalSearchTerm,
     searchResults,
     isLoading,
     isOpen,
@@ -84,4 +87,4 @@ export const useSearch = () => {
   };
 };
 
-export { SearchResult };
+export type { SearchResult };
