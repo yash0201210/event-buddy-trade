@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Header } from '@/components/layout/Header';
 import { Card, CardContent } from '@/components/ui/card';
@@ -69,6 +68,33 @@ const TicketDetails = () => {
       return data as TicketWithDetails;
     },
     enabled: !!id,
+  });
+
+  // Fetch seller performance data
+  const { data: sellerStats } = useQuery({
+    queryKey: ['seller-stats', ticket?.seller_id],
+    queryFn: async () => {
+      if (!ticket?.seller_id) return null;
+      
+      const { count: totalSold } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', ticket.seller_id)
+        .eq('status', 'sold');
+
+      const { count: totalListed } = await supabase
+        .from('tickets')
+        .select('*', { count: 'exact', head: true })
+        .eq('seller_id', ticket.seller_id);
+
+      return {
+        totalSold: totalSold || 0,
+        totalListed: totalListed || 0,
+        rating: 4.8, // Mock rating - in a real app this would come from reviews
+        reviewCount: Math.max(1, Math.floor((totalSold || 0) * 0.8)) // Mock review count
+      };
+    },
+    enabled: !!ticket?.seller_id,
   });
 
   const createConversation = async (type: 'buy_now' | 'offer', offerAmount?: number) => {
@@ -301,16 +327,32 @@ const TicketDetails = () => {
               <CardContent className="p-6">
                 <h3 className="font-semibold text-gray-900 mb-4">Seller Information</h3>
                 
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center">
-                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-start">
+                    <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mr-4 flex-shrink-0">
                       <User className="h-6 w-6 text-red-600" />
                     </div>
-                    <div>
-                      <p className="font-semibold">{ticket.profiles.full_name}</p>
-                      <div className="flex items-center text-sm text-gray-500">
-                        <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
-                        <span>{ticket.profiles.is_verified ? 'Verified Seller' : 'New Seller'}</span>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <p className="font-semibold">{ticket.profiles.full_name}</p>
+                        {ticket.profiles.is_verified && (
+                          <Badge variant="outline" className="text-xs">
+                            <Shield className="h-3 w-3 mr-1" />
+                            Verified
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
+                          <span className="font-medium">{sellerStats?.rating || 4.8}</span>
+                          <span className="ml-1">({sellerStats?.reviewCount || 1} reviews)</span>
+                        </div>
+                      </div>
+                      
+                      <div className="text-sm text-gray-600">
+                        <p>{sellerStats?.totalSold || 0} tickets sold • {sellerStats?.totalListed || 1} total listings</p>
                       </div>
                     </div>
                   </div>
