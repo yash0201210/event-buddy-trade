@@ -1,10 +1,9 @@
-
 import React, { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search } from 'lucide-react';
+import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search, TrendingUp } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -118,6 +117,10 @@ export const Header = () => {
                     <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
                       <User className="mr-2 h-4 w-4" />
                       <span>My Tickets</span>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/selling-hub')}>
+                      <TrendingUp className="mr-2 h-4 w-4" />
+                      <span>Selling Hub</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/submit-event')}>
                       <Calendar className="mr-2 h-4 w-4" />
