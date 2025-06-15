@@ -20,12 +20,14 @@ export const UniversityImageUpload = ({
 }: UniversityImageUploadProps) => {
   const [preview, setPreview] = useState(imageUrl);
   const [position, setPosition] = useState(imagePosition);
+  const [urlInput, setUrlInput] = useState(imageUrl);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Sync preview with imageUrl prop when it changes
   useEffect(() => {
     console.log('UniversityImageUpload - imageUrl prop changed:', imageUrl);
     setPreview(imageUrl);
+    setUrlInput(imageUrl);
   }, [imageUrl]);
 
   // Sync position with imagePosition prop when it changes
@@ -41,8 +43,9 @@ export const UniversityImageUpload = ({
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        console.log('UniversityImageUpload - File read, calling onImageChange with:', result.substring(0, 50) + '...');
+        console.log('UniversityImageUpload - File read, calling onImageChange');
         setPreview(result);
+        setUrlInput(result);
         onImageChange(result);
       };
       reader.readAsDataURL(file);
@@ -51,6 +54,7 @@ export const UniversityImageUpload = ({
 
   const handleUrlInput = (url: string) => {
     console.log('UniversityImageUpload - URL input changed:', url);
+    setUrlInput(url);
     setPreview(url);
     onImageChange(url);
   };
@@ -66,6 +70,7 @@ export const UniversityImageUpload = ({
   const clearImage = () => {
     console.log('UniversityImageUpload - Clearing image');
     setPreview('');
+    setUrlInput('');
     onImageChange('');
     setPosition('center center');
     if (onPositionChange) {
@@ -106,6 +111,7 @@ export const UniversityImageUpload = ({
               onError={(e) => {
                 console.log('UniversityImageUpload - Image failed to load:', preview);
                 setPreview('');
+                setUrlInput('');
               }}
             />
           ) : (
@@ -158,7 +164,7 @@ export const UniversityImageUpload = ({
             id="image-url"
             type="url"
             placeholder="https://example.com/image.jpg"
-            value={preview || ''}
+            value={urlInput}
             onChange={(e) => handleUrlInput(e.target.value)}
             className="mt-1"
           />

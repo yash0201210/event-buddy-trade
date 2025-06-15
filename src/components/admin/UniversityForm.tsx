@@ -30,11 +30,11 @@ interface UniversityFormProps {
 
 export const UniversityForm = ({ university, onSubmit, onCancel, loading }: UniversityFormProps) => {
   const [formData, setFormData] = React.useState({
-    name: university?.name || '',
-    city: university?.city || '',
-    country: university?.country || 'UK',
-    image_url: university?.image_url || '',
-    image_position: university?.image_position || 'center center'
+    name: '',
+    city: '',
+    country: 'UK',
+    image_url: '',
+    image_position: 'center center'
   });
 
   React.useEffect(() => {
@@ -50,7 +50,6 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
       console.log('University form - New form data:', newFormData);
       setFormData(newFormData);
     } else {
-      // Reset form for new university
       console.log('University form - Resetting form for new university');
       setFormData({
         name: '',
@@ -65,7 +64,23 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     console.log('University form - Submitting form data:', formData);
-    await onSubmit(formData);
+    
+    // Validate required fields
+    if (!formData.name.trim()) {
+      console.error('University name is required');
+      return;
+    }
+    
+    if (!formData.country.trim()) {
+      console.error('Country is required');
+      return;
+    }
+    
+    try {
+      await onSubmit(formData);
+    } catch (error) {
+      console.error('Form submission error:', error);
+    }
   };
 
   const handleImageChange = (url: string) => {
@@ -102,12 +117,13 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="name">University Name</Label>
+              <Label htmlFor="name">University Name *</Label>
               <Input
                 id="name"
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
                 required
+                disabled={loading}
               />
             </div>
             <div>
@@ -117,17 +133,19 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
                 value={formData.city}
                 onChange={(e) => setFormData(prev => ({ ...prev, city: e.target.value }))}
                 placeholder="Optional"
+                disabled={loading}
               />
             </div>
           </div>
 
           <div>
-            <Label htmlFor="country">Country</Label>
+            <Label htmlFor="country">Country *</Label>
             <Input
               id="country"
               value={formData.country}
               onChange={(e) => setFormData(prev => ({ ...prev, country: e.target.value }))}
               required
+              disabled={loading}
             />
           </div>
 
@@ -139,7 +157,12 @@ export const UniversityForm = ({ university, onSubmit, onCancel, loading }: Univ
             >
               {loading ? 'Saving...' : (university ? 'Update University' : 'Create University')}
             </Button>
-            <Button type="button" variant="outline" onClick={onCancel}>
+            <Button 
+              type="button" 
+              variant="outline" 
+              onClick={onCancel}
+              disabled={loading}
+            >
               Cancel
             </Button>
           </div>

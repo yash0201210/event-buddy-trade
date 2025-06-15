@@ -56,10 +56,10 @@ export const useUniversities = () => {
 
     try {
       const universityData = {
-        name: formData.name,
-        city: formData.city || null,
-        country: formData.country,
-        image_url: formData.image_url || null,
+        name: formData.name.trim(),
+        city: formData.city.trim() || null,
+        country: formData.country.trim(),
+        image_url: formData.image_url.trim() || null,
         image_position: formData.image_position || 'center center'
       };
 
@@ -68,12 +68,27 @@ export const useUniversities = () => {
       if (editingUniversity) {
         console.log('Updating university with ID:', editingUniversity.id);
         
-        // Use .select() without .single() to avoid the multiple rows error
+        // First check if the university exists
+        const { data: existingUni, error: checkError } = await supabase
+          .from('universities')
+          .select('id')
+          .eq('id', editingUniversity.id)
+          .single();
+
+        if (checkError) {
+          console.error('Error checking existing university:', checkError);
+          throw new Error('University not found for update');
+        }
+
+        console.log('Found existing university:', existingUni);
+
+        // Now update the university
         const { data, error } = await supabase
           .from('universities')
           .update(universityData)
           .eq('id', editingUniversity.id)
-          .select();
+          .select()
+          .single();
 
         if (error) {
           console.error('Update error:', error);
@@ -88,11 +103,11 @@ export const useUniversities = () => {
       } else {
         console.log('Creating new university');
         
-        // Use .select() without .single() to avoid the multiple rows error
         const { data, error } = await supabase
           .from('universities')
           .insert(universityData)
-          .select();
+          .select()
+          .single();
 
         if (error) {
           console.error('Insert error:', error);
@@ -106,6 +121,7 @@ export const useUniversities = () => {
         });
       }
 
+      // Refresh the universities list
       await fetchUniversities();
     } catch (error: any) {
       console.error('Save university error:', error);
