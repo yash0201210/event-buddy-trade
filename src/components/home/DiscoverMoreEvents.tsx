@@ -38,7 +38,7 @@ export const DiscoverMoreEvents = () => {
   if (isLoading) {
     return (
       <section className="py-16 bg-white">
-        <div className="max-w-5xl mx-auto px-4">
+        <div className="max-w-6xl mx-auto px-4">
           <h2 className="text-2xl font-bold text-gray-900 mb-8">
             Discover More Events
           </h2>
@@ -56,7 +56,7 @@ export const DiscoverMoreEvents = () => {
 
   return (
     <section className="py-16 bg-white">
-      <div className="max-w-5xl mx-auto px-4">
+      <div className="max-w-6xl mx-auto px-4">
         <h2 className="text-2xl font-bold text-gray-900 mb-8">
           Discover More Events
         </h2>
