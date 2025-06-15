@@ -1,8 +1,9 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Calendar, Star } from 'lucide-react';
+import { Heart, MapPin, Calendar, Star, Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,20 +17,41 @@ interface Event {
   category: string;
   description?: string;
   image_url?: string;
+  ticket_count?: number;
 }
 
 export const SuggestedEvents = () => {
   const { data: events = [], isLoading } = useQuery({
     queryKey: ['suggested-events'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: eventsData, error } = await supabase
         .from('events')
         .select('*')
         .order('event_date', { ascending: true })
         .limit(6);
 
       if (error) throw error;
-      return data as Event[];
+
+      // Get ticket counts for each event
+      const eventsWithTicketCounts = await Promise.all(
+        eventsData.map(async (event) => {
+          const { data: ticketData, error: ticketError } = await supabase
+            .from('tickets')
+            .select('quantity')
+            .eq('event_id', event.id)
+            .eq('status', 'available');
+
+          if (ticketError) {
+            console.error('Error fetching ticket count:', ticketError);
+            return { ...event, ticket_count: 0 };
+          }
+
+          const totalTickets = ticketData?.reduce((sum, ticket) => sum + ticket.quantity, 0) || 0;
+          return { ...event, ticket_count: totalTickets };
+        })
+      );
+
+      return eventsWithTicketCounts as Event[];
     },
   });
 
@@ -148,13 +170,21 @@ export const SuggestedEvents = () => {
                       <MapPin className="h-3 w-3 mr-1" />
                       <span className="truncate">{event.venue}, {event.city}</span>
                     </div>
-                    <div className="flex items-center">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
-                        weekday: 'short', 
-                        day: 'numeric', 
-                        month: 'short' 
-                      })}</span>
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
+                          weekday: 'short', 
+                          day: 'numeric', 
+                          month: 'short' 
+                        })}</span>
+                      </div>
+                      {event.ticket_count && event.ticket_count > 0 && (
+                        <div className="flex items-center text-blue-600">
+                          <Ticket className="h-3 w-3 mr-1" />
+                          <span className="font-medium">{event.ticket_count}+</span>
+                        </div>
+                      )}
                     </div>
                   </div>
                   
