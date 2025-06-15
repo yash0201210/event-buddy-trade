@@ -22,8 +22,7 @@ export const useAdminEvents = () => {
     handleSubmit,
     handleDelete,
     resetForm,
-    startEdit,
-    prefillFormData
+    startEdit
   } = useEventForm(venues, () => {
     fetchEvents();
     fetchVenues();
@@ -33,18 +32,9 @@ export const useAdminEvents = () => {
     if (location.state?.autoOpenForm) {
       setShowForm(true);
       
-      if (location.state.prefillData) {
-        prefillFormData(location.state.prefillData);
-        
-        toast({
-          title: "Event details pre-filled",
-          description: "Event information has been automatically extracted from the submitted URL.",
-        });
-      }
-      
       window.history.replaceState({}, document.title);
     }
-  }, [location.state, toast, setShowForm, prefillFormData]);
+  }, [location.state, toast, setShowForm]);
 
   return {
     events,

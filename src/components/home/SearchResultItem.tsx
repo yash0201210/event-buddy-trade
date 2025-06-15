@@ -2,7 +2,17 @@
 import React from 'react';
 import { MapPin, Calendar, GraduationCap, Building2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { SearchResult } from '@/types/event';
+
+export interface SearchResult {
+  id: string;
+  type: 'event' | 'venue' | 'university';
+  title: string;
+  description?: string;
+  image_url?: string;
+  event_date?: string;
+  venue?: string;
+  city?: string;
+}
 
 interface SearchResultItemProps {
   result: SearchResult;

@@ -2,7 +2,17 @@
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { SearchResult } from '@/types/event';
+
+export interface SearchResult {
+  id: string;
+  type: 'event' | 'venue' | 'university';
+  title: string;
+  description?: string;
+  image_url?: string;
+  event_date?: string;
+  venue?: string;
+  city?: string;
+}
 
 export const useSearch = () => {
   const [searchTerm, setSearchTerm] = useState('');

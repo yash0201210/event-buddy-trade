@@ -25,6 +25,10 @@ const AdminEvents = () => {
     startEdit
   } = useAdminEvents();
 
+  const onSubmit = (e: React.FormEvent) => {
+    handleSubmit(e, formData, editingEvent);
+  };
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="flex justify-between items-center mb-6">
@@ -50,7 +54,7 @@ const AdminEvents = () => {
           universities={universities}
           venues={venues}
           loading={loading}
-          onSubmit={handleSubmit}
+          onSubmit={onSubmit}
           onCancel={resetForm}
         />
       )}

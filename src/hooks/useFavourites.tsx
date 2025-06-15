@@ -10,7 +10,7 @@ export const useFavourites = () => {
   const [favouriteIds, setFavouriteIds] = useState<Set<string>>(new Set());
 
   // Fetch user's favourite events
-  const { data: favourites = [] } = useQuery({
+  const { data: favourites = [], isLoading } = useQuery({
     queryKey: ['favourites', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -97,6 +97,7 @@ export const useFavourites = () => {
 
   return {
     favourites,
+    isLoading,
     isFavourite,
     toggleFavourite
   };

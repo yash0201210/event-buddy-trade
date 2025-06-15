@@ -7,7 +7,7 @@ import { EventCardSkeleton } from '@/components/home/EventCardSkeleton';
 import { useFavourites } from '@/hooks/useFavourites';
 
 const Favourites = () => {
-  const { favouriteEvents, isLoading } = useFavourites();
+  const { favourites, isLoading } = useFavourites();
 
   return (
     <Layout>
@@ -20,11 +20,11 @@ const Favourites = () => {
               <EventCardSkeleton key={i} />
             ))}
           </div>
-        ) : favouriteEvents.length === 0 ? (
+        ) : favourites.length === 0 ? (
           <EmptyEventsState />
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {favouriteEvents.map((event) => (
+            {favourites.map((event) => (
               <EventCard
                 key={event.id}
                 event={event}
