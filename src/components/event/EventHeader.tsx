@@ -69,7 +69,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
               
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
+                <span>{new Date(event.start_date_time).toLocaleDateString('en-GB', { 
                   weekday: 'long', 
                   day: 'numeric', 
                   month: 'long',

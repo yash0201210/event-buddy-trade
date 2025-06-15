@@ -24,14 +24,16 @@ export const useFavourites = () => {
             name,
             venue,
             city,
-            event_date,
+            start_date_time,
+            end_date_time,
             category,
             description,
             image_url,
             ticket_types,
             university_id,
             venue_id,
-            created_at
+            created_at,
+            updated_at
           )
         `)
         .eq('user_id', user.id);

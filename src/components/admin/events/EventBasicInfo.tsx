@@ -54,18 +54,27 @@ export const EventBasicInfo = ({
           />
         </div>
         <div>
-          <Label htmlFor="event_date">Event Date & Time</Label>
+          <Label htmlFor="start_date_time">Start Date & Time</Label>
           <Input
-            id="event_date"
+            id="start_date_time"
             type="datetime-local"
-            value={formData.event_date}
-            onChange={(e) => setFormData({...formData, event_date: e.target.value})}
+            value={formData.start_date_time}
+            onChange={(e) => setFormData({...formData, start_date_time: e.target.value})}
             required
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <Label htmlFor="end_date_time">End Date & Time (Optional)</Label>
+          <Input
+            id="end_date_time"
+            type="datetime-local"
+            value={formData.end_date_time}
+            onChange={(e) => setFormData({...formData, end_date_time: e.target.value})}
+          />
+        </div>
         <div>
           <Label htmlFor="category">Category</Label>
           <Select 
@@ -84,6 +93,9 @@ export const EventBasicInfo = ({
             </SelectContent>
           </Select>
         </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="venue_select">Venue (from list)</Label>
           <Select 
@@ -103,26 +115,25 @@ export const EventBasicInfo = ({
             </SelectContent>
           </Select>
         </div>
-      </div>
-
-      <div>
-        <Label htmlFor="university">University</Label>
-        <Select 
-          value={formData.university_id} 
-          onValueChange={(value) => setFormData({...formData, university_id: value})}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select university (optional)" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">No university</SelectItem>
-            {universities.map((university) => (
-              <SelectItem key={university.id} value={university.id}>
-                {university.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div>
+          <Label htmlFor="university">University</Label>
+          <Select 
+            value={formData.university_id} 
+            onValueChange={(value) => setFormData({...formData, university_id: value})}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select university (optional)" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">No university</SelectItem>
+              {universities.map((university) => (
+                <SelectItem key={university.id} value={university.id}>
+                  {university.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div>

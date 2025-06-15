@@ -9,7 +9,7 @@ export interface SearchResult {
   title: string;
   description?: string;
   image_url?: string;
-  event_date?: string;
+  start_date_time?: string;
   venue?: string;
   city?: string;
 }
@@ -84,10 +84,10 @@ export const SearchResultItem = ({ result, onSelect }: SearchResultItemProps) =>
           {result.title}
         </p>
         <div className="flex items-center text-xs text-gray-500 mt-1">
-          {result.event_date && result.type === 'event' && (
+          {result.start_date_time && result.type === 'event' && (
             <>
               <Calendar className="h-3 w-3 mr-1" />
-              <span className="mr-3">{formatEventDate(result.event_date)}</span>
+              <span className="mr-3">{formatEventDate(result.start_date_time)}</span>
             </>
           )}
           {result.city && (

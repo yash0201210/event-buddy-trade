@@ -27,7 +27,7 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
     return { dateStr, timeStr };
   };
 
-  const { dateStr, timeStr } = formatEventDateTime(event.event_date);
+  const { dateStr, timeStr } = formatEventDateTime(event.start_date_time);
 
   return (
     <div className="mb-6">

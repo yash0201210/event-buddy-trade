@@ -21,7 +21,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
         .from('events')
         .select('*')
         .neq('id', currentEvent.id)
-        .gte('event_date', new Date().toISOString())
+        .gte('start_date_time', new Date().toISOString())
         .limit(3);
 
       if (currentEvent.venue_id) {
@@ -32,7 +32,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
         query = query.eq('city', currentEvent.city);
       }
 
-      const { data: eventsData, error } = await query.order('event_date', { ascending: true });
+      const { data: eventsData, error } = await query.order('start_date_time', { ascending: true });
 
       if (error) throw error;
 
@@ -116,7 +116,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
-                      <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
+                      <span>{new Date(event.start_date_time).toLocaleDateString('en-GB', { 
                         weekday: 'short', 
                         day: 'numeric', 
                         month: 'short' 
