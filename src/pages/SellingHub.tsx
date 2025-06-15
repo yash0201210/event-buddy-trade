@@ -67,6 +67,7 @@ export default function SellingHub() {
     );
   }
 
+  // Filter tickets properly by status
   const currentListings = tickets?.filter(ticket => ticket.status === 'available') || [];
   const sellingHistory = tickets?.filter(ticket => ticket.status === 'sold') || [];
 

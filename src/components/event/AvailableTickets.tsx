@@ -17,7 +17,7 @@ interface Ticket {
   original_price: number;
   description?: string;
   is_negotiable: boolean;
-  seller: {
+  profiles: {
     full_name: string;
   };
 }
@@ -156,7 +156,7 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
                           <div className="flex items-center gap-3 mb-2">
                             <div className="flex items-center text-sm text-gray-500">
                               <User className="h-3 w-3 mr-1" />
-                              <span>{ticket.seller?.full_name || 'Unknown'}</span>
+                              <span>{ticket.profiles?.full_name || 'Unknown'}</span>
                             </div>
                             <div className="flex items-center text-sm text-[#E8550D]">
                               <Star className="h-3 w-3 mr-1 fill-current" />
