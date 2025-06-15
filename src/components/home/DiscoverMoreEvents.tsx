@@ -77,10 +77,24 @@ export const DiscoverMoreEvents = () => {
                 <CardContent className="p-0">
                   <div className="flex items-center h-24">
                     {/* Event Image/Icon */}
-                    <div className="w-20 h-20 mx-4 rounded-xl bg-gradient-to-br from-purple-400 to-pink-400 flex items-center justify-center flex-shrink-0">
-                      <span className="text-white font-bold text-xs text-center px-2">
-                        FLAMINGO FRIDAYS
-                      </span>
+                    <div className="w-20 h-20 mx-4 rounded-xl overflow-hidden flex-shrink-0">
+                      {event.image_url ? (
+                        <img 
+                          src={event.image_url} 
+                          alt={event.name}
+                          className="w-full h-full object-cover"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop';
+                          }}
+                        />
+                      ) : (
+                        <img 
+                          src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop"
+                          alt="Event crowd"
+                          className="w-full h-full object-cover"
+                        />
+                      )}
                     </div>
                     
                     {/* Event Details */}

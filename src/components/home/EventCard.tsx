@@ -44,13 +44,15 @@ export const EventCard = ({ event }: EventCardProps) => {
               className="w-full h-48 object-cover rounded-t-lg"
               onError={(e) => {
                 const target = e.target as HTMLImageElement;
-                target.src = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=300&fit=crop';
+                target.src = 'https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop';
               }}
             />
           ) : (
-            <div className="w-full h-48 bg-gradient-to-br from-red-100 to-red-200 rounded-t-lg flex items-center justify-center">
-              <span className="text-red-600 font-medium">{event.category}</span>
-            </div>
+            <img 
+              src="https://images.unsplash.com/photo-1605810230434-7631ac76ec81?w=800&h=400&fit=crop"
+              alt="Event crowd"
+              className="w-full h-48 object-cover rounded-t-lg"
+            />
           )}
           <Button 
             variant="ghost" 
