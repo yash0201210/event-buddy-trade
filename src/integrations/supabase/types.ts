@@ -46,6 +46,9 @@ export type Database = {
           event_hyperlink: string | null
           event_name: string
           id: string
+          rejection_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           status: string
           updated_at: string
           user_id: string
@@ -56,6 +59,9 @@ export type Database = {
           event_hyperlink?: string | null
           event_name: string
           id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           updated_at?: string
           user_id: string
@@ -66,6 +72,9 @@ export type Database = {
           event_hyperlink?: string | null
           event_name?: string
           id?: string
+          rejection_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           status?: string
           updated_at?: string
           user_id?: string
@@ -295,6 +304,8 @@ export type Database = {
           id: string
           is_negotiable: boolean | null
           original_price: number
+          pdf_url: string | null
+          qr_code_hash: string | null
           quantity: number
           seller_id: string
           selling_price: number
@@ -303,6 +314,8 @@ export type Database = {
           ticket_type: string
           title: string
           updated_at: string | null
+          verification_notes: string | null
+          verification_status: string | null
         }
         Insert: {
           created_at?: string | null
@@ -311,6 +324,8 @@ export type Database = {
           id?: string
           is_negotiable?: boolean | null
           original_price: number
+          pdf_url?: string | null
+          qr_code_hash?: string | null
           quantity?: number
           seller_id: string
           selling_price: number
@@ -319,6 +334,8 @@ export type Database = {
           ticket_type: string
           title: string
           updated_at?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
         }
         Update: {
           created_at?: string | null
@@ -327,6 +344,8 @@ export type Database = {
           id?: string
           is_negotiable?: boolean | null
           original_price?: number
+          pdf_url?: string | null
+          qr_code_hash?: string | null
           quantity?: number
           seller_id?: string
           selling_price?: number
@@ -335,6 +354,8 @@ export type Database = {
           ticket_type?: string
           title?: string
           updated_at?: string | null
+          verification_notes?: string | null
+          verification_status?: string | null
         }
         Relationships: [
           {

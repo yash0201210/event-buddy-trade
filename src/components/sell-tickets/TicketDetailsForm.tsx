@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { PdfUpload } from './PdfUpload';
 
 interface Event {
   id: string;
@@ -23,6 +24,8 @@ interface TicketFormData {
   sellingPrice: number;
   description: string;
   isNegotiable: boolean;
+  pdfUrl?: string;
+  qrCodeHash?: string;
 }
 
 interface TicketDetailsFormProps {
@@ -36,6 +39,14 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
     onChange({
       ...data,
       [field]: value
+    });
+  };
+
+  const handlePdfUploadComplete = (pdfUrl: string, qrCodeHash: string) => {
+    onChange({
+      ...data,
+      pdfUrl,
+      qrCodeHash
     });
   };
 
@@ -105,6 +116,17 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
             />
           </div>
         </div>
+      </div>
+
+      <div className="border-t pt-6">
+        <h3 className="text-lg font-semibold mb-4">Ticket Verification</h3>
+        
+        {selectedEvent && (
+          <PdfUpload
+            onUploadComplete={handlePdfUploadComplete}
+            eventName={selectedEvent.name}
+          />
+        )}
       </div>
 
       <div className="border-t pt-6">

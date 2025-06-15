@@ -19,7 +19,7 @@ interface Event {
 interface EventSelectorProps {
   events: Event[];
   selectedEvent: Event | null;
-  onEventSelect: (eventId: string) => void;
+  onEventSelect: (eventId: string | null) => void;
   onSubmitEventRequest: () => void;
 }
 
@@ -31,6 +31,15 @@ export const EventSelector = ({ events, selectedEvent, onEventSelect, onSubmitEv
     event.venue.toLowerCase().includes(searchQuery.toLowerCase()) ||
     event.city.toLowerCase().includes(searchQuery.toLowerCase())
   ).slice(0, 10);
+
+  const handleEventClick = (eventId: string) => {
+    // If the clicked event is already selected, unselect it
+    if (selectedEvent?.id === eventId) {
+      onEventSelect(null);
+    } else {
+      onEventSelect(eventId);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -59,7 +68,7 @@ export const EventSelector = ({ events, selectedEvent, onEventSelect, onSubmitEv
             className={`cursor-pointer transition-all hover:shadow-md ${
               selectedEvent?.id === event.id ? 'ring-2 ring-red-500 bg-red-50' : 'hover:bg-gray-50'
             }`}
-            onClick={() => onEventSelect(event.id)}
+            onClick={() => handleEventClick(event.id)}
           >
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">

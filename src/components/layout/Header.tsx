@@ -1,11 +1,11 @@
-import React from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Heart, User, MessageCircle, Settings } from 'lucide-react';
+
+import React, { useState } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useToast } from '@/hooks/use-toast';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { SearchBar } from '@/components/home/SearchBar';
+import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,58 +13,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useToast } from '@/hooks/use-toast';
 
 export const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
-
-  // Check for unread messages
-  const { data: hasUnreadMessages = false } = useQuery({
-    queryKey: ['unread-messages', user?.id],
-    queryFn: async () => {
-      if (!user) return false;
-      
-      const { data: conversations } = await supabase
-        .from('conversations')
-        .select('id, updated_at')
-        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
-        .order('updated_at', { ascending: false });
-
-      if (!conversations?.length) return false;
-
-      // Check if any conversation has messages newer than user's last visit
-      // For now, we'll just check if there are any messages in the last hour
-      const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString();
-      
-      for (const conv of conversations) {
-        const { data: recentMessages } = await supabase
-          .from('messages')
-          .select('sender_id')
-          .eq('conversation_id', conv.id)
-          .gte('created_at', oneHourAgo)
-          .neq('sender_id', user.id);
-
-        if (recentMessages?.length) return true;
-      }
-      
-      return false;
-    },
-    enabled: !!user,
-    refetchInterval: 30000, // Check every 30 seconds
-  });
-
-  const handleSellTickets = () => {
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "Please log in to list tickets",
-      });
-      navigate('/auth');
-      return;
-    }
-    navigate('/sell-tickets');
-  };
+  const [searchQuery, setSearchQuery] = useState('');
 
   const handleSignOut = async () => {
     try {
@@ -82,80 +38,116 @@ export const Header = () => {
     }
   };
 
+  const getUserInitials = (email: string) => {
+    return email.substring(0, 2).toUpperCase();
+  };
+
+  const isHomePage = location.pathname === '/';
+
   return (
-    <header className="bg-white shadow-sm border-b">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
             <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
               <span className="text-white font-bold text-sm">SD</span>
             </div>
-            <span className="text-xl font-bold text-gray-900">socialdealr</span>
+            <span className="font-bold text-xl text-gray-900">socialdealr</span>
           </Link>
 
-          <div className="flex items-center space-x-4">
-            <Button 
-              onClick={handleSellTickets}
-              className="bg-red-600 hover:bg-red-700 text-white"
-            >
-              Sell Tickets
-            </Button>
+          {/* Search Bar - only show on non-home pages */}
+          {!isHomePage && (
+            <div className="flex-1 max-w-xl mx-8">
+              <SearchBar 
+                value={searchQuery}
+                onChange={setSearchQuery}
+                onSearch={() => {
+                  if (searchQuery.trim()) {
+                    navigate(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+                  }
+                }}
+                placeholder="Search events..."
+              />
+            </div>
+          )}
 
-            <Link to="/help" className="text-gray-600 hover:text-gray-900">
-              Help
-            </Link>
-
+          {/* Navigation */}
+          <nav className="flex items-center space-x-6">
             {user ? (
               <>
-                <Link to="/messages" className="relative">
-                  <Button variant="ghost" size="sm">
-                    <MessageCircle className="h-4 w-4" />
-                    {hasUnreadMessages && (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
-                    )}
-                  </Button>
+                <Link
+                  to="/sell-tickets"
+                  className="flex items-center space-x-1 text-red-600 hover:text-red-700 font-medium"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span>Sell</span>
                 </Link>
 
-                <Link to="/favourites">
-                  <Button variant="ghost" size="sm">
-                    <Heart className="h-4 w-4" />
-                  </Button>
+                <Link
+                  to="/favourites"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <Heart className="h-5 w-5" />
+                </Link>
+
+                <Link
+                  to="/messages"
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  <MessageSquare className="h-5 w-5" />
                 </Link>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm">
-                      <User className="h-4 w-4" />
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src="" alt={user.email || ''} />
+                        <AvatarFallback className="bg-red-100 text-red-600">
+                          {getUserInitials(user.email || '')}
+                        </AvatarFallback>
+                      </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
-                      My Tickets
+                      <User className="mr-2 h-4 w-4" />
+                      <span>My Tickets</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/selling-hub')}>
-                      Selling Hub
+                    <DropdownMenuItem onClick={() => navigate('/submit-event')}>
+                      <Calendar className="mr-2 h-4 w-4" />
+                      <span>Submit Event</span>
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate('/settings')}>
-                      <Settings className="h-4 w-4 mr-2" />
-                      Settings
+                      <Settings className="mr-2 h-4 w-4" />
+                      <span>Settings</span>
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={handleSignOut}>
-                      Sign Out
+                      <LogOut className="mr-2 h-4 w-4" />
+                      <span>Sign out</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
               </>
             ) : (
-              <Button 
-                variant="outline"
-                onClick={() => navigate('/auth')}
-              >
-                Sign In
-              </Button>
+              <div className="flex items-center space-x-4">
+                <Button
+                  variant="ghost"
+                  onClick={() => navigate('/auth')}
+                  className="text-gray-600 hover:text-gray-900"
+                >
+                  Sign In
+                </Button>
+                <Button
+                  onClick={() => navigate('/auth')}
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                >
+                  Get Started
+                </Button>
+              </div>
             )}
-          </div>
+          </nav>
         </div>
       </div>
     </header>

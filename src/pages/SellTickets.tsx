@@ -7,7 +7,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { SellTicketsForm } from '@/components/sell-tickets/SellTicketsForm';
-import { SubmitEventRequestDialog } from '@/components/sell-tickets/SubmitEventRequestDialog';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -29,6 +28,8 @@ interface TicketFormData {
   sellingPrice: number;
   description: string;
   isNegotiable: boolean;
+  pdfUrl?: string;
+  qrCodeHash?: string;
 }
 
 const SellTickets = () => {
@@ -36,7 +37,6 @@ const SellTickets = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
-  const [showEventRequestDialog, setShowEventRequestDialog] = useState(false);
   const [ticketData, setTicketData] = useState<TicketFormData>({
     ticketType: '',
     quantity: 1,
@@ -78,13 +78,19 @@ const SellTickets = () => {
     );
   }
 
-  const handleEventSelect = (eventId: string) => {
-    const event = events.find(e => e.id === eventId);
-    setSelectedEvent(event || null);
-    // Reset ticket type when event changes
+  const handleEventSelect = (eventId: string | null) => {
+    if (eventId) {
+      const event = events.find(e => e.id === eventId);
+      setSelectedEvent(event || null);
+    } else {
+      setSelectedEvent(null);
+    }
+    // Reset ticket type and PDF data when event changes
     setTicketData({
       ...ticketData,
-      ticketType: ''
+      ticketType: '',
+      pdfUrl: undefined,
+      qrCodeHash: undefined
     });
   };
 
@@ -109,6 +115,15 @@ const SellTickets = () => {
       return;
     }
 
+    if (!ticketData.pdfUrl || !ticketData.qrCodeHash) {
+      toast({
+        title: "Ticket verification required",
+        description: "Please upload and verify your ticket PDF",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -124,6 +139,9 @@ const SellTickets = () => {
           selling_price: ticketData.sellingPrice,
           description: ticketData.description,
           is_negotiable: ticketData.isNegotiable,
+          pdf_url: ticketData.pdfUrl,
+          qr_code_hash: ticketData.qrCodeHash,
+          verification_status: 'verified',
           status: 'available'
         });
 
@@ -171,16 +189,11 @@ const SellTickets = () => {
             loading={loading}
             onEventSelect={handleEventSelect}
             onTicketDataChange={setTicketData}
-            onSubmitEventRequest={() => setShowEventRequestDialog(true)}
+            onSubmitEventRequest={() => navigate('/submit-event')}
             onSubmit={handleSubmit}
           />
         </div>
       </main>
-
-      <SubmitEventRequestDialog
-        isOpen={showEventRequestDialog}
-        onClose={() => setShowEventRequestDialog(false)}
-      />
     </div>
   );
 };
