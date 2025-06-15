@@ -57,7 +57,10 @@ const MyTickets = () => {
   return (
     <Layout>
       <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-6">My Tickets</h1>
+        <div className="mb-8">
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">My Tickets</h1>
+          <p className="text-gray-600">Manage your purchased tickets and view upcoming events</p>
+        </div>
         
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <TabsList className="grid w-full grid-cols-3">
@@ -79,13 +82,13 @@ const MyTickets = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {upcomingTickets.map((ticket) => (
                   <PurchasedTicketCard
                     key={ticket.id}
                     ticket={ticket}
                     onDownload={handleDownload}
-                    onViewDetails={handleViewDetails}
+                    onViewDetails={() => handleViewDetails(ticket.ticket_id)}
                   />
                 ))}
               </div>
@@ -105,13 +108,13 @@ const MyTickets = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {pendingTickets.map((ticket) => (
                   <PurchasedTicketCard
                     key={ticket.id}
                     ticket={ticket}
                     onDownload={handleDownload}
-                    onViewDetails={handleViewDetails}
+                    onViewDetails={() => handleViewDetails(ticket.ticket_id)}
                   />
                 ))}
               </div>
@@ -131,13 +134,13 @@ const MyTickets = () => {
                 </CardContent>
               </Card>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 {pastTickets.map((ticket) => (
                   <PurchasedTicketCard
                     key={ticket.id}
                     ticket={ticket}
                     onDownload={handleDownload}
-                    onViewDetails={handleViewDetails}
+                    onViewDetails={() => handleViewDetails(ticket.ticket_id)}
                   />
                 ))}
               </div>

@@ -11,7 +11,7 @@ import { format } from 'date-fns';
 interface PurchasedTicketCardProps {
   ticket: PurchasedTicket;
   onDownload: (ticket: PurchasedTicket) => void;
-  onViewDetails: (ticketId: string) => void;
+  onViewDetails: () => void;
 }
 
 export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: PurchasedTicketCardProps) => {
@@ -109,7 +109,7 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
               size="sm" 
               variant="outline"
               className="flex-1"
-              onClick={() => onViewDetails(ticket.id)}
+              onClick={onViewDetails}
             >
               <Eye className="h-4 w-4 mr-2" />
               View Details
