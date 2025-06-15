@@ -4,8 +4,7 @@ export interface Event {
   name: string;
   venue: string;
   city: string;
-  start_date_time: string;
-  end_date_time?: string;
+  event_date: string;
   category: string;
   description?: string;
   image_url?: string;
@@ -33,8 +32,7 @@ export interface EventFormData {
   name: string;
   venue: string;
   city: string;
-  start_date_time: string;
-  end_date_time: string;
+  event_date: string;
   category: string;
   description: string;
   image_url: string;
@@ -49,7 +47,7 @@ export interface SearchResult {
   title: string;
   description?: string;
   image_url?: string;
-  start_date_time?: string;
+  event_date?: string;
   venue?: string;
   city?: string;
 }

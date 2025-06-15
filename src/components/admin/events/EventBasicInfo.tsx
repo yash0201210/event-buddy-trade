@@ -43,7 +43,7 @@ export const EventBasicInfo = ({
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
           <Label htmlFor="city">City</Label>
           <Input
@@ -54,22 +54,13 @@ export const EventBasicInfo = ({
           />
         </div>
         <div>
-          <Label htmlFor="start_date_time">Start Date & Time</Label>
+          <Label htmlFor="event_date">Event Date & Time</Label>
           <Input
-            id="start_date_time"
+            id="event_date"
             type="datetime-local"
-            value={formData.start_date_time}
-            onChange={(e) => setFormData({...formData, start_date_time: e.target.value})}
+            value={formData.event_date}
+            onChange={(e) => setFormData({...formData, event_date: e.target.value})}
             required
-          />
-        </div>
-        <div>
-          <Label htmlFor="end_date_time">End Date & Time</Label>
-          <Input
-            id="end_date_time"
-            type="datetime-local"
-            value={formData.end_date_time}
-            onChange={(e) => setFormData({...formData, end_date_time: e.target.value})}
           />
         </div>
       </div>

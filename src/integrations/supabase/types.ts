@@ -87,11 +87,10 @@ export type Database = {
           city: string
           created_at: string | null
           description: string | null
-          end_date_time: string | null
+          event_date: string
           id: string
           image_url: string | null
           name: string
-          start_date_time: string
           ticket_types: string[] | null
           university_id: string | null
           venue: string
@@ -102,11 +101,10 @@ export type Database = {
           city: string
           created_at?: string | null
           description?: string | null
-          end_date_time?: string | null
+          event_date: string
           id?: string
           image_url?: string | null
           name: string
-          start_date_time: string
           ticket_types?: string[] | null
           university_id?: string | null
           venue: string
@@ -117,11 +115,10 @@ export type Database = {
           city?: string
           created_at?: string | null
           description?: string | null
-          end_date_time?: string | null
+          event_date?: string
           id?: string
           image_url?: string | null
           name?: string
-          start_date_time?: string
           ticket_types?: string[] | null
           university_id?: string | null
           venue?: string

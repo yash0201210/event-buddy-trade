@@ -3,32 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Calendar, GraduationCap, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
-interface Event {
-  id: string;
-  name: string;
-  venue: string;
-  city: string;
-  event_date: string;
-  category: string;
-  description?: string;
-  image_url?: string;
-  venue_id?: string;
-  university_id?: string;
-}
-
-interface Venue {
-  id: string;
-  name: string;
-  city: string;
-  address?: string;
-}
-
-interface University {
-  id: string;
-  name: string;
-  city: string;
-}
+import { Event, Venue, University } from '@/types/event';
 
 interface EventInformationProps {
   event: Event;
@@ -108,6 +83,13 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
                 <p className="text-gray-600">{venue?.address || event.city}</p>
               </div>
             </div>
+
+            {event.description && (
+              <div className="pt-4 border-t">
+                <p className="text-sm font-medium text-gray-900 mb-2">Description</p>
+                <p className="text-gray-600">{event.description}</p>
+              </div>
+            )}
           </CardContent>
         </Card>
 

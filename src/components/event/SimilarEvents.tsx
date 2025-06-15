@@ -6,20 +6,7 @@ import { MapPin, Calendar, Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-
-interface Event {
-  id: string;
-  name: string;
-  venue: string;
-  city: string;
-  start_date_time: string;
-  end_date_time?: string;
-  category: string;
-  image_url?: string;
-  venue_id?: string;
-  university_id?: string;
-  ticket_count?: number;
-}
+import { Event } from '@/types/event';
 
 interface SimilarEventsProps {
   currentEvent: Event;
@@ -34,7 +21,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
         .from('events')
         .select('*')
         .neq('id', currentEvent.id)
-        .gte('start_date_time', new Date().toISOString())
+        .gte('event_date', new Date().toISOString())
         .limit(3);
 
       if (currentEvent.venue_id) {
@@ -45,7 +32,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
         query = query.eq('city', currentEvent.city);
       }
 
-      const { data: eventsData, error } = await query.order('start_date_time', { ascending: true });
+      const { data: eventsData, error } = await query.order('event_date', { ascending: true });
 
       if (error) throw error;
 
@@ -68,7 +55,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
         })
       );
 
-      return eventsWithTicketCounts as Event[];
+      return eventsWithTicketCounts as (Event & { ticket_count: number })[];
     },
   });
 
@@ -129,7 +116,7 @@ export const SimilarEvents = ({ currentEvent }: SimilarEventsProps) => {
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
                       <Calendar className="h-3 w-3 mr-1" />
-                      <span>{new Date(event.start_date_time).toLocaleDateString('en-GB', { 
+                      <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
                         weekday: 'short', 
                         day: 'numeric', 
                         month: 'short' 

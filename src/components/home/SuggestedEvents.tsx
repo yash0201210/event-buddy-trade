@@ -23,8 +23,8 @@ export const SuggestedEvents = ({ selectedCity, selectedCategory, searchTerm }: 
           *,
           tickets!left(id)
         `)
-        .gte('start_date_time', new Date().toISOString())
-        .order('start_date_time', { ascending: true })
+        .gte('event_date', new Date().toISOString())
+        .order('event_date', { ascending: true })
         .limit(12);
 
       if (selectedCity && selectedCity !== 'all') {

@@ -27,10 +27,7 @@ export const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             </h3>
             <div className="text-gray-600 space-y-1">
               <p><strong>Venue:</strong> {event.venue}, {event.city}</p>
-              <p><strong>Start:</strong> {formatDateTime(event.start_date_time)}</p>
-              {event.end_date_time && (
-                <p><strong>End:</strong> {formatDateTime(event.end_date_time)}</p>
-              )}
+              <p><strong>Date:</strong> {formatDateTime(event.event_date)}</p>
               <p><strong>Category:</strong> {event.category}</p>
               {event.description && <p><strong>Description:</strong> {event.description}</p>}
               {event.ticket_types && event.ticket_types.length > 0 && (

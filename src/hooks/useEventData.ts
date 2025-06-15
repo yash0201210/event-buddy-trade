@@ -19,7 +19,7 @@ export const useEventData = () => {
           universities(name),
           venues(name, city)
         `)
-        .order('start_date_time', { ascending: true });
+        .order('event_date', { ascending: true });
 
       if (error) throw error;
       setEvents(data || []);
