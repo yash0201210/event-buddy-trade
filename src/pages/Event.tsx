@@ -181,7 +181,7 @@ const Event = () => {
         <EventHeader event={event} venue={venue} university={university} />
 
         {/* Narrow Content Area */}
-        <div className="max-w-4xl mx-auto">
+        <div className="max-w-4xl mx-auto mt-12">
           {/* Available Tickets */}
           <AvailableTickets tickets={tickets} isLoading={ticketsLoading} />
 
