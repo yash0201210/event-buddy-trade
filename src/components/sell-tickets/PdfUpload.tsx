@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
@@ -5,89 +6,142 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { Upload, FileText, CheckCircle, XCircle, Clock } from 'lucide-react';
-interface PdfUploadProps {
-  onUploadComplete: (pdfUrl: string, qrCodeHash: string) => void;
-  eventName: string;
+import { Upload, FileText, CheckCircle, XCircle, Clock, Trash2, Plus } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+interface UploadedPdf {
+  id: string;
+  file: File;
+  pdfUrl?: string;
+  qrCodeHash?: string;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  selectedPages: number;
+  totalPages?: number;
+  errorMessage?: string;
 }
+
+interface PdfUploadProps {
+  onUploadComplete: (uploads: Array<{ pdfUrl: string; qrCodeHash: string; pages: number }>) => void;
+  eventName: string;
+  eventDate: string;
+  requiredQuantity: number;
+}
+
 export const PdfUpload = ({
   onUploadComplete,
-  eventName
+  eventName,
+  eventDate,
+  requiredQuantity
 }: PdfUploadProps) => {
-  const {
-    user
-  } = useAuth();
-  const {
-    toast
-  } = useToast();
-  const [uploading, setUploading] = useState(false);
-  const [uploadedFile, setUploadedFile] = useState<File | null>(null);
-  const [verificationStatus, setVerificationStatus] = useState<'pending' | 'verified' | 'rejected' | null>(null);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [uploads, setUploads] = useState<UploadedPdf[]>([]);
+  const [uploading, setUploading] = useState<string | null>(null);
+
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
+    const files = Array.from(event.target.files || []);
+    
+    for (const file of files) {
       if (file.type !== 'application/pdf') {
         toast({
           title: "Invalid file type",
-          description: "Please upload a PDF file",
+          description: "Please upload PDF files only",
           variant: "destructive"
         });
-        return;
+        continue;
       }
+      
       if (file.size > 10 * 1024 * 1024) {
-        // 10MB limit
         toast({
           title: "File too large",
-          description: "Please upload a file smaller than 10MB",
+          description: "Please upload files smaller than 10MB",
           variant: "destructive"
         });
-        return;
+        continue;
       }
-      setUploadedFile(file);
+
+      const newUpload: UploadedPdf = {
+        id: Math.random().toString(36).substr(2, 9),
+        file,
+        verificationStatus: 'pending',
+        selectedPages: 1
+      };
+
+      setUploads(prev => [...prev, newUpload]);
     }
+    
+    // Reset the input
+    event.target.value = '';
   };
-  const uploadPdf = async () => {
-    if (!uploadedFile || !user) return;
-    setUploading(true);
-    setVerificationStatus('pending');
+
+  const uploadAndVerifyPdf = async (uploadId: string) => {
+    if (!user) return;
+
+    const upload = uploads.find(u => u.id === uploadId);
+    if (!upload) return;
+
+    setUploading(uploadId);
+
     try {
       // Upload to Supabase Storage
       const fileExt = 'pdf';
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-      const {
-        data: uploadData,
-        error: uploadError
-      } = await supabase.storage.from('ticket-pdfs').upload(fileName, uploadedFile);
+      const fileName = `${user.id}/${Date.now()}_${uploadId}.${fileExt}`;
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('ticket-pdfs')
+        .upload(fileName, upload.file);
+
       if (uploadError) throw uploadError;
 
       // Get public URL
-      const {
-        data: {
-          publicUrl
-        }
-      } = supabase.storage.from('ticket-pdfs').getPublicUrl(fileName);
+      const { data: { publicUrl } } = supabase.storage
+        .from('ticket-pdfs')
+        .getPublicUrl(fileName);
 
       // Call verification edge function
-      const {
-        data: verificationData,
-        error: verificationError
-      } = await supabase.functions.invoke('verify-ticket-pdf', {
-        body: {
-          pdfUrl: publicUrl,
-          eventName: eventName,
-          fileName: fileName
-        }
-      });
+      const { data: verificationData, error: verificationError } = await supabase.functions
+        .invoke('verify-ticket-pdf', {
+          body: {
+            pdfUrl: publicUrl,
+            eventName: eventName,
+            eventDate: eventDate,
+            fileName: fileName,
+            selectedPages: upload.selectedPages
+          }
+        });
+
       if (verificationError) throw verificationError;
+
       if (verificationData.success) {
-        setVerificationStatus('verified');
-        onUploadComplete(publicUrl, verificationData.qrCodeHash);
+        setUploads(prev => prev.map(u => 
+          u.id === uploadId 
+            ? { 
+                ...u, 
+                verificationStatus: 'verified', 
+                pdfUrl: publicUrl, 
+                qrCodeHash: verificationData.qrCodeHash,
+                totalPages: verificationData.totalPages
+              }
+            : u
+        ));
+        
         toast({
           title: "Ticket verified successfully!",
           description: "Your ticket has been uploaded and verified."
         });
+        
+        updateParentComponent();
       } else {
-        setVerificationStatus('rejected');
+        setUploads(prev => prev.map(u => 
+          u.id === uploadId 
+            ? { 
+                ...u, 
+                verificationStatus: 'rejected',
+                errorMessage: verificationData.message 
+              }
+            : u
+        ));
+        
         toast({
           title: "Ticket verification failed",
           description: verificationData.message || "Unable to verify your ticket. Please check the PDF and try again.",
@@ -96,18 +150,67 @@ export const PdfUpload = ({
       }
     } catch (error: any) {
       console.error('Error uploading PDF:', error);
-      setVerificationStatus('rejected');
+      setUploads(prev => prev.map(u => 
+        u.id === uploadId 
+          ? { 
+              ...u, 
+              verificationStatus: 'rejected',
+              errorMessage: error.message 
+            }
+          : u
+      ));
+      
       toast({
         title: "Upload failed",
         description: error.message || "Failed to upload ticket. Please try again.",
         variant: "destructive"
       });
     } finally {
-      setUploading(false);
+      setUploading(null);
     }
   };
-  const getStatusIcon = () => {
-    switch (verificationStatus) {
+
+  const deletePdf = async (uploadId: string) => {
+    const upload = uploads.find(u => u.id === uploadId);
+    if (upload?.pdfUrl) {
+      // Delete from storage if it was uploaded
+      const fileName = upload.pdfUrl.split('/').pop();
+      if (fileName) {
+        await supabase.storage.from('ticket-pdfs').remove([fileName]);
+      }
+    }
+    
+    setUploads(prev => prev.filter(u => u.id !== uploadId));
+    updateParentComponent();
+  };
+
+  const updateSelectedPages = (uploadId: string, pages: number) => {
+    setUploads(prev => prev.map(u => 
+      u.id === uploadId ? { ...u, selectedPages: pages } : u
+    ));
+    updateParentComponent();
+  };
+
+  const updateParentComponent = () => {
+    const verifiedUploads = uploads
+      .filter(u => u.verificationStatus === 'verified' && u.pdfUrl && u.qrCodeHash)
+      .map(u => ({
+        pdfUrl: u.pdfUrl!,
+        qrCodeHash: u.qrCodeHash!,
+        pages: u.selectedPages
+      }));
+    
+    onUploadComplete(verifiedUploads);
+  };
+
+  const getTotalSelectedPages = () => {
+    return uploads
+      .filter(u => u.verificationStatus === 'verified')
+      .reduce((total, u) => total + u.selectedPages, 0);
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
       case 'pending':
         return <Clock className="h-5 w-5 text-yellow-500" />;
       case 'verified':
@@ -118,24 +221,19 @@ export const PdfUpload = ({
         return null;
     }
   };
-  const getStatusText = () => {
-    switch (verificationStatus) {
-      case 'pending':
-        return 'Verifying ticket...';
-      case 'verified':
-        return 'Ticket verified successfully!';
-      case 'rejected':
-        return 'Ticket verification failed';
-      default:
-        return '';
-    }
-  };
-  return <div className="space-y-4">
+
+  const totalSelected = getTotalSelectedPages();
+  const isQuantityMatched = totalSelected === requiredQuantity;
+
+  return (
+    <div className="space-y-4">
       <div>
         <Label htmlFor="pdf-upload" className="text-sm font-medium">
-          Upload Ticket PDF*
+          Upload Ticket PDFs*
         </Label>
-        <p className="text-xs text-gray-500 mb-2">Upload your ticket PDF for verification.</p>
+        <p className="text-xs text-gray-500 mb-2">
+          Upload your ticket PDFs for verification. You need {requiredQuantity} ticket(s) total.
+        </p>
         
         <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
           <div className="text-center">
@@ -143,32 +241,113 @@ export const PdfUpload = ({
             <div className="mt-4">
               <Label htmlFor="pdf-upload" className="cursor-pointer">
                 <span className="mt-2 block text-sm font-medium text-gray-900">
-                  {uploadedFile ? uploadedFile.name : 'Click to upload PDF'}
+                  Click to upload PDFs
                 </span>
                 <span className="mt-1 block text-xs text-gray-500">
-                  PDF files up to 10MB
+                  PDF files up to 10MB each. You can upload multiple files.
                 </span>
               </Label>
-              <Input id="pdf-upload" type="file" accept=".pdf" onChange={handleFileSelect} className="sr-only" />
+              <Input 
+                id="pdf-upload" 
+                type="file" 
+                accept=".pdf" 
+                multiple
+                onChange={handleFileSelect} 
+                className="sr-only" 
+              />
             </div>
           </div>
         </div>
       </div>
 
-      {uploadedFile && <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-          <div className="flex items-center space-x-2">
-            <FileText className="h-5 w-5 text-gray-500" />
-            <span className="text-sm text-gray-900">{uploadedFile.name}</span>
-            {getStatusIcon()}
+      {uploads.length > 0 && (
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-sm font-medium">Uploaded PDFs</h4>
+            <span className={`text-xs px-2 py-1 rounded ${
+              isQuantityMatched 
+                ? 'bg-green-100 text-green-800' 
+                : 'bg-yellow-100 text-yellow-800'
+            }`}>
+              {totalSelected}/{requiredQuantity} tickets selected
+            </span>
           </div>
-          {verificationStatus !== 'verified' && <Button onClick={uploadPdf} disabled={uploading} size="sm" className="bg-red-600 hover:bg-red-700">
-              {uploading ? 'Uploading...' : 'Upload & Verify'}
-            </Button>}
-        </div>}
+          
+          {uploads.map((upload) => (
+            <div key={upload.id} className="border rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <FileText className="h-5 w-5 text-gray-500" />
+                  <span className="text-sm text-gray-900 truncate max-w-xs">
+                    {upload.file.name}
+                  </span>
+                  {getStatusIcon(upload.verificationStatus)}
+                </div>
+                <Button
+                  onClick={() => deletePdf(upload.id)}
+                  variant="ghost"
+                  size="sm"
+                  className="text-red-600 hover:text-red-800"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
 
-      {verificationStatus && <div className={`p-3 rounded-lg flex items-center space-x-2 ${verificationStatus === 'verified' ? 'bg-green-50 text-green-800' : verificationStatus === 'rejected' ? 'bg-red-50 text-red-800' : 'bg-yellow-50 text-yellow-800'}`}>
-          {getStatusIcon()}
-          <span className="text-sm font-medium">{getStatusText()}</span>
-        </div>}
-    </div>;
+              {upload.verificationStatus === 'pending' && (
+                <div className="space-y-2">
+                  <div>
+                    <Label className="text-xs text-gray-600">
+                      How many tickets from this PDF do you want to sell?
+                    </Label>
+                    <Select 
+                      value={upload.selectedPages.toString()} 
+                      onValueChange={(value) => updateSelectedPages(upload.id, parseInt(value))}
+                    >
+                      <SelectTrigger className="w-full mt-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} ticket{num > 1 ? 's' : ''}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    onClick={() => uploadAndVerifyPdf(upload.id)}
+                    disabled={uploading === upload.id}
+                    size="sm"
+                    className="w-full bg-red-600 hover:bg-red-700"
+                  >
+                    {uploading === upload.id ? 'Uploading & Verifying...' : 'Upload & Verify'}
+                  </Button>
+                </div>
+              )}
+
+              {upload.verificationStatus === 'verified' && (
+                <div className="p-2 bg-green-50 text-green-800 rounded text-xs">
+                  ✓ Verified - {upload.selectedPages} ticket{upload.selectedPages > 1 ? 's' : ''} selected from this PDF
+                </div>
+              )}
+
+              {upload.verificationStatus === 'rejected' && (
+                <div className="p-2 bg-red-50 text-red-800 rounded text-xs">
+                  ✗ Verification failed: {upload.errorMessage || 'Unknown error'}
+                </div>
+              )}
+            </div>
+          ))}
+          
+          {!isQuantityMatched && (
+            <div className="p-3 bg-yellow-50 text-yellow-800 rounded text-sm">
+              You need to select exactly {requiredQuantity} ticket{requiredQuantity > 1 ? 's' : ''} total. 
+              Currently selected: {totalSelected}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
 };

@@ -24,8 +24,7 @@ interface TicketFormData {
   sellingPrice: number;
   description: string;
   isNegotiable: boolean;
-  pdfUrl?: string;
-  qrCodeHash?: string;
+  pdfUploads?: Array<{ pdfUrl: string; qrCodeHash: string; pages: number }>;
 }
 
 interface TicketDetailsFormProps {
@@ -42,11 +41,10 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
     });
   };
 
-  const handlePdfUploadComplete = (pdfUrl: string, qrCodeHash: string) => {
+  const handlePdfUploadsComplete = (uploads: Array<{ pdfUrl: string; qrCodeHash: string; pages: number }>) => {
     onChange({
       ...data,
-      pdfUrl,
-      qrCodeHash
+      pdfUploads: uploads
     });
   };
 
@@ -123,8 +121,10 @@ export const TicketDetailsForm = ({ data, onChange, selectedEvent }: TicketDetai
         
         {selectedEvent && (
           <PdfUpload
-            onUploadComplete={handlePdfUploadComplete}
+            onUploadComplete={handlePdfUploadsComplete}
             eventName={selectedEvent.name}
+            eventDate={selectedEvent.event_date}
+            requiredQuantity={data.quantity}
           />
         )}
       </div>

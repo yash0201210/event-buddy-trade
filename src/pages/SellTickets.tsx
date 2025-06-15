@@ -28,8 +28,7 @@ interface TicketFormData {
   sellingPrice: number;
   description: string;
   isNegotiable: boolean;
-  pdfUrl?: string;
-  qrCodeHash?: string;
+  pdfUploads?: Array<{ pdfUrl: string; qrCodeHash: string; pages: number }>;
 }
 
 const SellTickets = () => {
@@ -115,10 +114,21 @@ const SellTickets = () => {
       return;
     }
 
-    if (!ticketData.pdfUrl || !ticketData.qrCodeHash) {
+    if (!ticketData.pdfUploads || ticketData.pdfUploads.length === 0) {
       toast({
         title: "Ticket verification required",
-        description: "Please upload and verify your ticket PDF",
+        description: "Please upload and verify your ticket PDFs",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Check if total pages match quantity
+    const totalPages = ticketData.pdfUploads.reduce((sum, upload) => sum + upload.pages, 0);
+    if (totalPages !== ticketData.quantity) {
+      toast({
+        title: "Quantity mismatch",
+        description: `You selected ${totalPages} tickets but specified quantity of ${ticketData.quantity}`,
         variant: "destructive"
       });
       return;
@@ -127,37 +137,45 @@ const SellTickets = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase
-        .from('tickets')
-        .insert({
-          event_id: selectedEvent.id,
-          seller_id: user.id,
-          title: `${selectedEvent.name} - ${ticketData.ticketType}`,
-          ticket_type: ticketData.ticketType,
-          quantity: ticketData.quantity,
-          original_price: ticketData.originalPrice,
-          selling_price: ticketData.sellingPrice,
-          description: ticketData.description,
-          is_negotiable: ticketData.isNegotiable,
-          pdf_url: ticketData.pdfUrl,
-          qr_code_hash: ticketData.qrCodeHash,
-          verification_status: 'verified',
-          status: 'available'
-        });
+      // Create multiple ticket entries if there are multiple uploads
+      const ticketPromises = ticketData.pdfUploads.map((upload, index) => {
+        return supabase
+          .from('tickets')
+          .insert({
+            event_id: selectedEvent.id,
+            seller_id: user.id,
+            title: `${selectedEvent.name} - ${ticketData.ticketType}${ticketData.pdfUploads!.length > 1 ? ` (${index + 1})` : ''}`,
+            ticket_type: ticketData.ticketType,
+            quantity: upload.pages,
+            original_price: ticketData.originalPrice,
+            selling_price: ticketData.sellingPrice,
+            description: ticketData.description,
+            is_negotiable: ticketData.isNegotiable,
+            pdf_url: upload.pdfUrl,
+            qr_code_hash: upload.qrCodeHash,
+            verification_status: 'verified',
+            status: 'available'
+          });
+      });
 
-      if (error) throw error;
+      const results = await Promise.all(ticketPromises);
+      const hasError = results.some(result => result.error);
+      
+      if (hasError) {
+        throw new Error('Failed to create some ticket listings');
+      }
 
       toast({
-        title: "Ticket listed successfully!",
-        description: "Your tickets are now live and visible to buyers.",
+        title: "Tickets listed successfully!",
+        description: `Your ${ticketData.pdfUploads.length} ticket listing(s) are now live and visible to buyers.`,
       });
 
       navigate('/');
     } catch (error: any) {
-      console.error('Error listing ticket:', error);
+      console.error('Error listing tickets:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to list ticket. Please try again.",
+        description: error.message || "Failed to list tickets. Please try again.",
         variant: "destructive"
       });
     } finally {
