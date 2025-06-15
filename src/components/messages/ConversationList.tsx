@@ -18,21 +18,13 @@ interface Conversation {
   event_date?: string;
   buyer_name?: string;
   seller_name?: string;
-  messages: Message[];
-}
-
-interface Message {
-  id: string;
-  content: string;
-  sender_id: string;
-  message_type: string;
-  created_at: string;
+  messages: any[];
 }
 
 interface ConversationListProps {
   conversations: Conversation[];
   selectedConversation: string | null;
-  onSelectConversation: (id: string) => void;
+  onSelectConversation: (conversationId: string) => void;
   currentUserId: string;
 }
 
@@ -42,55 +34,70 @@ export const ConversationList = ({
   onSelectConversation,
   currentUserId
 }: ConversationListProps) => {
+  if (conversations.length === 0) {
+    return (
+      <Card className="h-full">
+        <CardContent className="flex items-center justify-center h-full">
+          <div className="text-center text-gray-500">
+            <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No conversations yet</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
-    <Card className="lg:col-span-1">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageCircle className="h-5 w-5" />
-          Messages
-        </CardTitle>
+    <Card className="h-full">
+      <CardHeader className="border-b border-gray-200">
+        <CardTitle className="text-lg text-gray-900">Messages</CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        {conversations.length === 0 ? (
-          <div className="p-6 text-center text-gray-500">
-            No messages yet
-          </div>
-        ) : (
-          <div className="space-y-1">
-            {conversations.map((conversation) => {
-              const isCurrentUserBuyer = conversation.buyer_id === currentUserId;
-              const otherPartyName = isCurrentUserBuyer 
-                ? conversation.seller_name 
-                : conversation.buyer_name;
-              const lastMessage = conversation.messages?.[conversation.messages.length - 1];
-              
-              return (
-                <div
-                  key={conversation.id}
-                  className={`p-4 cursor-pointer hover:bg-gray-50 border-b ${
-                    selectedConversation === conversation.id ? 'bg-blue-50' : ''
-                  }`}
-                  onClick={() => onSelectConversation(conversation.id)}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-semibold text-sm">{otherPartyName}</h4>
-                    <Badge variant={isCurrentUserBuyer ? "secondary" : "default"}>
-                      {isCurrentUserBuyer ? 'Buying' : 'Selling'}
-                    </Badge>
-                  </div>
-                  <p className="text-sm text-gray-600 truncate mb-1">
+        <div className="divide-y divide-gray-200">
+          {conversations.map((conversation) => {
+            const isUserBuyer = conversation.buyer_id === currentUserId;
+            const otherPartyName = isUserBuyer ? conversation.seller_name : conversation.buyer_name;
+            const lastMessage = conversation.messages?.[conversation.messages.length - 1];
+            const isSelected = selectedConversation === conversation.id;
+            
+            return (
+              <div
+                key={conversation.id}
+                onClick={() => onSelectConversation(conversation.id)}
+                className={`p-4 cursor-pointer transition-colors hover:bg-red-50 ${
+                  isSelected ? 'bg-red-50 border-l-4 border-red-600' : ''
+                }`}
+              >
+                <div className="flex justify-between items-start mb-2">
+                  <h3 className="font-semibold text-sm text-gray-900 truncate">
                     {conversation.ticket_title}
-                  </p>
-                  {lastMessage && (
-                    <p className="text-xs text-gray-500 truncate">
-                      {lastMessage.content.split('\n')[0]}
-                    </p>
-                  )}
+                  </h3>
+                  <Badge variant="outline" className="text-xs border-red-200 text-red-700">
+                    €{conversation.ticket_price}
+                  </Badge>
                 </div>
-              );
-            })}
-          </div>
-        )}
+                
+                <p className="text-xs text-gray-600 mb-2">
+                  {isUserBuyer ? 'Seller' : 'Buyer'}: {otherPartyName}
+                </p>
+                
+                {lastMessage && (
+                  <p className="text-xs text-gray-500 truncate">
+                    {lastMessage.message_type === 'purchase_request' ? 'Purchase request sent' :
+                     lastMessage.message_type === 'order_confirmed' ? 'Order confirmed' :
+                     lastMessage.message_type === 'transfer_confirmation' ? 'Transfer confirmed' :
+                     lastMessage.message_type === 'funds_received' ? 'Transaction complete' :
+                     lastMessage.content}
+                  </p>
+                )}
+                
+                <p className="text-xs text-gray-400 mt-1">
+                  {new Date(conversation.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            );
+          })}
+        </div>
       </CardContent>
     </Card>
   );

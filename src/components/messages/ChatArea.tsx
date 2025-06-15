@@ -64,7 +64,7 @@ export const ChatArea = ({
 }: ChatAreaProps) => {
   if (!selectedConv) {
     return (
-      <Card className="lg:col-span-2">
+      <Card className="lg:col-span-2 h-full">
         <CardContent className="flex items-center justify-center h-full">
           <div className="text-center text-gray-500">
             <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -78,8 +78,8 @@ export const ChatArea = ({
   const isUserBuyer = selectedConv.buyer_id === currentUserId;
 
   return (
-    <Card className="lg:col-span-2">
-      <CardHeader className="border-b">
+    <Card className="lg:col-span-2 h-full flex flex-col">
+      <CardHeader className="border-b border-gray-200 flex-shrink-0">
         <div className="flex items-center gap-2">
           <Button
             variant="ghost"
@@ -90,7 +90,7 @@ export const ChatArea = ({
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <CardTitle className="text-lg">
+            <CardTitle className="text-lg text-gray-900">
               {selectedConv.ticket_title}
             </CardTitle>
             <p className="text-sm text-gray-600">
@@ -104,9 +104,9 @@ export const ChatArea = ({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col h-[400px]">
+      <CardContent className="flex flex-col flex-1 p-0">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto space-y-4 p-4">
+        <div className="flex-1 overflow-y-auto p-4 space-y-4 min-h-0">
           {selectedConv.messages?.map((message) => (
             <MessageBubble
               key={message.id}
@@ -124,40 +124,36 @@ export const ChatArea = ({
           ))}
         </div>
 
-        {/* Transaction Instructions */}
-        <div className="border-t bg-blue-50 p-3 rounded-lg mb-4">
-          <h4 className="font-semibold text-sm mb-2">Transaction Instructions</h4>
-          <div className="text-xs text-gray-700 space-y-1">
+        {/* Transaction Instructions - More compact */}
+        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-100 p-2 mx-4 rounded-lg mb-4 flex-shrink-0">
+          <h4 className="font-semibold text-xs text-red-800 mb-1">Transaction Steps</h4>
+          <div className="text-xs text-red-700 space-y-0.5">
             {isUserBuyer ? (
               <>
-                <p>1. Wait for seller to accept your purchase request</p>
-                <p>2. Transfer payment using the provided bank details</p>
-                <p>3. Confirm transfer in the chat</p>
-                <p>4. Receive tickets after seller confirms payment</p>
+                <p>1. Wait for seller acceptance • 2. Transfer payment • 3. Confirm transfer • 4. Receive tickets</p>
               </>
             ) : (
               <>
-                <p>1. Accept or counter purchase requests</p>
-                <p>2. Share your bank details for payment</p>
-                <p>3. Wait for payment confirmation from buyer</p>
-                <p>4. Transfer tickets after confirming payment received</p>
+                <p>1. Accept/counter offers • 2. Share bank details • 3. Confirm payment • 4. Transfer tickets</p>
               </>
             )}
           </div>
         </div>
 
         {/* Message Input */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 p-4 border-t border-gray-200 flex-shrink-0">
           <Input
             placeholder="Type your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
+            className="border-gray-300 focus:border-red-500 focus:ring-red-500"
           />
           <Button 
             onClick={onSendMessage}
             disabled={!newMessage.trim() || isSending}
             size="sm"
+            className="bg-red-600 hover:bg-red-700 text-white"
           >
             <Send className="h-4 w-4" />
           </Button>
