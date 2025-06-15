@@ -7,49 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { X } from 'lucide-react';
-
-interface University {
-  id: string;
-  name: string;
-}
-
-interface Venue {
-  id: string;
-  name: string;
-  city: string;
-}
-
-interface Event {
-  id: string;
-  name: string;
-  venue: string;
-  city: string;
-  start_date_time: string;
-  end_date_time: string;
-  category: string;
-  description?: string;
-  image_url?: string;
-  ticket_types?: string[];
-  university_id?: string;
-  venue_id?: string;
-}
+import { Event, University, Venue, EventFormData } from '@/types/event';
 
 interface EventFormProps {
   editingEvent: Event | null;
-  formData: {
-    name: string;
-    venue: string;
-    city: string;
-    start_date_time: string;
-    end_date_time: string;
-    category: string;
-    description: string;
-    image_url: string;
-    ticket_types: string[];
-    university_id: string;
-    venue_id: string;
-  };
-  setFormData: React.Dispatch<React.SetStateAction<any>>;
+  formData: EventFormData;
+  setFormData: React.Dispatch<React.SetStateAction<EventFormData>>;
   newTicketType: string;
   setNewTicketType: React.Dispatch<React.SetStateAction<string>>;
   universities: University[];
