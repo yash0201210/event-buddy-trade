@@ -63,18 +63,28 @@ export const EventSelector = ({ events, selectedEvent, onEventSelect, onSubmitEv
           >
             <CardContent className="p-4">
               <div className="flex items-start space-x-3">
-                <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
+                <div className="w-16 h-16 rounded-lg flex items-center justify-center flex-shrink-0 overflow-hidden">
                   {event.image_url ? (
                     <img 
                       src={event.image_url} 
                       alt={event.name}
                       className="w-full h-full object-cover rounded-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.style.display = 'none';
+                        const fallback = target.nextElementSibling as HTMLElement;
+                        if (fallback) fallback.style.display = 'flex';
+                      }}
                     />
-                  ) : (
-                    <span className="text-red-600 font-semibold text-xs text-center">
+                  ) : null}
+                  <div 
+                    className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 rounded-lg flex items-center justify-center"
+                    style={{ display: event.image_url ? 'none' : 'flex' }}
+                  >
+                    <span className="text-red-600 font-semibold text-xs text-center px-1">
                       {event.category}
                     </span>
-                  )}
+                  </div>
                 </div>
                 
                 <div className="flex-1 min-w-0">
