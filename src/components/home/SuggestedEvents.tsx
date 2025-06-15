@@ -57,8 +57,8 @@ export const SuggestedEvents = () => {
 
   if (isLoading) {
     return (
-      <section className="py-2 bg-white">
-        <div className="max-w-5xl mx-auto px-4">
+      <section className="py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Suggested Events
@@ -68,13 +68,13 @@ export const SuggestedEvents = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[...Array(6)].map((_, i) => (
               <Card key={i} className="animate-pulse">
                 <CardHeader className="p-0">
-                  <div className="w-full h-36 bg-gray-200 rounded-t-lg"></div>
+                  <div className="w-full h-48 bg-gray-200 rounded-t-lg"></div>
                 </CardHeader>
-                <CardContent className="p-3">
+                <CardContent className="p-4">
                   <div className="h-4 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded mb-2"></div>
                   <div className="h-3 bg-gray-200 rounded mb-4"></div>
@@ -90,8 +90,8 @@ export const SuggestedEvents = () => {
 
   if (events.length === 0) {
     return (
-      <section className="py-2 bg-white">
-        <div className="max-w-5xl mx-auto px-4">
+      <section className="py-12 bg-white">
+        <div className="max-w-6xl mx-auto px-4">
           <div className="flex items-center justify-between mb-8">
             <h2 className="text-2xl font-bold text-gray-900">
               Suggested Events
@@ -111,8 +111,8 @@ export const SuggestedEvents = () => {
   }
 
   return (
-    <section className="py-2 bg-white">
-      <div className="max-w-5xl mx-auto px-4">
+    <section className="py-12 bg-white">
+      <div className="max-w-6xl mx-auto px-4">
         <div className="flex items-center justify-between mb-8">
           <h2 className="text-2xl font-bold text-gray-900">
             Suggested Events
@@ -122,83 +122,84 @@ export const SuggestedEvents = () => {
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {events.map((event) => (
-            <Link key={event.id} to={`/event/${event.id}`}>
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader className="p-0">
-                  <div className="relative">
-                    {event.image_url ? (
-                      <img 
-                        src={event.image_url} 
-                        alt={event.name}
-                        className="w-full h-36 object-cover rounded-t-lg"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.src = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=300&fit=crop';
-                        }}
-                      />
-                    ) : (
-                      <div className="w-full h-36 bg-gradient-to-br from-red-100 to-red-200 rounded-t-lg flex items-center justify-center">
-                        <span className="text-red-600 font-medium">{event.category}</span>
-                      </div>
-                    )}
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="absolute top-2 right-2 bg-white/80 hover:bg-white text-gray-600"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
+            <Card key={event.id} className="hover:shadow-lg transition-shadow">
+              <CardHeader className="p-0">
+                <div className="relative">
+                  {event.image_url ? (
+                    <img 
+                      src={event.image_url} 
+                      alt={event.name}
+                      className="w-full h-48 object-cover rounded-t-lg"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = 'https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?w=400&h=300&fit=crop';
                       }}
-                    >
-                      <Heart className="h-4 w-4" />
-                    </Button>
-                    <Badge className="absolute top-2 left-2 bg-red-600 text-white">
-                      {event.category}
-                    </Badge>
-                  </div>
-                </CardHeader>
+                    />
+                  ) : (
+                    <div className="w-full h-48 bg-gradient-to-br from-red-100 to-red-200 rounded-t-lg flex items-center justify-center">
+                      <span className="text-red-600 font-medium">{event.category}</span>
+                    </div>
+                  )}
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="absolute top-2 right-2 bg-white/80 hover:bg-white text-gray-600"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                  >
+                    <Heart className="h-4 w-4" />
+                  </Button>
+                  <span className="absolute top-2 left-2 bg-red-600 text-white px-2 py-1 rounded text-xs">
+                    {event.category}
+                  </span>
+                  {event.ticket_count && event.ticket_count > 0 && (
+                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
+                      {event.ticket_count} tickets available
+                    </div>
+                  )}
+                </div>
+              </CardHeader>
+              
+              <CardContent className="p-4">
+                <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+                  {event.name}
+                </h3>
                 
-                <CardContent className="p-3">
-                  <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-sm">
-                    {event.name}
-                  </h3>
-                  
-                  <div className="space-y-1 text-xs text-gray-600 mb-3">
-                    <div className="flex items-center">
-                      <MapPin className="h-3 w-3 mr-1" />
-                      <span className="truncate">{event.venue}, {event.city}</span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center">
-                        <Calendar className="h-3 w-3 mr-1" />
-                        <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
-                          weekday: 'short', 
-                          day: 'numeric', 
-                          month: 'short' 
-                        })}</span>
-                      </div>
-                      {event.ticket_count && event.ticket_count > 0 && (
-                        <div className="flex items-center text-blue-600">
-                          <Ticket className="h-3 w-3 mr-1" />
-                          <span className="font-medium">{event.ticket_count}+</span>
-                        </div>
-                      )}
-                    </div>
+                <div className="space-y-2 text-sm text-gray-600 mb-3">
+                  <div className="flex items-center">
+                    <MapPin className="h-3 w-3 mr-2" />
+                    <span>{event.venue}, {event.city}</span>
                   </div>
-                  
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">
-                      View Details
-                    </span>
-                    <Button size="sm" className="bg-red-600 hover:bg-red-700 text-xs px-3 py-1 h-6">
-                      View Event
+                  <div className="flex items-center">
+                    <Calendar className="h-3 w-3 mr-2" />
+                    <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
+                      weekday: 'short', 
+                      day: 'numeric', 
+                      month: 'short' 
+                    })}</span>
+                  </div>
+                  <div className="flex items-center">
+                    <Star className="h-3 w-3 mr-2 fill-yellow-400 text-yellow-400" />
+                    <span>4.8 rating</span>
+                  </div>
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <span className="text-lg font-bold text-red-600">
+                    from £25
+                  </span>
+                  <Link to={`/event/${event.id}`}>
+                    <Button size="sm" className="bg-red-600 hover:bg-red-700">
+                      View Tickets
                     </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
+                  </Link>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       </div>

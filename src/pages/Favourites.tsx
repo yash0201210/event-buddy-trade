@@ -4,47 +4,75 @@ import { Header } from '@/components/layout/Header';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Calendar, Star } from 'lucide-react';
-
-const favouriteEvents = [
-  {
-    id: 1,
-    title: 'Taylor Swift - Eras Tour',
-    venue: 'Wembley Stadium',
-    location: 'London, UK',
-    date: '2024-08-15',
-    image: '/placeholder.svg',
-    priceFrom: '£89',
-    category: 'Concert',
-    rating: 4.8,
-    ticketsAvailable: 42
-  },
-  {
-    id: 2,
-    title: 'Arsenal vs Manchester City',
-    venue: 'Emirates Stadium',
-    location: 'London, UK',
-    date: '2024-08-20',
-    image: '/placeholder.svg',
-    priceFrom: '£45',
-    category: 'Sports',
-    rating: 4.6,
-    ticketsAvailable: 28
-  },
-  {
-    id: 3,
-    title: 'Reading Festival 2024',
-    venue: 'Reading Festival Site',
-    location: 'Reading, UK',
-    date: '2024-08-30',
-    image: '/placeholder.svg',
-    priceFrom: '£125',
-    category: 'Festival',
-    rating: 4.9,
-    ticketsAvailable: 15
-  }
-];
+import { Link } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/hooks/useAuth';
 
 const Favourites = () => {
+  const { user } = useAuth();
+
+  const { data: favouriteEvents = [], isLoading } = useQuery({
+    queryKey: ['user-favourites', user?.id],
+    queryFn: async () => {
+      if (!user) return [];
+      
+      // For now, return empty array since we don't have a favourites table yet
+      // This will be implemented when the user adds the favourites functionality
+      return [];
+    },
+    enabled: !!user,
+  });
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="text-center py-12">
+            <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">Please sign in</h3>
+            <p className="text-gray-600 mb-6">Sign in to view your favourite events</p>
+            <Link to="/auth">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Sign In
+              </Button>
+            </Link>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <main className="container mx-auto px-4 py-8">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">My Favourites</h1>
+            <p className="text-gray-600">Keep track of events you're interested in</p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <Card key={i} className="animate-pulse">
+                <CardHeader className="p-0">
+                  <div className="w-full h-48 bg-gray-200 rounded-t-lg"></div>
+                </CardHeader>
+                <CardContent className="p-4">
+                  <div className="h-4 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-2"></div>
+                  <div className="h-3 bg-gray-200 rounded mb-4"></div>
+                  <div className="h-6 bg-gray-200 rounded"></div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50">
       <Header />
@@ -122,9 +150,11 @@ const Favourites = () => {
             <Heart className="h-16 w-16 text-gray-300 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No favourites yet</h3>
             <p className="text-gray-600 mb-6">Start adding events to your favourites to see them here</p>
-            <Button className="bg-red-600 hover:bg-red-700">
-              Browse Events
-            </Button>
+            <Link to="/">
+              <Button className="bg-red-600 hover:bg-red-700">
+                Browse Events
+              </Button>
+            </Link>
           </div>
         )}
       </main>
