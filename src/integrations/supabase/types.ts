@@ -85,48 +85,42 @@ export type Database = {
         Row: {
           category: string
           city: string
-          created_at: string
+          created_at: string | null
           description: string | null
-          end_date_time: string | null
+          event_date: string
           id: string
           image_url: string | null
           name: string
-          start_date_time: string
           ticket_types: string[] | null
           university_id: string | null
-          updated_at: string
           venue: string
           venue_id: string | null
         }
         Insert: {
           category: string
           city: string
-          created_at?: string
+          created_at?: string | null
           description?: string | null
-          end_date_time?: string | null
+          event_date: string
           id?: string
           image_url?: string | null
           name: string
-          start_date_time: string
           ticket_types?: string[] | null
           university_id?: string | null
-          updated_at?: string
           venue: string
           venue_id?: string | null
         }
         Update: {
           category?: string
           city?: string
-          created_at?: string
+          created_at?: string | null
           description?: string | null
-          end_date_time?: string | null
+          event_date?: string
           id?: string
           image_url?: string | null
           name?: string
-          start_date_time?: string
           ticket_types?: string[] | null
           university_id?: string | null
-          updated_at?: string
           venue?: string
           venue_id?: string | null
         }
@@ -365,6 +359,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "tickets_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "tickets_seller_id_fkey"
             columns: ["seller_id"]
             isOneToOne: false
@@ -422,7 +423,15 @@ export type Database = {
           id?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_event_favourites_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_university_pins: {
         Row: {

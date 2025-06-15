@@ -3,7 +3,20 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Trash2, Edit } from 'lucide-react';
-import { Event } from '@/types/event';
+
+interface Event {
+  id: string;
+  name: string;
+  venue: string;
+  city: string;
+  event_date: string;
+  category: string;
+  description?: string;
+  image_url?: string;
+  ticket_types?: string[];
+  university_id?: string;
+  venue_id?: string;
+}
 
 interface EventCardProps {
   event: Event;
@@ -12,11 +25,6 @@ interface EventCardProps {
 }
 
 export const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
-  const formatDateTime = (dateTime: string) => {
-    if (!dateTime) return 'Not set';
-    return new Date(dateTime).toLocaleString();
-  };
-
   return (
     <Card>
       <CardContent className="p-6">
@@ -27,10 +35,7 @@ export const EventCard = ({ event, onEdit, onDelete }: EventCardProps) => {
             </h3>
             <div className="text-gray-600 space-y-1">
               <p><strong>Venue:</strong> {event.venue}, {event.city}</p>
-              <p><strong>Start:</strong> {formatDateTime(event.start_date_time)}</p>
-              {event.end_date_time && (
-                <p><strong>End:</strong> {formatDateTime(event.end_date_time)}</p>
-              )}
+              <p><strong>Date:</strong> {new Date(event.event_date).toLocaleDateString()}</p>
               <p><strong>Category:</strong> {event.category}</p>
               {event.description && <p><strong>Description:</strong> {event.description}</p>}
               {event.ticket_types && event.ticket_types.length > 0 && (

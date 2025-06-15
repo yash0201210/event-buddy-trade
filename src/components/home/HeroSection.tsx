@@ -1,7 +1,6 @@
 
 import React, { useState, useRef, useEffect } from 'react';
-import { useSearch } from '@/hooks/useSearch';
-import type { SearchResult } from '@/types/event';
+import { useSearch, SearchResult } from '@/hooks/useSearch';
 import { useNavigate } from 'react-router-dom';
 import { SearchBar } from './SearchBar';
 import { SearchDropdown } from './SearchDropdown';
@@ -12,7 +11,7 @@ export const HeroSection = () => {
   const searchRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   
-  const { searchResults, isLoading, isOpen, setIsOpen } = useSearch(searchQuery);
+  const { results, isLoading, isOpen, setIsOpen } = useSearch(searchQuery);
 
   useEffect(() => {
     setIsOpen(isFocused && searchQuery.length >= 2);
@@ -45,6 +44,9 @@ export const HeroSection = () => {
       case 'venue':
         navigate(`/venue/${result.id}`);
         break;
+      case 'city':
+        navigate('/');
+        break;
     }
   };
 
@@ -74,7 +76,7 @@ export const HeroSection = () => {
             <SearchDropdown
               isOpen={isOpen}
               isLoading={isLoading}
-              results={searchResults}
+              results={results}
               searchQuery={searchQuery}
               onResultClick={handleResultClick}
             />

@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useEventTickets } from './useEventTickets';
 
-export const useEventDetails = (eventId?: string) => {
+export const useEventData = (eventId?: string) => {
   // Event details query
   const { data: event, isLoading: eventLoading } = useQuery({
     queryKey: ['event', eventId],

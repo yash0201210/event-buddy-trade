@@ -4,8 +4,31 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Calendar, GraduationCap } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Event, Venue, University } from '@/types/event';
-import { useFavourites } from '@/hooks/useFavourites';
+
+interface Event {
+  id: string;
+  name: string;
+  venue: string;
+  city: string;
+  event_date: string;
+  category: string;
+  description?: string;
+  image_url?: string;
+  venue_id?: string;
+  university_id?: string;
+}
+
+interface Venue {
+  id: string;
+  name: string;
+  city: string;
+}
+
+interface University {
+  id: string;
+  name: string;
+  city: string;
+}
 
 interface EventHeaderProps {
   event: Event;
@@ -14,7 +37,7 @@ interface EventHeaderProps {
 }
 
 export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
-  const { isFavourite, toggleFavourite } = useFavourites();
+  const [isFavourite, setIsFavourite] = useState(false);
 
   return (
     <div className="relative mb-6">
@@ -69,7 +92,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
               
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2" />
-                <span>{new Date(event.start_date_time).toLocaleDateString('en-GB', { 
+                <span>{new Date(event.event_date).toLocaleDateString('en-GB', { 
                   weekday: 'long', 
                   day: 'numeric', 
                   month: 'long',
@@ -96,10 +119,10 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
         <Button 
           variant="ghost" 
           size="sm"
-          onClick={() => toggleFavourite(event.id)}
-          className={`absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm ${isFavourite(event.id) ? 'text-[#E8550D]' : ''}`}
+          onClick={() => setIsFavourite(!isFavourite)}
+          className={`absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm ${isFavourite ? 'text-[#E8550D]' : ''}`}
         >
-          <Heart className={`h-5 w-5 ${isFavourite(event.id) ? 'fill-current' : ''}`} />
+          <Heart className={`h-5 w-5 ${isFavourite ? 'fill-current' : ''}`} />
         </Button>
       </div>
     </div>

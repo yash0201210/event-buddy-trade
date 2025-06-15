@@ -5,7 +5,23 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
-import { ConversationWithDetails } from '@/hooks/useConversations';
+
+interface Conversation {
+  id: string;
+  ticket_id: string;
+  buyer_id: string;
+  seller_id: string;
+  status: string;
+  created_at: string;
+  ticket_title?: string;
+  ticket_price?: number;
+  event_name?: string;
+  event_venue?: string;
+  event_date?: string;
+  buyer_name?: string;
+  seller_name?: string;
+  messages: Message[];
+}
 
 interface Message {
   id: string;
@@ -16,7 +32,7 @@ interface Message {
 }
 
 interface ChatAreaProps {
-  selectedConv: ConversationWithDetails | null;
+  selectedConv: Conversation | null;
   currentUserId: string;
   newMessage: string;
   setNewMessage: (message: string) => void;

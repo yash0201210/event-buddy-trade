@@ -9,7 +9,17 @@ import { useToast } from '@/hooks/use-toast';
 import { SellTicketsForm } from '@/components/sell-tickets/SellTicketsForm';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { Event } from '@/types/event';
+
+interface Event {
+  id: string;
+  name: string;
+  venue: string;
+  city: string;
+  event_date: string;
+  category: string;
+  image_url?: string;
+  ticket_types?: string[];
+}
 
 interface TicketFormData {
   ticketType: string;
@@ -43,11 +53,10 @@ const SellTickets = () => {
       const { data, error } = await supabase
         .from('events')
         .select('*')
-        .order('start_date_time', { ascending: true });
+        .order('event_date', { ascending: true });
       
       if (error) throw error;
-      
-      return data as Event[];
+      return data;
     },
   });
 
