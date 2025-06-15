@@ -86,7 +86,7 @@ export const Header = () => {
                   onClick={() => navigate('/sell-tickets')}
                   className="bg-red-600 hover:bg-red-700 text-white"
                 >
-                  Sell
+                  Sell Tickets
                 </Button>
 
                 <Link
