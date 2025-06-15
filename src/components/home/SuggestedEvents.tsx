@@ -157,8 +157,9 @@ export const SuggestedEvents = () => {
                     {event.category}
                   </span>
                   {event.ticket_count && event.ticket_count > 0 && (
-                    <div className="absolute bottom-2 left-2 bg-black/70 text-white px-2 py-1 rounded text-xs">
-                      {event.ticket_count} tickets available
+                    <div className="absolute bottom-2 left-2 bg-orange-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+                      <Ticket className="h-3 w-3" />
+                      <span>{event.ticket_count} tickets</span>
                     </div>
                   )}
                 </div>
