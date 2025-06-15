@@ -1,14 +1,38 @@
 
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { usePurchasedTickets } from '@/hooks/usePurchasedTickets';
 import { PurchasedTicketCard } from '@/components/tickets/PurchasedTicketCard';
 import { EmptyTicketsState } from '@/components/tickets/EmptyTicketsState';
 import { Header } from '@/components/layout/Header';
+import { useTicketDownload } from '@/hooks/useTicketDownload';
+import { useNavigate } from 'react-router-dom';
 
 const MyTickets = () => {
-  const { upcomingTickets, pendingTickets, pastTickets, isLoading } = usePurchasedTickets();
+  const { data: tickets = [], isLoading } = usePurchasedTickets();
+  const { downloadTicket } = useTicketDownload();
+  const navigate = useNavigate();
+
+  // Filter tickets by status
+  const upcomingTickets = tickets.filter(ticket => {
+    const eventDate = new Date(ticket.event_date);
+    return eventDate > new Date() && ticket.status === 'sold';
+  });
+
+  const pendingTickets = tickets.filter(ticket => ticket.status === 'pending');
+
+  const pastTickets = tickets.filter(ticket => {
+    const eventDate = new Date(ticket.event_date);
+    return eventDate <= new Date() && ticket.status === 'sold';
+  });
+
+  const handleDownload = (ticketId: string) => {
+    downloadTicket(ticketId);
+  };
+
+  const handleViewDetails = (ticketId: string) => {
+    navigate(`/ticket/${ticketId}`);
+  };
 
   if (isLoading) {
     return (
@@ -45,7 +69,12 @@ const MyTickets = () => {
               <EmptyTicketsState type="upcoming" />
             ) : (
               upcomingTickets.map((ticket) => (
-                <PurchasedTicketCard key={ticket.id} ticket={ticket} />
+                <PurchasedTicketCard 
+                  key={ticket.id} 
+                  ticket={ticket}
+                  onDownload={handleDownload}
+                  onViewDetails={handleViewDetails}
+                />
               ))
             )}
           </TabsContent>
@@ -55,7 +84,12 @@ const MyTickets = () => {
               <EmptyTicketsState type="pending" />
             ) : (
               pendingTickets.map((ticket) => (
-                <PurchasedTicketCard key={ticket.id} ticket={ticket} />
+                <PurchasedTicketCard 
+                  key={ticket.id} 
+                  ticket={ticket}
+                  onDownload={handleDownload}
+                  onViewDetails={handleViewDetails}
+                />
               ))
             )}
           </TabsContent>
@@ -65,7 +99,12 @@ const MyTickets = () => {
               <EmptyTicketsState type="past" />
             ) : (
               pastTickets.map((ticket) => (
-                <PurchasedTicketCard key={ticket.id} ticket={ticket} />
+                <PurchasedTicketCard 
+                  key={ticket.id} 
+                  ticket={ticket}
+                  onDownload={handleDownload}
+                  onViewDetails={handleViewDetails}
+                />
               ))
             )}
           </TabsContent>
