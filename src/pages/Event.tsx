@@ -177,44 +177,47 @@ const Event = () => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto px-4 py-8">
-        {/* Event Header */}
+        {/* Event Header - Full Width */}
         <EventHeader event={event} venue={venue} university={university} />
 
-        {/* Ticket Alert */}
-        <TicketAlert eventId={event.id} />
+        {/* Narrow Content Area */}
+        <div className="max-w-4xl mx-auto">
+          {/* Ticket Alert */}
+          <TicketAlert eventId={event.id} />
 
-        {/* Available Tickets */}
-        <AvailableTickets tickets={tickets} isLoading={ticketsLoading} />
+          {/* Available Tickets */}
+          <AvailableTickets tickets={tickets} isLoading={ticketsLoading} />
 
-        {/* Sold Tickets Counter */}
-        {soldTicketsCount > 0 && (
-          <div className="mb-6">
-            <Card className="bg-green-50 border-green-200">
-              <CardContent className="p-4">
-                <div className="flex items-center justify-center text-green-700">
-                  <TrendingUp className="h-5 w-5 mr-2" />
-                  <span className="font-medium">
-                    {soldTicketsCount} ticket{soldTicketsCount === 1 ? '' : 's'} sold
-                  </span>
-                  <span className="ml-2 text-sm text-green-600">
-                    - High demand event!
-                  </span>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+          {/* Sold Tickets Counter */}
+          {soldTicketsCount > 0 && (
+            <div className="mb-6">
+              <Card className="bg-green-50 border-green-200">
+                <CardContent className="p-4">
+                  <div className="flex items-center justify-center text-green-700">
+                    <TrendingUp className="h-5 w-5 mr-2" />
+                    <span className="font-medium">
+                      {soldTicketsCount} ticket{soldTicketsCount === 1 ? '' : 's'} sold
+                    </span>
+                    <span className="ml-2 text-sm text-green-600">
+                      - High demand event!
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
-        {/* Event Information */}
-        <EventInformation event={event} venue={venue} university={university} />
+          {/* Event Information */}
+          <EventInformation event={event} venue={venue} university={university} />
 
-        {/* Sell Ticket Prompt */}
-        <SellTicketPrompt eventId={event.id} />
+          {/* Sell Ticket Prompt */}
+          <SellTicketPrompt eventId={event.id} />
 
-        {/* Similar Events */}
-        <SimilarEvents currentEvent={event} />
+          {/* Similar Events */}
+          <SimilarEvents currentEvent={event} />
+        </div>
 
-        {/* University Ticketing Solution Banner */}
+        {/* University Ticketing Solution Banner - Full Width */}
         <UniTicketingSolution />
       </main>
       
