@@ -18,12 +18,17 @@ const MyTickets = () => {
   const { data: tickets = [], isLoading } = usePurchasedTickets();
   const { downloadTicket } = useTicketDownload();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState("all");
+  const [activeTab, setActiveTab] = useState("upcoming");
 
   // Filter tickets based on date and status
   const upcomingTickets = tickets.filter(ticket => 
     new Date(ticket.ticket.events?.event_date || '') > new Date() && 
     ticket.status === 'completed'
+  );
+
+  const pendingTickets = tickets.filter(ticket => 
+    ticket.status === 'pending' || 
+    (ticket.status === 'confirmed' && !ticket.seller_confirmed)
   );
 
   const pastTickets = tickets.filter(ticket => 
@@ -72,16 +77,16 @@ const MyTickets = () => {
 
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList>
-            <TabsTrigger value="all">All Tickets ({tickets.length})</TabsTrigger>
-            <TabsTrigger value="upcoming">Upcoming ({upcomingTickets.length})</TabsTrigger>
+            <TabsTrigger value="upcoming">Upcoming Events ({upcomingTickets.length})</TabsTrigger>
+            <TabsTrigger value="pending">Pending Tickets ({pendingTickets.length})</TabsTrigger>
             <TabsTrigger value="past">Past Events ({pastTickets.length})</TabsTrigger>
           </TabsList>
 
-          <TabsContent value="all" className="space-y-4">
-            {tickets.length === 0 ? (
+          <TabsContent value="upcoming" className="space-y-4">
+            {upcomingTickets.length === 0 ? (
               <EmptyTicketsState type="upcoming" />
             ) : (
-              tickets.map((ticket) => (
+              upcomingTickets.map((ticket) => (
                 <PurchasedTicketCard
                   key={ticket.id}
                   ticket={ticket}
@@ -92,11 +97,11 @@ const MyTickets = () => {
             )}
           </TabsContent>
 
-          <TabsContent value="upcoming" className="space-y-4">
-            {upcomingTickets.length === 0 ? (
-              <EmptyTicketsState type="upcoming" />
+          <TabsContent value="pending" className="space-y-4">
+            {pendingTickets.length === 0 ? (
+              <EmptyTicketsState type="pending" />
             ) : (
-              upcomingTickets.map((ticket) => (
+              pendingTickets.map((ticket) => (
                 <PurchasedTicketCard
                   key={ticket.id}
                   ticket={ticket}
