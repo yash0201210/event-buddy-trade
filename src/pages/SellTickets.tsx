@@ -95,6 +95,8 @@ const SellTickets = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Form submission started with data:', ticketData);
+    
     if (!selectedEvent) {
       toast({
         title: "Event required",
@@ -108,6 +110,25 @@ const SellTickets = () => {
       toast({
         title: "Ticket type required",
         description: "Please select a ticket type",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Validate prices
+    if (ticketData.originalPrice <= 0 || isNaN(ticketData.originalPrice)) {
+      toast({
+        title: "Invalid original price",
+        description: "Please enter a valid original price greater than 0",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    if (ticketData.sellingPrice <= 0 || isNaN(ticketData.sellingPrice)) {
+      toast({
+        title: "Invalid selling price",
+        description: "Please enter a valid selling price greater than 0",
         variant: "destructive"
       });
       return;
@@ -136,31 +157,44 @@ const SellTickets = () => {
     setLoading(true);
 
     try {
+      console.log('Creating ticket entries with prices:', {
+        original: ticketData.originalPrice,
+        selling: ticketData.sellingPrice,
+        type: typeof ticketData.originalPrice,
+        isNaN: isNaN(ticketData.originalPrice)
+      });
+
       // Create multiple ticket entries if there are multiple uploads
       const ticketPromises = ticketData.pdfUploads.map((upload, index) => {
+        const ticketEntry = {
+          event_id: selectedEvent.id,
+          seller_id: user.id,
+          title: `${selectedEvent.name} - ${ticketData.ticketType}${ticketData.pdfUploads!.length > 1 ? ` (${index + 1})` : ''}`,
+          ticket_type: ticketData.ticketType,
+          quantity: upload.pages,
+          original_price: Number(ticketData.originalPrice),
+          selling_price: Number(ticketData.sellingPrice),
+          description: ticketData.description,
+          is_negotiable: ticketData.isNegotiable,
+          pdf_url: upload.pdfUrl,
+          qr_code_hash: upload.qrCodeHash,
+          verification_status: 'verified',
+          status: 'available'
+        };
+        
+        console.log('Inserting ticket entry:', ticketEntry);
+        
         return supabase
           .from('tickets')
-          .insert({
-            event_id: selectedEvent.id,
-            seller_id: user.id,
-            title: `${selectedEvent.name} - ${ticketData.ticketType}${ticketData.pdfUploads!.length > 1 ? ` (${index + 1})` : ''}`,
-            ticket_type: ticketData.ticketType,
-            quantity: upload.pages,
-            original_price: ticketData.originalPrice,
-            selling_price: ticketData.sellingPrice,
-            description: ticketData.description,
-            is_negotiable: ticketData.isNegotiable,
-            pdf_url: upload.pdfUrl,
-            qr_code_hash: upload.qrCodeHash,
-            verification_status: 'verified',
-            status: 'available'
-          });
+          .insert(ticketEntry);
       });
 
       const results = await Promise.all(ticketPromises);
       const hasError = results.some(result => result.error);
       
       if (hasError) {
+        const errorDetails = results.filter(r => r.error).map(r => r.error);
+        console.error('Database insertion errors:', errorDetails);
         throw new Error('Failed to create some ticket listings');
       }
 
