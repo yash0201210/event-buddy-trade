@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Heart, MapPin, Calendar, Star, Ticket } from 'lucide-react';
+import { Heart, MapPin, Calendar, Ticket } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useFavourites } from '@/hooks/useFavourites';
 
@@ -80,7 +80,7 @@ export const EventCard = ({ event }: EventCardProps) => {
       </CardHeader>
       
       <CardContent className="p-4">
-        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2">
+        <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 text-left">
           {event.name}
         </h3>
         
@@ -96,10 +96,6 @@ export const EventCard = ({ event }: EventCardProps) => {
               day: 'numeric', 
               month: 'short' 
             })}</span>
-          </div>
-          <div className="flex items-center">
-            <Star className="h-3 w-3 mr-2 fill-yellow-400 text-yellow-400" />
-            <span>4.8 rating</span>
           </div>
         </div>
         

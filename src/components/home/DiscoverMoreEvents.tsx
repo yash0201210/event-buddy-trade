@@ -39,7 +39,7 @@ export const DiscoverMoreEvents = () => {
     return (
       <section className="py-16 bg-white">
         <div className="max-w-6xl mx-auto px-4">
-          <h2 className="text-2xl font-bold text-gray-900 mb-8">
+          <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left">
             Discover More Events
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -57,7 +57,7 @@ export const DiscoverMoreEvents = () => {
   return (
     <section className="py-16 bg-white">
       <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-8">
+        <h2 className="text-2xl font-bold text-gray-900 mb-8 text-left">
           Discover More Events
         </h2>
         
@@ -100,7 +100,7 @@ export const DiscoverMoreEvents = () => {
                     {/* Event Details */}
                     <div className="flex-1 py-4 pr-4">
                       <div className="flex items-start justify-between mb-2">
-                        <div>
+                        <div className="flex-1">
                           <div className="flex items-center text-orange-500 text-sm mb-1">
                             <Calendar className="h-3 w-3 mr-1" />
                             <span className="font-medium">
@@ -110,10 +110,10 @@ export const DiscoverMoreEvents = () => {
                               })}
                             </span>
                           </div>
-                          <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-1">
+                          <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-1 text-left">
                             {event.name}
                           </h3>
-                          <div className="flex items-center text-gray-600 text-sm">
+                          <div className="flex items-center text-gray-600 text-sm text-left">
                             <span className="truncate">{event.venue}, {event.city}</span>
                           </div>
                         </div>
