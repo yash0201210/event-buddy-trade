@@ -45,6 +45,15 @@ const SubmitEvent = () => {
       return;
     }
 
+    if (!formData.eventHyperlink.trim()) {
+      toast({
+        title: "Event hyperlink required",
+        description: "Please enter the event hyperlink",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -53,7 +62,7 @@ const SubmitEvent = () => {
         .insert({
           user_id: user.id,
           event_name: formData.eventName.trim(),
-          event_hyperlink: formData.eventHyperlink.trim() || null,
+          event_hyperlink: formData.eventHyperlink.trim(),
           description: formData.description.trim() || null,
           status: 'pending'
         });
@@ -137,7 +146,7 @@ const SubmitEvent = () => {
                 
                 <div>
                   <Label htmlFor="eventHyperlink" className="text-sm font-medium">
-                    Event Hyperlink
+                    Event Hyperlink*
                   </Label>
                   <Input
                     id="eventHyperlink"
@@ -146,6 +155,7 @@ const SubmitEvent = () => {
                     value={formData.eventHyperlink}
                     onChange={(e) => setFormData({ ...formData, eventHyperlink: e.target.value })}
                     className="mt-1"
+                    required
                   />
                   <p className="text-xs text-gray-500 mt-1">
                     Enter the link to the original event (e.g., on Eventbrite, Fatsoma, etc.)
