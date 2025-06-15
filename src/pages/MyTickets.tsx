@@ -8,7 +8,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { MapPin, Calendar, Download, Star, Clock, Shield, User } from 'lucide-react';
+import { MapPin, Calendar, Download, Star, Clock, Shield, User, Eye } from 'lucide-react';
+import { BuyerTransactionDetailsView } from '@/components/tickets/BuyerTransactionDetailsView';
 
 interface PurchasedTicket {
   id: string;
@@ -40,6 +41,7 @@ const MyTickets = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const [selectedConversation, setSelectedConversation] = useState<string | null>(null);
+  const [viewingDetails, setViewingDetails] = useState<string | null>(null);
 
   // Get conversation ID from URL params if present
   useEffect(() => {
@@ -178,6 +180,56 @@ const MyTickets = () => {
   const selectedTicket = selectedConversation 
     ? purchasedTickets.find(ticket => ticket.id === selectedConversation)
     : null;
+
+  // Find the ticket for viewing details
+  const detailsTicket = viewingDetails 
+    ? purchasedTickets.find(ticket => ticket.id === viewingDetails)
+    : null;
+
+  const handleDownloadTicket = async (ticket: PurchasedTicket) => {
+    try {
+      // Get the actual ticket details to find the PDF URL
+      const { data: ticketData } = await supabase
+        .from('tickets')
+        .select('pdf_url, title')
+        .eq('id', ticket.ticket_id)
+        .single();
+
+      if (ticketData?.pdf_url) {
+        // Create a download link
+        const link = document.createElement('a');
+        link.href = ticketData.pdf_url;
+        link.download = `${ticketData.title || 'ticket'}.pdf`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } else {
+        // For testing purposes when no PDF exists, generate a dummy PDF download
+        const dummyContent = `
+Ticket for ${ticket.ticket.events.name}
+Event: ${ticket.ticket.events.name}
+Venue: ${ticket.ticket.events.venue}, ${ticket.ticket.events.city}
+Date: ${new Date(ticket.ticket.events.event_date).toLocaleDateString()}
+Ticket Type: ${ticket.ticket.ticket_type}
+Quantity: ${ticket.ticket.quantity}
+Price Paid: €${ticket.amount_paid}
+Transaction ID: ${ticket.id}
+        `;
+        
+        const blob = new Blob([dummyContent], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `${ticket.ticket.events.name}-ticket.txt`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }
+    } catch (error) {
+      console.error('Error downloading ticket:', error);
+    }
+  };
 
   const TransactionDetailsView = ({ ticket }: { ticket: PurchasedTicket }) => (
     <div className="space-y-6">
@@ -415,14 +467,25 @@ const MyTickets = () => {
           
           {ticket.status === 'completed' && (
             <div className="space-y-2">
-              <Button 
-                size="sm" 
-                className="w-full bg-green-600 hover:bg-green-700"
-                onClick={() => navigate(`/ticket-view/${ticket.ticket_id}`)}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                View Ticket
-              </Button>
+              <div className="flex gap-2">
+                <Button 
+                  size="sm" 
+                  className="flex-1 bg-green-600 hover:bg-green-700"
+                  onClick={() => handleDownloadTicket(ticket)}
+                >
+                  <Download className="h-4 w-4 mr-2" />
+                  Download Ticket
+                </Button>
+                <Button 
+                  size="sm" 
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => setViewingDetails(ticket.id)}
+                >
+                  <Eye className="h-4 w-4 mr-2" />
+                  View Details
+                </Button>
+              </div>
             </div>
           )}
         </div>
@@ -448,6 +511,11 @@ const MyTickets = () => {
       <main className="container mx-auto px-4 py-8">
         {selectedTicket ? (
           <TransactionDetailsView ticket={selectedTicket} />
+        ) : detailsTicket ? (
+          <BuyerTransactionDetailsView 
+            ticket={detailsTicket} 
+            onBack={() => setViewingDetails(null)} 
+          />
         ) : (
           <>
             <h1 className="text-3xl font-bold text-gray-900 mb-8">My Tickets</h1>
