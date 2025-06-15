@@ -2,10 +2,10 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface SearchResult {
+export interface SearchResult {
   id: string;
   type: 'event' | 'venue' | 'university';
-  name: string;
+  title: string;
   description?: string;
   image_url?: string;
   start_date_time?: string;
@@ -13,19 +13,19 @@ interface SearchResult {
   city?: string;
 }
 
-export const useSearch = () => {
-  const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
+export const useSearch = (searchQuery: string) => {
+  const [results, setResults] = useState<SearchResult[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const performSearch = async () => {
       if (searchQuery.trim().length < 2) {
-        setSearchResults([]);
+        setResults([]);
         return;
       }
 
-      setIsSearching(true);
+      setIsLoading(true);
       try {
         // Search events
         const { data: events, error: eventsError } = await supabase
@@ -39,7 +39,7 @@ export const useSearch = () => {
         const eventResults: SearchResult[] = (events || []).map(event => ({
           id: event.id,
           type: 'event' as const,
-          name: event.name,
+          title: event.name,
           description: `${event.venue}, ${event.city}`,
           image_url: event.image_url,
           start_date_time: event.start_date_time,
@@ -59,7 +59,7 @@ export const useSearch = () => {
         const venueResults: SearchResult[] = (venues || []).map(venue => ({
           id: venue.id,
           type: 'venue' as const,
-          name: venue.name,
+          title: venue.name,
           description: venue.city,
           city: venue.city
         }));
@@ -76,18 +76,18 @@ export const useSearch = () => {
         const universityResults: SearchResult[] = (universities || []).map(university => ({
           id: university.id,
           type: 'university' as const,
-          name: university.name,
+          title: university.name,
           description: university.city,
           image_url: university.image_url,
           city: university.city
         }));
 
-        setSearchResults([...eventResults, ...venueResults, ...universityResults]);
+        setResults([...eventResults, ...venueResults, ...universityResults]);
       } catch (error) {
         console.error('Search error:', error);
-        setSearchResults([]);
+        setResults([]);
       } finally {
-        setIsSearching(false);
+        setIsLoading(false);
       }
     };
 
@@ -96,9 +96,9 @@ export const useSearch = () => {
   }, [searchQuery]);
 
   return {
-    searchQuery,
-    setSearchQuery,
-    searchResults,
-    isSearching,
+    results,
+    isLoading,
+    isOpen,
+    setIsOpen,
   };
 };

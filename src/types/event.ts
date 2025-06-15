@@ -5,13 +5,14 @@ export interface Event {
   venue: string;
   city: string;
   start_date_time: string;
-  end_date_time: string;
+  end_date_time?: string;
   category: string;
   description?: string;
   image_url?: string;
   ticket_types?: string[];
   university_id?: string;
   venue_id?: string;
+  created_at?: string;
 }
 
 export interface University {

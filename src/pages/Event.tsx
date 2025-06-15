@@ -56,7 +56,7 @@ const Event = () => {
           
           <div className="lg:col-span-1">
             <AvailableTickets 
-              eventId={event.id} 
+              event={event} 
               tickets={tickets} 
               loading={ticketsLoading}
             />
