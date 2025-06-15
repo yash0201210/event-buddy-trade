@@ -51,8 +51,7 @@ const Event = () => {
         <EventHeader 
           event={event} 
           venue={venue} 
-          university={university} 
-          soldTicketsCount={soldTicketsCount}
+          university={university}
         />
         
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
@@ -63,7 +62,7 @@ const Event = () => {
           <div className="lg:col-span-1">
             <AvailableTickets 
               tickets={tickets} 
-              loading={ticketsLoading}
+              isLoading={ticketsLoading}
             />
           </div>
         </div>

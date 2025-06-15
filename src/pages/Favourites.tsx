@@ -31,7 +31,6 @@ const Favourites = () => {
                   ...dbEvent,
                   event_date: dbEvent.start_date_time
                 }}
-                onFavouriteToggle={() => toggleFavourite(dbEvent.id)}
                 isFavourite={true}
               />
             ))}

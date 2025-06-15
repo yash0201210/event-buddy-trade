@@ -21,6 +21,7 @@ interface EventWithTicketCount {
   venue_id?: string;
   created_at?: string;
   ticket_count?: number;
+  event_date: string; // Add this property to match Event interface
 }
 
 interface SuggestedEventsProps {
@@ -62,13 +63,14 @@ export const SuggestedEvents = ({ selectedCity, selectedCategory, searchTerm }: 
         throw error;
       }
 
-      // Process the data to add ticket count
+      // Process the data to add ticket count and event_date
       const eventsWithTicketCount = data?.map(event => {
         const ticketCount = Array.isArray(event.tickets) ? event.tickets.length : 0;
         const { tickets, ...eventData } = event;
         return {
           ...eventData,
-          ticket_count: ticketCount
+          ticket_count: ticketCount,
+          event_date: eventData.start_date_time // Map start_date_time to event_date
         } as EventWithTicketCount;
       }) || [];
 
