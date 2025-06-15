@@ -14,8 +14,8 @@ const AdminUsers = () => {
 
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    user.university.toLowerCase().includes(searchTerm.toLowerCase())
+    (user.full_name && user.full_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (user.university && user.university.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   const handleViewUser = (userId: string) => {

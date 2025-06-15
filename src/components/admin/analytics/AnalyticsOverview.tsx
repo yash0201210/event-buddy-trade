@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Ticket, Users, Calendar, Dollar } from 'lucide-react';
+import { Ticket, Users, Calendar, DollarSign } from 'lucide-react';
 
 interface AnalyticsOverviewProps {
   totalTicketsSold: number;
@@ -40,7 +40,7 @@ export const AnalyticsOverview = ({
     {
       title: "Total Revenue",
       value: `£${totalRevenue.toFixed(2)}`,
-      icon: Dollar,
+      icon: DollarSign,
       color: "text-red-600"
     }
   ];
