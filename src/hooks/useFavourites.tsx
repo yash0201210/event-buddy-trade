@@ -19,22 +19,7 @@ export const useFavourites = () => {
         .from('user_event_favourites')
         .select(`
           event_id,
-          events (
-            id,
-            name,
-            venue,
-            city,
-            start_date_time,
-            end_date_time,
-            category,
-            description,
-            image_url,
-            ticket_types,
-            university_id,
-            venue_id,
-            created_at,
-            updated_at
-          )
+          events!inner(*)
         `)
         .eq('user_id', user.id);
 

@@ -19,12 +19,9 @@ export const SuggestedEvents = ({ selectedCity, selectedCategory, searchTerm }: 
     queryFn: async () => {
       let query = supabase
         .from('events')
-        .select(`
-          *,
-          tickets!left(id)
-        `)
-        .gte('event_date', new Date().toISOString())
-        .order('event_date', { ascending: true })
+        .select('*')
+        .gte('start_date_time', new Date().toISOString())
+        .order('start_date_time', { ascending: true })
         .limit(12);
 
       if (selectedCity && selectedCity !== 'all') {

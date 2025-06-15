@@ -14,14 +14,13 @@ export interface SearchResult {
   city?: string;
 }
 
-export const useSearch = () => {
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+export const useSearch = (searchQuery: string) => {
+  const [isOpen, setIsOpen] = useState(false);
 
   const { data: searchResults = [], isLoading } = useQuery({
-    queryKey: ['search', searchTerm],
+    queryKey: ['search', searchQuery],
     queryFn: async () => {
-      if (!searchTerm.trim()) return [];
+      if (!searchQuery.trim()) return [];
 
       const results: SearchResult[] = [];
 
@@ -29,7 +28,7 @@ export const useSearch = () => {
       const { data: events } = await supabase
         .from('events')
         .select('*')
-        .or(`name.ilike.%${searchTerm}%,venue.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`)
+        .or(`name.ilike.%${searchQuery}%,venue.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`)
         .limit(5);
 
       if (events) {
@@ -51,7 +50,7 @@ export const useSearch = () => {
       const { data: venues } = await supabase
         .from('venues')
         .select('*')
-        .or(`name.ilike.%${searchTerm}%,city.ilike.%${searchTerm}%`)
+        .or(`name.ilike.%${searchQuery}%,city.ilike.%${searchQuery}%`)
         .limit(3);
 
       if (venues) {
@@ -70,7 +69,7 @@ export const useSearch = () => {
       const { data: universities } = await supabase
         .from('universities')
         .select('*')
-        .ilike('name', `%${searchTerm}%`)
+        .ilike('name', `%${searchQuery}%`)
         .limit(3);
 
       if (universities) {
@@ -88,20 +87,13 @@ export const useSearch = () => {
 
       return results;
     },
-    enabled: searchTerm.length > 0,
+    enabled: searchQuery.length > 0,
   });
 
-  const handleSearch = (term: string) => {
-    setSearchTerm(term);
-    setIsSearching(term.length > 0);
-  };
-
   return {
-    searchTerm,
     searchResults,
     isLoading,
-    isSearching,
-    handleSearch,
-    setIsSearching
+    isOpen,
+    setIsOpen
   };
 };
