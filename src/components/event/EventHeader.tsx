@@ -65,7 +65,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
         {/* Content Overlay */}
         <div className="absolute inset-0 flex flex-col justify-end p-6">
           <div className="text-white">
-            <Badge variant="secondary" className="mb-3 bg-red-600 text-white border-none">
+            <Badge variant="secondary" className="mb-3 bg-[#E8550D] text-white border-none hover:bg-[#D44B0B]">
               {event.category}
             </Badge>
             <h1 className="text-3xl md:text-4xl font-bold mb-3">
@@ -120,7 +120,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
           variant="ghost" 
           size="sm"
           onClick={() => setIsFavourite(!isFavourite)}
-          className={`absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm ${isFavourite ? 'text-red-500' : ''}`}
+          className={`absolute top-4 right-4 bg-white/20 hover:bg-white/30 text-white backdrop-blur-sm ${isFavourite ? 'text-[#E8550D]' : ''}`}
         >
           <Heart className={`h-5 w-5 ${isFavourite ? 'fill-current' : ''}`} />
         </Button>

@@ -149,7 +149,7 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
             {expandedGroups.has(group.type) && (
               <div className="ml-4 mt-2 space-y-2">
                 {group.tickets.map((ticket) => (
-                  <Card key={ticket.id} className="border-l-4 border-l-red-600">
+                  <Card key={ticket.id} className="border-l-4 border-l-[#E8550D]">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
@@ -158,7 +158,7 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
                               <User className="h-3 w-3 mr-1" />
                               <span>{ticket.seller?.full_name || 'Unknown'}</span>
                             </div>
-                            <div className="flex items-center text-sm text-yellow-600">
+                            <div className="flex items-center text-sm text-[#E8550D]">
                               <Star className="h-3 w-3 mr-1 fill-current" />
                               <span>4.8</span>
                               <span className="ml-1 text-gray-500">(23 sold)</span>
@@ -190,7 +190,7 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
                           </div>
                           <Button 
                             size="sm"
-                            className="bg-red-600 hover:bg-red-700"
+                            className="bg-[#E8550D] hover:bg-[#D44B0B] text-white"
                             onClick={() => handleViewTicket(ticket.id)}
                           >
                             View

@@ -67,12 +67,12 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
           <CardContent className="space-y-4">
             {university && event.university_id && (
               <div className="flex items-start space-x-3">
-                <GraduationCap className="h-5 w-5 text-gray-400 mt-0.5" />
+                <GraduationCap className="h-5 w-5 text-[#E8550D] mt-0.5" />
                 <div>
                   <p className="text-sm font-medium text-gray-900">University</p>
                   <Link 
                     to={`/university/${event.university_id}`}
-                    className="text-red-600 hover:text-red-700 hover:underline"
+                    className="text-[#E8550D] hover:text-[#D44B0B] hover:underline"
                   >
                     {university.name}
                   </Link>
@@ -97,7 +97,7 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
                   {event.venue_id ? (
                     <Link 
                       to={`/venue/${event.venue_id}`}
-                      className="text-red-600 hover:text-red-700 hover:underline"
+                      className="text-[#E8550D] hover:text-[#D44B0B] hover:underline"
                     >
                       {venue?.name || event.venue}
                     </Link>

@@ -29,7 +29,7 @@ export const SellTicketPrompt = ({ eventId }: SellTicketPromptProps) => {
   };
 
   return (
-    <Card className="bg-green-50 border-green-200 mb-6">
+    <Card className="bg-orange-50 border-[#E8550D]/30 mb-6">
       <CardContent className="p-6">
         <div className="text-center">
           <h3 className="text-lg font-semibold text-gray-900 mb-2">
@@ -40,7 +40,7 @@ export const SellTicketPrompt = ({ eventId }: SellTicketPromptProps) => {
           </p>
           <Button 
             onClick={handleSellTickets}
-            className="bg-green-600 hover:bg-green-700"
+            className="bg-[#E8550D] hover:bg-[#D44B0B] text-white"
           >
             <Plus className="h-4 w-4 mr-2" />
             Sell Tickets
