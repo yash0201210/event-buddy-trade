@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -40,8 +39,8 @@ const MyTickets = () => {
     downloadTicket(ticket);
   };
 
-  const handleViewDetails = (ticketId: string) => {
-    navigate(`/ticket/${ticketId}`);
+  const handleViewDetails = (transactionId: string) => {
+    navigate(`/buyer-transaction/${transactionId}`);
   };
 
   if (isLoading) {
@@ -88,7 +87,7 @@ const MyTickets = () => {
                     key={ticket.id}
                     ticket={ticket}
                     onDownload={handleDownload}
-                    onViewDetails={() => handleViewDetails(ticket.ticket_id)}
+                    onViewDetails={() => handleViewDetails(ticket.id)}
                   />
                 ))}
               </div>
@@ -114,7 +113,7 @@ const MyTickets = () => {
                     key={ticket.id}
                     ticket={ticket}
                     onDownload={handleDownload}
-                    onViewDetails={() => handleViewDetails(ticket.ticket_id)}
+                    onViewDetails={() => handleViewDetails(ticket.id)}
                   />
                 ))}
               </div>
@@ -140,7 +139,7 @@ const MyTickets = () => {
                     key={ticket.id}
                     ticket={ticket}
                     onDownload={handleDownload}
-                    onViewDetails={() => handleViewDetails(ticket.ticket_id)}
+                    onViewDetails={() => handleViewDetails(ticket.id)}
                   />
                 ))}
               </div>

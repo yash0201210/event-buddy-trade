@@ -13,6 +13,7 @@ import TicketDetails from '@/pages/TicketDetails';
 import Favourites from '@/pages/Favourites';
 import Messages from '@/pages/Messages';
 import MyTickets from '@/pages/MyTickets';
+import BuyerTransactionDetails from '@/pages/BuyerTransactionDetails';
 import Settings from '@/pages/Settings';
 import SellingHub from '@/pages/SellingHub';
 import SellerTransactionDetails from '@/pages/SellerTransactionDetails';
@@ -51,6 +52,7 @@ function App() {
             <Route path="/favourites" element={<Favourites />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/my-tickets" element={<MyTickets />} />
+            <Route path="/buyer-transaction/:id" element={<BuyerTransactionDetails />} />
             <Route path="/selling-hub" element={<SellingHub />} />
             <Route path="/seller-transaction/:id" element={<SellerTransactionDetails />} />
             <Route path="/settings" element={<Settings />} />
