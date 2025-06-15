@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -65,13 +64,24 @@ export const useAdminEvents = () => {
         setFormData(prevData => ({
           ...prevData,
           name: prefillData.name || '',
-          description: prefillData.description || ''
+          venue: prefillData.venue || '',
+          city: prefillData.city || '',
+          event_date: prefillData.event_date || '',
+          category: prefillData.category || 'concerts',
+          description: prefillData.description || '',
+          image_url: prefillData.image_url || '',
+          ticket_types: prefillData.ticket_types || []
         }));
+        
+        toast({
+          title: "Event details pre-filled",
+          description: "Event information has been automatically extracted from the submitted URL.",
+        });
       }
       
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
+  }, [location.state, toast]);
 
   const fetchEvents = async () => {
     try {

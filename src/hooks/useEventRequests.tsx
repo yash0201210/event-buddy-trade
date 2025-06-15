@@ -17,6 +17,17 @@ interface EventRequest {
   rejection_reason: string | null;
 }
 
+interface ScrapedEventDetails {
+  name: string;
+  venue: string;
+  city: string;
+  event_date: string;
+  category: string;
+  description: string;
+  image_url: string;
+  ticket_types: string[];
+}
+
 export const useEventRequests = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -35,6 +46,37 @@ export const useEventRequests = () => {
     },
   });
 
+  const scrapeEventDetails = async (url: string): Promise<ScrapedEventDetails | null> => {
+    try {
+      console.log('Scraping event details from:', url);
+      
+      const { data, error } = await supabase.functions.invoke('scrape-event-details', {
+        body: { url }
+      });
+
+      if (error) {
+        console.error('Error calling scrape function:', error);
+        throw error;
+      }
+
+      if (!data?.success) {
+        console.error('Scraping failed:', data?.error);
+        throw new Error(data?.error || 'Failed to scrape event details');
+      }
+
+      console.log('Successfully scraped event details:', data.eventDetails);
+      return data.eventDetails;
+    } catch (error) {
+      console.error('Error scraping event details:', error);
+      toast({
+        title: "Scraping failed",
+        description: "Could not extract event details from the URL. You can still create the event manually.",
+        variant: "destructive"
+      });
+      return null;
+    }
+  };
+
   const approveMutation = useMutation({
     mutationFn: async (requestId: string) => {
       const { data: { user } } = await supabase.auth.getUser();
@@ -50,21 +92,28 @@ export const useEventRequests = () => {
       
       if (error) throw error;
     },
-    onSuccess: (_, requestId) => {
+    onSuccess: async (_, requestId) => {
       queryClient.invalidateQueries({ queryKey: ['admin-event-requests'] });
       
       const approvedRequest = eventRequests.find(req => req.id === requestId);
       
       toast({
         title: "Event request approved",
-        description: "Redirecting to create the event...",
+        description: "Scraping event details...",
       });
+
+      let scrapedData: ScrapedEventDetails | null = null;
+      
+      // Try to scrape event details if URL is provided
+      if (approvedRequest?.event_hyperlink) {
+        scrapedData = await scrapeEventDetails(approvedRequest.event_hyperlink);
+      }
 
       if (approvedRequest) {
         navigate('/admin/events', { 
           state: { 
             autoOpenForm: true,
-            prefillData: {
+            prefillData: scrapedData || {
               name: approvedRequest.event_name,
               description: approvedRequest.description || ''
             }
