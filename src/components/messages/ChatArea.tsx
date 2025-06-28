@@ -64,11 +64,11 @@ export const ChatArea = ({
 }: ChatAreaProps) => {
   if (!selectedConv) {
     return (
-      <Card className="lg:col-span-2 h-full">
+      <Card className="lg:col-span-2 h-full border border-gray-200 shadow-sm">
         <CardContent className="flex items-center justify-center h-full">
           <div className="text-center text-gray-500">
             <MessageCircle className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Select a conversation to start messaging</p>
+            <p className="text-gray-600">Select a conversation to start messaging</p>
           </div>
         </CardContent>
       </Card>
@@ -78,22 +78,22 @@ export const ChatArea = ({
   const isUserBuyer = selectedConv.buyer_id === currentUserId;
 
   return (
-    <Card className="lg:col-span-2 h-full flex flex-col overflow-hidden">
-      <CardHeader className="border-b border-gray-200 flex-shrink-0 py-3">
-        <div className="flex items-center gap-2">
+    <Card className="lg:col-span-2 h-full flex flex-col overflow-hidden border border-gray-200 shadow-sm">
+      <CardHeader className="border-b border-gray-100 flex-shrink-0 py-4 bg-gray-50">
+        <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="sm"
             onClick={onBack}
-            className="lg:hidden"
+            className="lg:hidden hover:bg-gray-100"
           >
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <CardTitle className="text-lg text-gray-900">
+            <CardTitle className="text-lg text-gray-900 font-semibold">
               {selectedConv.ticket_title}
             </CardTitle>
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 font-medium">
               €{selectedConv.ticket_price} • {
                 isUserBuyer 
                   ? selectedConv.seller_name
@@ -104,9 +104,9 @@ export const ChatArea = ({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col flex-1 p-0 min-h-0 overflow-hidden">
+      <CardContent className="flex flex-col flex-1 p-0 min-h-0 overflow-hidden bg-white">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
           {selectedConv.messages?.map((message) => (
             <MessageBubble
               key={message.id}
@@ -124,10 +124,10 @@ export const ChatArea = ({
           ))}
         </div>
 
-        {/* Transaction Instructions - Thinner and less prominent */}
-        <div className="bg-gradient-to-r from-red-50 to-orange-50 border-t border-red-100 p-2 mx-4 rounded-md mb-2 flex-shrink-0">
-          <h4 className="font-medium text-xs text-red-800 mb-1">Transaction Steps</h4>
-          <div className="text-xs text-red-600 opacity-80">
+        {/* Transaction Instructions */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 p-3 mx-4 rounded-lg mb-3 flex-shrink-0">
+          <h4 className="font-semibold text-sm text-blue-800 mb-1">Transaction Steps</h4>
+          <div className="text-xs text-blue-700">
             {isUserBuyer ? (
               <p>1. Wait for seller acceptance • 2. Transfer payment • 3. Confirm transfer • 4. Receive tickets</p>
             ) : (
@@ -137,19 +137,19 @@ export const ChatArea = ({
         </div>
 
         {/* Message Input */}
-        <div className="flex gap-2 p-4 border-t border-gray-200 flex-shrink-0">
+        <div className="flex gap-3 p-4 border-t border-gray-100 flex-shrink-0 bg-white">
           <Input
             placeholder="Type your message..."
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyPress={(e) => e.key === 'Enter' && onSendMessage()}
-            className="border-gray-300 focus:border-red-500 focus:ring-red-500"
+            className="border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-xl"
           />
           <Button 
             onClick={onSendMessage}
             disabled={!newMessage.trim() || isSending}
             size="sm"
-            className="bg-red-600 hover:bg-red-700 text-white"
+            className="bg-blue-600 hover:bg-blue-700 text-white px-4 rounded-xl"
           >
             <Send className="h-4 w-4" />
           </Button>

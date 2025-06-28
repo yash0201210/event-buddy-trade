@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, ChevronDown } from 'lucide-react';
 import {
   DropdownMenu,
@@ -7,6 +7,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 const cities = [
   'London',
@@ -21,8 +22,21 @@ const cities = [
   'Edinburgh',
 ];
 
-export const CitySelector = () => {
-  const [selectedCity, setSelectedCity] = useState('London');
+interface CitySelectorProps {
+  selectedCity: string;
+  onCityChange: (city: string) => void;
+}
+
+export const CitySelector = ({ selectedCity, onCityChange }: CitySelectorProps) => {
+  const { closestCity, loading, sortCitiesByDistance } = useGeolocation();
+
+  useEffect(() => {
+    if (!loading && closestCity && selectedCity === 'London') {
+      onCityChange(closestCity);
+    }
+  }, [closestCity, loading, selectedCity, onCityChange]);
+
+  const sortedCities = sortCitiesByDistance(cities);
 
   return (
     <section className="bg-white">
@@ -39,10 +53,10 @@ export const CitySelector = () => {
                 <ChevronDown className="h-4 w-4 text-gray-600" />
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-40 bg-white border shadow-lg z-50">
-                {cities.map((city) => (
+                {sortedCities.map((city) => (
                   <DropdownMenuItem
                     key={city}
-                    onClick={() => setSelectedCity(city)}
+                    onClick={() => onCityChange(city)}
                     className="cursor-pointer hover:bg-gray-50"
                   >
                     {city}

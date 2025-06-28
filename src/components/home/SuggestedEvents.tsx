@@ -7,6 +7,7 @@ import { EventCard } from './EventCard';
 import { EventCardSkeleton } from './EventCardSkeleton';
 import { EmptyEventsState } from './EmptyEventsState';
 import { useNavigate } from 'react-router-dom';
+import { useGeolocation } from '@/hooks/useGeolocation';
 
 interface Event {
   id: string;
@@ -20,17 +21,21 @@ interface Event {
   ticket_count?: number;
 }
 
-export const SuggestedEvents = () => {
+interface SuggestedEventsProps {
+  selectedCity: string;
+}
+
+export const SuggestedEvents = ({ selectedCity }: SuggestedEventsProps) => {
   const navigate = useNavigate();
+  const { getCityDistance } = useGeolocation();
   
   const { data: events = [], isLoading } = useQuery({
-    queryKey: ['suggested-events'],
+    queryKey: ['suggested-events', selectedCity],
     queryFn: async () => {
       const { data: eventsData, error } = await supabase
         .from('events')
         .select('*')
-        .order('event_date', { ascending: true })
-        .limit(6);
+        .order('event_date', { ascending: true });
 
       if (error) throw error;
 
@@ -53,7 +58,25 @@ export const SuggestedEvents = () => {
         })
       );
 
-      return eventsWithTicketCounts as Event[];
+      // Sort by location proximity and ticket count
+      const sortedEvents = eventsWithTicketCounts.sort((a, b) => {
+        // First priority: selected city events
+        if (a.city === selectedCity && b.city !== selectedCity) return -1;
+        if (b.city === selectedCity && a.city !== selectedCity) return 1;
+        
+        // Second priority: distance from user location
+        const distanceA = getCityDistance(a.city);
+        const distanceB = getCityDistance(b.city);
+        
+        if (distanceA !== distanceB) {
+          return distanceA - distanceB;
+        }
+        
+        // Third priority: ticket count (more tickets first)
+        return (b.ticket_count || 0) - (a.ticket_count || 0);
+      });
+
+      return sortedEvents.slice(0, 6) as Event[];
     },
   });
 
