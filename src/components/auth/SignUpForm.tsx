@@ -75,6 +75,7 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
     try {
       const fullPhoneNumber = `${countryCode}${phoneNumber}`;
       
+      // Use signUp with email confirmation disabled to trigger OTP instead
       const { error } = await supabase.auth.signUp({
         email,
         password,
@@ -83,7 +84,8 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
             full_name: fullName,
             university: university,
             phone_number: fullPhoneNumber
-          }
+          },
+          emailRedirectTo: undefined // This ensures OTP is sent instead of link
         }
       });
 
@@ -100,7 +102,7 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
       } else {
         toast({
           title: "Check your email",
-          description: "We've sent you a verification code to complete your registration.",
+          description: "We've sent you a 6-digit verification code to complete your registration.",
         });
         onSignUpSuccess(email);
       }

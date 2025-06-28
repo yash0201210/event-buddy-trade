@@ -26,7 +26,7 @@ export const VerificationForm = ({ email, onVerificationComplete, onBack }: Veri
       const { error } = await supabase.auth.verifyOtp({
         email,
         token: code,
-        type: 'signup'
+        type: 'email'
       });
 
       if (error) {
@@ -96,7 +96,7 @@ export const VerificationForm = ({ email, onVerificationComplete, onBack }: Veri
       <div className="text-center mb-6">
         <h3 className="text-xl font-semibold mb-2">Check your email</h3>
         <p className="text-gray-600">
-          We've sent a verification code to <strong>{email}</strong>
+          We've sent a 6-digit verification code to <strong>{email}</strong>
         </p>
       </div>
 
