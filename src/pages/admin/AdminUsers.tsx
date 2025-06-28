@@ -56,8 +56,9 @@ const AdminUsers = () => {
         description: "The user and all associated data have been removed.",
       });
 
-      // Refresh the users list
-      refetch();
+      // Force refresh the users list to ensure the deleted user is removed from display
+      await refetch();
+      
     } catch (error: any) {
       console.error('Error deleting user:', error);
       toast({
