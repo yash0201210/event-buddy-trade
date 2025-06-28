@@ -1,9 +1,10 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Users } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { User, Mail, Trash2 } from 'lucide-react';
 
 interface UserData {
   id: string;
@@ -21,9 +22,21 @@ interface UserTableProps {
   users: UserData[];
   loading: boolean;
   onViewUser: (userId: string) => void;
+  onDeleteUser: (userId: string) => void;
 }
 
-export const UserTable = ({ users, loading, onViewUser }: UserTableProps) => {
+export const UserTable = ({ users, loading, onViewUser, onDeleteUser }: UserTableProps) => {
+  const [deletingUserId, setDeletingUserId] = useState<string | null>(null);
+
+  const handleDeleteUser = async (userId: string) => {
+    setDeletingUserId(userId);
+    try {
+      await onDeleteUser(userId);
+    } finally {
+      setDeletingUserId(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="space-y-3">
@@ -81,13 +94,50 @@ export const UserTable = ({ users, loading, onViewUser }: UserTableProps) => {
               <TableCell>£{user.total_earned.toFixed(2)}</TableCell>
               <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
               <TableCell>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => onViewUser(user.id)}
-                >
-                  View Details
-                </Button>
+                <div className="flex items-center space-x-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => onViewUser(user.id)}
+                  >
+                    View Details
+                  </Button>
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled={deletingUserId === user.id}
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Delete User</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Are you sure you want to delete this user? This action will permanently remove:
+                          <br />
+                          <br />
+                          <strong>{user.full_name || 'No name'}</strong> ({user.email})
+                          <br />
+                          <br />
+                          This action cannot be undone and will delete all associated data including tickets, transactions, and messages.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          onClick={() => handleDeleteUser(user.id)}
+                          className="bg-red-600 hover:bg-red-700"
+                        >
+                          Delete User
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                </div>
               </TableCell>
             </TableRow>
           ))}

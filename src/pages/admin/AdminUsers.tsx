@@ -5,12 +5,15 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { UserTable } from '@/components/admin/users/UserTable';
 import { useAdminUsers } from '@/hooks/useAdminUsers';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { Users, Search } from 'lucide-react';
 
 const AdminUsers = () => {
-  const { data: users = [], isLoading } = useAdminUsers();
+  const { data: users = [], isLoading, refetch } = useAdminUsers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -22,6 +25,33 @@ const AdminUsers = () => {
     setSelectedUser(userId);
     // Here you could open a modal or navigate to a detailed user page
     console.log('Viewing user:', userId);
+  };
+
+  const handleDeleteUser = async (userId: string) => {
+    try {
+      // First delete user data from auth.users table
+      // This will cascade delete related profile data due to foreign key constraints
+      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      
+      if (authError) {
+        throw authError;
+      }
+
+      toast({
+        title: "User deleted",
+        description: "The user and all associated data have been permanently deleted.",
+      });
+
+      // Refresh the users list
+      refetch();
+    } catch (error: any) {
+      console.error('Error deleting user:', error);
+      toast({
+        title: "Error deleting user",
+        description: error.message || "Failed to delete user. Please try again.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (
@@ -104,6 +134,7 @@ const AdminUsers = () => {
             users={filteredUsers}
             loading={isLoading}
             onViewUser={handleViewUser}
+            onDeleteUser={handleDeleteUser}
           />
         </CardContent>
       </Card>
