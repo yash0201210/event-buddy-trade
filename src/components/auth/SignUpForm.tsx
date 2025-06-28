@@ -3,8 +3,10 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Checkbox } from '@/components/ui/checkbox';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { Check, X } from 'lucide-react';
 
 interface SignUpFormProps {
   onSignUpSuccess: (email: string) => void;
@@ -18,8 +20,27 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
+  // Password validation rules
+  const passwordRequirements = {
+    minLength: password.length >= 8,
+    hasUppercase: /[A-Z]/.test(password),
+    hasSpecialChar: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+  };
+
+  const isPasswordValid = Object.values(passwordRequirements).every(Boolean);
+
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!isPasswordValid) {
+      toast({
+        title: "Password requirements not met",
+        description: "Please ensure your password meets all security requirements.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
@@ -61,6 +82,23 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
       setLoading(false);
     }
   };
+
+  const RequirementItem = ({ met, text }: { met: boolean; text: string }) => (
+    <div className="flex items-center space-x-2 text-sm">
+      <div className={`flex items-center justify-center w-4 h-4 rounded-sm border ${
+        met ? 'bg-green-500 border-green-500' : 'border-gray-300'
+      }`}>
+        {met ? (
+          <Check className="w-3 h-3 text-white" />
+        ) : (
+          <X className="w-3 h-3 text-gray-400" />
+        )}
+      </div>
+      <span className={met ? 'text-green-600' : 'text-gray-500'}>
+        {text}
+      </span>
+    </div>
+  );
 
   return (
     <form onSubmit={handleSignUp} className="space-y-4">
@@ -106,13 +144,29 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
           onChange={(e) => setPassword(e.target.value)}
           required
           placeholder="••••••••"
-          minLength={6}
         />
+        
+        {/* Password Requirements */}
+        <div className="mt-3 space-y-2 p-3 bg-gray-50 rounded-md">
+          <p className="text-sm font-medium text-gray-700 mb-2">Password Requirements:</p>
+          <RequirementItem 
+            met={passwordRequirements.minLength} 
+            text="At least 8 characters" 
+          />
+          <RequirementItem 
+            met={passwordRequirements.hasUppercase} 
+            text="At least one uppercase letter" 
+          />
+          <RequirementItem 
+            met={passwordRequirements.hasSpecialChar} 
+            text="At least one special character (!@#$%^&*)" 
+          />
+        </div>
       </div>
       <Button 
         type="submit" 
         className="w-full bg-red-600 hover:bg-red-700"
-        disabled={loading}
+        disabled={loading || !isPasswordValid}
       >
         {loading ? 'Creating account...' : 'Create Account'}
       </Button>
