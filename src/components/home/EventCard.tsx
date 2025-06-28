@@ -26,15 +26,15 @@ export const EventCard = ({ event }: EventCardProps) => {
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
+      weekday: 'short',
       day: 'numeric',
-      month: 'short',
-      year: 'numeric'
+      month: 'short'
     });
   };
 
   return (
     <Card 
-      className="cursor-pointer hover:shadow-lg transition-shadow duration-200 overflow-hidden"
+      className="cursor-pointer hover:shadow-lg transition-shadow duration-200 overflow-hidden bg-white"
       onClick={() => navigate(`/event/${event.id}`)}
     >
       <div className="aspect-video bg-gray-200 relative overflow-hidden">
@@ -51,34 +51,44 @@ export const EventCard = ({ event }: EventCardProps) => {
             </span>
           </div>
         )}
-      </div>
-      
-      <CardContent className="p-4">
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-left">{event.name}</h3>
         
-        <div className="space-y-2 text-sm text-gray-600">
-          <div className="flex items-center">
-            <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
-            <span className="text-left">{event.venue}, {event.city}</span>
-          </div>
-          
-          <div className="flex items-center">
-            <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
-            <span className="text-left">{formatDate(event.event_date)}</span>
-          </div>
-          
-          {event.ticket_count !== undefined && event.ticket_count > 0 && (
-            <div className="flex items-center">
-              <Users className="h-4 w-4 mr-2 flex-shrink-0" />
-              <span className="text-left">{event.ticket_count} tickets available</span>
-            </div>
-          )}
-        </div>
-        
-        <div className="mt-3">
-          <span className="inline-block bg-red-100 text-red-600 text-xs px-2 py-1 rounded-full">
+        {/* Category badge */}
+        <div className="absolute top-4 left-4">
+          <span className="bg-red-600 text-white text-xs px-3 py-1 rounded-full font-medium">
             {event.category}
           </span>
+        </div>
+        
+        {/* Favorite button */}
+        <div className="absolute top-4 right-4">
+          <div className="bg-red-600 p-2 rounded-lg">
+            <div className="w-4 h-4 bg-white" style={{ clipPath: 'polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%)' }}></div>
+          </div>
+        </div>
+      </div>
+      
+      <CardContent className="p-6">
+        <h3 className="font-bold text-xl mb-3 text-gray-900">{event.name}</h3>
+        
+        <div className="space-y-3 text-gray-600 mb-4">
+          <div className="flex items-center">
+            <MapPin className="h-4 w-4 mr-3 flex-shrink-0" />
+            <span>{event.venue}, {event.city}</span>
+          </div>
+          
+          <div className="flex items-center">
+            <Calendar className="h-4 w-4 mr-3 flex-shrink-0" />
+            <span>{formatDate(event.event_date)}</span>
+          </div>
+        </div>
+        
+        <div className="flex items-center justify-between">
+          <div className="text-red-600 font-bold text-lg">
+            from £25
+          </div>
+          <button className="bg-red-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-red-700 transition-colors">
+            View Tickets
+          </button>
         </div>
       </CardContent>
     </Card>
