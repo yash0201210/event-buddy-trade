@@ -7,12 +7,14 @@ import { useAdminUsers } from '@/hooks/useAdminUsers';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Users, Search } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 const AdminUsers = () => {
   const { data: users = [], isLoading, refetch } = useAdminUsers();
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const filteredUsers = users.filter(user => 
     user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -30,7 +32,71 @@ const AdminUsers = () => {
     try {
       console.log('Attempting to delete user:', userId);
       
-      // Delete the user profile - this should cascade to delete related data
+      // First, delete all related data manually to ensure clean deletion
+      const { error: conversationsError } = await supabase
+        .from('conversations')
+        .delete()
+        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+      
+      if (conversationsError) {
+        console.log('Error deleting conversations (may not exist):', conversationsError);
+      }
+
+      const { error: messagesError } = await supabase
+        .from('messages')
+        .delete()
+        .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`);
+      
+      if (messagesError) {
+        console.log('Error deleting messages (may not exist):', messagesError);
+      }
+
+      const { error: ticketsError } = await supabase
+        .from('tickets')
+        .delete()
+        .eq('seller_id', userId);
+      
+      if (ticketsError) {
+        console.log('Error deleting tickets (may not exist):', ticketsError);
+      }
+
+      const { error: offersError } = await supabase
+        .from('offers')
+        .delete()
+        .or(`buyer_id.eq.${userId},seller_id.eq.${userId}`);
+      
+      if (offersError) {
+        console.log('Error deleting offers (may not exist):', offersError);
+      }
+
+      const { error: favouritesError } = await supabase
+        .from('user_event_favourites')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (favouritesError) {
+        console.log('Error deleting favourites (may not exist):', favouritesError);
+      }
+
+      const { error: pinsError } = await supabase
+        .from('user_university_pins')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (pinsError) {
+        console.log('Error deleting pins (may not exist):', pinsError);
+      }
+
+      const { error: requestsError } = await supabase
+        .from('event_requests')
+        .delete()
+        .eq('user_id', userId);
+      
+      if (requestsError) {
+        console.log('Error deleting event requests (may not exist):', requestsError);
+      }
+
+      // Finally, delete the user profile
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
@@ -41,23 +107,22 @@ const AdminUsers = () => {
         throw profileError;
       }
 
-      // Also delete from auth.users if we have the permission
-      // This might fail silently if we don't have admin permissions, but that's ok
+      // Try to delete from auth.users (this might fail due to permissions, but that's ok)
       try {
         await supabase.auth.admin.deleteUser(userId);
         console.log('Successfully deleted from auth.users');
       } catch (authError) {
         console.log('Could not delete from auth.users (this is expected):', authError);
-        // This is expected if we don't have admin permissions
       }
+
+      // Invalidate and refetch the query to ensure UI updates
+      await queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      await refetch();
 
       toast({
         title: "User deleted",
         description: "The user and all associated data have been removed.",
       });
-
-      // Force refresh the users list to ensure the deleted user is removed from display
-      await refetch();
       
     } catch (error: any) {
       console.error('Error deleting user:', error);
