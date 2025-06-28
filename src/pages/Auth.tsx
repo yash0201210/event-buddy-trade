@@ -1,15 +1,15 @@
 
 import React, { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
-import { User } from 'lucide-react';
+import { AuthHeader } from '@/components/auth/AuthHeader';
+import { SignInForm } from '@/components/auth/SignInForm';
+import { SignUpForm } from '@/components/auth/SignUpForm';
+import { VerificationForm } from '@/components/auth/VerificationForm';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -181,80 +181,29 @@ const Auth = () => {
   // Show verification form
   if (showVerification) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
-        <div className="max-w-md w-full">
-          <div className="text-center mb-8">
-            <div className="mx-auto h-12 w-12 bg-red-600 rounded-full flex items-center justify-center mb-4">
-              <User className="h-6 w-6 text-white" />
-            </div>
-            <h2 className="text-3xl font-bold text-gray-900">Verify Your Email</h2>
-            <p className="text-gray-600 mt-2">Enter the verification code sent to {pendingEmail}</p>
-          </div>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-center">Email Verification</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleVerifyCode} className="space-y-4">
-                <div>
-                  <Label htmlFor="verificationCode">Verification Code</Label>
-                  <Input
-                    id="verificationCode"
-                    type="text"
-                    value={verificationCode}
-                    onChange={(e) => setVerificationCode(e.target.value)}
-                    required
-                    placeholder="Enter verification code"
-                    maxLength={6}
-                  />
-                </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-red-600 hover:bg-red-700"
-                  disabled={loading}
-                >
-                  {loading ? 'Verifying...' : 'Verify Account'}
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="outline"
-                  className="w-full"
-                  onClick={handleResendCode}
-                  disabled={loading}
-                >
-                  Resend Code
-                </Button>
-                <Button 
-                  type="button" 
-                  variant="ghost"
-                  className="w-full"
-                  onClick={() => {
-                    setShowVerification(false);
-                    setPendingEmail('');
-                    setVerificationCode('');
-                  }}
-                >
-                  Back to Sign Up
-                </Button>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+      <VerificationForm
+        pendingEmail={pendingEmail}
+        verificationCode={verificationCode}
+        loading={loading}
+        onVerificationCodeChange={setVerificationCode}
+        onVerifyCode={handleVerifyCode}
+        onResendCode={handleResendCode}
+        onBackToSignUp={() => {
+          setShowVerification(false);
+          setPendingEmail('');
+          setVerificationCode('');
+        }}
+      />
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
       <div className="max-w-md w-full">
-        <div className="text-center mb-8">
-          <div className="mx-auto h-12 w-12 bg-red-600 rounded-full flex items-center justify-center mb-4">
-            <User className="h-6 w-6 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">Welcome to socialdealr</h2>
-          <p className="text-gray-600 mt-2">Join the student ticket marketplace</p>
-        </div>
+        <AuthHeader 
+          title="Welcome to socialdealr"
+          subtitle="Join the student ticket marketplace"
+        />
 
         <Card>
           <CardHeader>
@@ -268,94 +217,29 @@ const Auth = () => {
               </TabsList>
               
               <TabsContent value="signin">
-                <form onSubmit={handleSignIn} className="space-y-4">
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="your.email@university.ac.uk"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder="••••••••"
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-red-600 hover:bg-red-700"
-                    disabled={loading}
-                  >
-                    {loading ? 'Signing in...' : 'Sign In'}
-                  </Button>
-                </form>
+                <SignInForm
+                  email={email}
+                  password={password}
+                  loading={loading}
+                  onEmailChange={setEmail}
+                  onPasswordChange={setPassword}
+                  onSubmit={handleSignIn}
+                />
               </TabsContent>
               
               <TabsContent value="signup">
-                <form onSubmit={handleSignUp} className="space-y-4">
-                  <div>
-                    <Label htmlFor="fullName">Full Name</Label>
-                    <Input
-                      id="fullName"
-                      type="text"
-                      value={fullName}
-                      onChange={(e) => setFullName(e.target.value)}
-                      required
-                      placeholder="John Smith"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="university">University</Label>
-                    <Input
-                      id="university"
-                      type="text"
-                      value={university}
-                      onChange={(e) => setUniversity(e.target.value)}
-                      required
-                      placeholder="University of Oxford"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      required
-                      placeholder="your.email@university.ac.uk"
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      placeholder="••••••••"
-                      minLength={6}
-                    />
-                  </div>
-                  <Button 
-                    type="submit" 
-                    className="w-full bg-red-600 hover:bg-red-700"
-                    disabled={loading}
-                  >
-                    {loading ? 'Creating account...' : 'Create Account'}
-                  </Button>
-                </form>
+                <SignUpForm
+                  fullName={fullName}
+                  university={university}
+                  email={email}
+                  password={password}
+                  loading={loading}
+                  onFullNameChange={setFullName}
+                  onUniversityChange={setUniversity}
+                  onEmailChange={setEmail}
+                  onPasswordChange={setPassword}
+                  onSubmit={handleSignUp}
+                />
               </TabsContent>
             </Tabs>
           </CardContent>

@@ -54,21 +54,21 @@ export const EventCard = ({ event }: EventCardProps) => {
       </div>
       
       <CardContent className="p-4">
-        <h3 className="font-semibold text-lg mb-2 line-clamp-2">{event.name}</h3>
+        <h3 className="font-semibold text-lg mb-2 line-clamp-2 text-left">{event.name}</h3>
         
         <div className="space-y-2 text-sm text-gray-600">
-          <div className="flex items-center text-left">
+          <div className="flex items-center">
             <MapPin className="h-4 w-4 mr-2 flex-shrink-0" />
             <span className="text-left">{event.venue}, {event.city}</span>
           </div>
           
-          <div className="flex items-center text-left">
+          <div className="flex items-center">
             <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
             <span className="text-left">{formatDate(event.event_date)}</span>
           </div>
           
           {event.ticket_count !== undefined && event.ticket_count > 0 && (
-            <div className="flex items-center text-left">
+            <div className="flex items-center">
               <Users className="h-4 w-4 mr-2 flex-shrink-0" />
               <span className="text-left">{event.ticket_count} tickets available</span>
             </div>

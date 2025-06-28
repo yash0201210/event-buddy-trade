@@ -55,7 +55,7 @@ export const Footer = () => {
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-transparent border-b-2 border-white border-t-0 border-l-0 border-r-0 rounded-none text-white placeholder-white/80 focus:border-white focus-visible:ring-0"
+                className="bg-transparent border-b-2 border-white border-t-0 border-l-0 border-r-0 rounded-none text-white placeholder-white focus:border-white focus-visible:ring-0"
                 required
               />
             </div>
@@ -127,25 +127,25 @@ export const Footer = () => {
 
             {/* Follow Us */}
             <div className="text-center md:text-left">
-              <h3 className="text-xl font-bold mb-4">Follow Us</h3>
+              <h3 className="text-xl font-bold mb-4 text-center">Follow Us</h3>
               <ul className="space-y-2">
-                <li>
+                <li className="flex justify-center">
                   <a 
                     href="https://www.instagram.com/socialdealr/" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="hover:text-red-200 transition-colors flex items-center justify-center md:justify-start"
+                    className="hover:text-red-200 transition-colors flex items-center"
                   >
                     <Instagram className="h-4 w-4 mr-2" />
                     Instagram
                   </a>
                 </li>
-                <li>
+                <li className="flex justify-center">
                   <a 
                     href="https://www.tiktok.com/@socialdealr" 
                     target="_blank" 
                     rel="noopener noreferrer"
-                    className="hover:text-red-200 transition-colors flex items-center justify-center md:justify-start"
+                    className="hover:text-red-200 transition-colors flex items-center"
                   >
                     <Youtube className="h-4 w-4 mr-2" />
                     Tiktok
