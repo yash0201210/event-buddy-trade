@@ -3,16 +3,40 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Instagram, Youtube } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 export const Footer = () => {
   const [email, setEmail] = useState('');
+  const navigate = useNavigate();
 
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Email submitted:', email);
     // Handle email submission here
     setEmail('');
+  };
+
+  const handleInviteFriends = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'SocialDealr - Student Ticket Marketplace',
+        text: 'Check out SocialDealr - the best place to buy and sell student event tickets!',
+        url: window.location.origin,
+      }).catch((error) => {
+        console.log('Error sharing:', error);
+        // Fallback to copying URL to clipboard
+        navigator.clipboard.writeText(window.location.origin);
+      });
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      navigator.clipboard.writeText(window.location.origin);
+      alert('Link copied to clipboard!');
+    }
+  };
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    navigate('/');
   };
 
   return (
@@ -54,7 +78,14 @@ export const Footer = () => {
             <div>
               <h3 className="text-xl font-bold mb-4">Secure</h3>
               <ul className="space-y-2">
-                <li><Link to="/" className="hover:text-red-200 transition-colors">Buy Tickets</Link></li>
+                <li>
+                  <button 
+                    onClick={scrollToTop} 
+                    className="hover:text-red-200 transition-colors text-left"
+                  >
+                    Buy Tickets
+                  </button>
+                </li>
                 <li><Link to="/my-tickets" className="hover:text-red-200 transition-colors">My Purchases</Link></li>
               </ul>
             </div>
@@ -64,7 +95,7 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-4">Sell</h3>
               <ul className="space-y-2">
                 <li><Link to="/sell-tickets" className="hover:text-red-200 transition-colors">List Tickets</Link></li>
-                <li><Link to="/sell-tickets" className="hover:text-red-200 transition-colors">Submit A New Event</Link></li>
+                <li><Link to="/submit-event" className="hover:text-red-200 transition-colors">Submit A New Event</Link></li>
                 <li><Link to="/selling-hub" className="hover:text-red-200 transition-colors">My Listings</Link></li>
               </ul>
             </div>
@@ -74,7 +105,14 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-4">Social</h3>
               <ul className="space-y-2">
                 <li><Link to="/settings" className="hover:text-red-200 transition-colors">My Account</Link></li>
-                <li><Link to="/favourites" className="hover:text-red-200 transition-colors">Invite Friends</Link></li>
+                <li>
+                  <button 
+                    onClick={handleInviteFriends} 
+                    className="hover:text-red-200 transition-colors text-left"
+                  >
+                    Invite Friends
+                  </button>
+                </li>
               </ul>
             </div>
 
@@ -84,22 +122,31 @@ export const Footer = () => {
               <ul className="space-y-2">
                 <li><Link to="/help" className="hover:text-red-200 transition-colors">Submit Support Query</Link></li>
                 <li><Link to="/help" className="hover:text-red-200 transition-colors">Give Us Feedback</Link></li>
-                <li><Link to="/help" className="hover:text-red-200 transition-colors">Review SocialDealr</Link></li>
               </ul>
             </div>
 
             {/* Follow Us */}
-            <div>
+            <div className="text-center md:text-left">
               <h3 className="text-xl font-bold mb-4">Follow Us</h3>
               <ul className="space-y-2">
                 <li>
-                  <a href="#" className="hover:text-red-200 transition-colors flex items-center">
+                  <a 
+                    href="https://www.instagram.com/socialdealr/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-red-200 transition-colors flex items-center justify-center md:justify-start"
+                  >
                     <Instagram className="h-4 w-4 mr-2" />
                     Instagram
                   </a>
                 </li>
                 <li>
-                  <a href="#" className="hover:text-red-200 transition-colors flex items-center">
+                  <a 
+                    href="https://www.tiktok.com/@socialdealr" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-red-200 transition-colors flex items-center justify-center md:justify-start"
+                  >
                     <Youtube className="h-4 w-4 mr-2" />
                     Tiktok
                   </a>

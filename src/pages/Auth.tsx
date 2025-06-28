@@ -16,7 +16,10 @@ const Auth = () => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [university, setUniversity] = useState('');
+  const [verificationCode, setVerificationCode] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showVerification, setShowVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState('');
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
@@ -59,11 +62,71 @@ const Auth = () => {
           throw error;
         }
       } else {
+        setPendingEmail(email);
+        setShowVerification(true);
         toast({
           title: "Check your email",
-          description: "We've sent you a confirmation link to complete your registration.",
+          description: "We've sent you a confirmation code to complete your registration.",
         });
       }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleVerifyCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.verifyOtp({
+        email: pendingEmail,
+        token: verificationCode,
+        type: 'signup'
+      });
+
+      if (error) {
+        throw error;
+      } else {
+        toast({
+          title: "Account verified!",
+          description: "Your account has been successfully created and verified.",
+        });
+        navigate('/', { replace: true });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Verification failed",
+        description: "Invalid verification code. Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResendCode = async () => {
+    setLoading(true);
+    try {
+      const { error } = await supabase.auth.resend({
+        type: 'signup',
+        email: pendingEmail
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Code resent",
+        description: "A new verification code has been sent to your email.",
+      });
     } catch (error: any) {
       toast({
         title: "Error",
@@ -113,6 +176,73 @@ const Auth = () => {
   // Don't render the auth form if user is already authenticated
   if (user) {
     return null;
+  }
+
+  // Show verification form
+  if (showVerification) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center py-12 px-4">
+        <div className="max-w-md w-full">
+          <div className="text-center mb-8">
+            <div className="mx-auto h-12 w-12 bg-red-600 rounded-full flex items-center justify-center mb-4">
+              <User className="h-6 w-6 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold text-gray-900">Verify Your Email</h2>
+            <p className="text-gray-600 mt-2">Enter the verification code sent to {pendingEmail}</p>
+          </div>
+
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-center">Email Verification</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleVerifyCode} className="space-y-4">
+                <div>
+                  <Label htmlFor="verificationCode">Verification Code</Label>
+                  <Input
+                    id="verificationCode"
+                    type="text"
+                    value={verificationCode}
+                    onChange={(e) => setVerificationCode(e.target.value)}
+                    required
+                    placeholder="Enter verification code"
+                    maxLength={6}
+                  />
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-red-600 hover:bg-red-700"
+                  disabled={loading}
+                >
+                  {loading ? 'Verifying...' : 'Verify Account'}
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleResendCode}
+                  disabled={loading}
+                >
+                  Resend Code
+                </Button>
+                <Button 
+                  type="button" 
+                  variant="ghost"
+                  className="w-full"
+                  onClick={() => {
+                    setShowVerification(false);
+                    setPendingEmail('');
+                    setVerificationCode('');
+                  }}
+                >
+                  Back to Sign Up
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
   }
 
   return (
