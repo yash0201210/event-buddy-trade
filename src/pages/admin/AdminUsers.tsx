@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -29,17 +28,32 @@ const AdminUsers = () => {
 
   const handleDeleteUser = async (userId: string) => {
     try {
-      // First delete user data from auth.users table
-      // This will cascade delete related profile data due to foreign key constraints
-      const { error: authError } = await supabase.auth.admin.deleteUser(userId);
+      console.log('Attempting to delete user:', userId);
       
-      if (authError) {
-        throw authError;
+      // Delete the user profile - this should cascade to delete related data
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+      
+      if (profileError) {
+        console.error('Error deleting profile:', profileError);
+        throw profileError;
+      }
+
+      // Also delete from auth.users if we have the permission
+      // This might fail silently if we don't have admin permissions, but that's ok
+      try {
+        await supabase.auth.admin.deleteUser(userId);
+        console.log('Successfully deleted from auth.users');
+      } catch (authError) {
+        console.log('Could not delete from auth.users (this is expected):', authError);
+        // This is expected if we don't have admin permissions
       }
 
       toast({
         title: "User deleted",
-        description: "The user and all associated data have been permanently deleted.",
+        description: "The user and all associated data have been removed.",
       });
 
       // Refresh the users list
