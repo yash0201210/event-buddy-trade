@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Check, X } from 'lucide-react';
@@ -17,6 +17,8 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [university, setUniversity] = useState('');
+  const [countryCode, setCountryCode] = useState('+44');
+  const [phoneNumber, setPhoneNumber] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
@@ -28,6 +30,24 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
   };
 
   const isPasswordValid = Object.values(passwordRequirements).every(Boolean);
+
+  const countryCodes = [
+    { code: '+44', country: 'GB', name: 'United Kingdom' },
+    { code: '+1', country: 'US', name: 'United States' },
+    { code: '+33', country: 'FR', name: 'France' },
+    { code: '+49', country: 'DE', name: 'Germany' },
+    { code: '+34', country: 'ES', name: 'Spain' },
+    { code: '+39', country: 'IT', name: 'Italy' },
+    { code: '+31', country: 'NL', name: 'Netherlands' },
+    { code: '+32', country: 'BE', name: 'Belgium' },
+    { code: '+41', country: 'CH', name: 'Switzerland' },
+    { code: '+43', country: 'AT', name: 'Austria' },
+    { code: '+46', country: 'SE', name: 'Sweden' },
+    { code: '+47', country: 'NO', name: 'Norway' },
+    { code: '+45', country: 'DK', name: 'Denmark' },
+    { code: '+353', country: 'IE', name: 'Ireland' },
+    { code: '+351', country: 'PT', name: 'Portugal' },
+  ];
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -41,16 +61,28 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
       return;
     }
 
+    if (!phoneNumber.trim()) {
+      toast({
+        title: "Phone number required",
+        description: "Please enter your phone number.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setLoading(true);
 
     try {
+      const fullPhoneNumber = `${countryCode}${phoneNumber}`;
+      
       const { error } = await supabase.auth.signUp({
         email,
         password,
         options: {
           data: {
             full_name: fullName,
-            university: university
+            university: university,
+            phone_number: fullPhoneNumber
           }
         }
       });
@@ -134,6 +166,32 @@ export const SignUpForm = ({ onSignUpSuccess }: SignUpFormProps) => {
           required
           placeholder="your.email@university.ac.uk"
         />
+      </div>
+      <div>
+        <Label htmlFor="phone">Phone Number</Label>
+        <div className="flex space-x-2">
+          <Select value={countryCode} onValueChange={setCountryCode}>
+            <SelectTrigger className="w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {countryCodes.map((country) => (
+                <SelectItem key={country.code} value={country.code}>
+                  {country.code} ({country.country})
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Input
+            id="phone"
+            type="tel"
+            value={phoneNumber}
+            onChange={(e) => setPhoneNumber(e.target.value)}
+            required
+            placeholder="7123456789"
+            className="flex-1"
+          />
+        </div>
       </div>
       <div>
         <Label htmlFor="password">Password</Label>
