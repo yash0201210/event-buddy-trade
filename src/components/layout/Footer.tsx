@@ -15,6 +15,28 @@ export const Footer = () => {
     setEmail('');
   };
 
+  const handleScrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleShareApp = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'SocialDealr',
+        text: 'Check out SocialDealr - the student ticket marketplace!',
+        url: window.location.origin
+      }).catch((error) => console.log('Error sharing:', error));
+    } else {
+      // Fallback for browsers that don't support Web Share API
+      const url = window.location.origin;
+      navigator.clipboard.writeText(url).then(() => {
+        alert('Link copied to clipboard!');
+      }).catch(() => {
+        alert('Please copy this link to share: ' + url);
+      });
+    }
+  };
+
   return (
     <footer className="bg-red-600 text-white">
       {/* Newsletter section */}
@@ -31,7 +53,7 @@ export const Footer = () => {
                 placeholder="Email Address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="bg-transparent border-b-2 border-white border-t-0 border-l-0 border-r-0 rounded-none text-white placeholder-white/80 focus:border-white focus-visible:ring-0"
+                className="bg-transparent border-b-2 border-white border-t-0 border-l-0 border-r-0 rounded-none text-white placeholder-white focus:border-white focus-visible:ring-0"
                 required
               />
             </div>
@@ -54,7 +76,14 @@ export const Footer = () => {
             <div>
               <h3 className="text-xl font-bold mb-4">Secure</h3>
               <ul className="space-y-2">
-                <li><Link to="/" className="hover:text-red-200 transition-colors">Buy Tickets</Link></li>
+                <li>
+                  <button 
+                    onClick={handleScrollToTop}
+                    className="hover:text-red-200 transition-colors text-left"
+                  >
+                    Buy Tickets
+                  </button>
+                </li>
                 <li><Link to="/my-tickets" className="hover:text-red-200 transition-colors">My Purchases</Link></li>
               </ul>
             </div>
@@ -64,7 +93,7 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-4">Sell</h3>
               <ul className="space-y-2">
                 <li><Link to="/sell-tickets" className="hover:text-red-200 transition-colors">List Tickets</Link></li>
-                <li><Link to="/sell-tickets" className="hover:text-red-200 transition-colors">Submit A New Event</Link></li>
+                <li><Link to="/submit-event" className="hover:text-red-200 transition-colors">Submit A New Event</Link></li>
                 <li><Link to="/selling-hub" className="hover:text-red-200 transition-colors">My Listings</Link></li>
               </ul>
             </div>
@@ -74,7 +103,14 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-4">Social</h3>
               <ul className="space-y-2">
                 <li><Link to="/settings" className="hover:text-red-200 transition-colors">My Account</Link></li>
-                <li><Link to="/favourites" className="hover:text-red-200 transition-colors">Invite Friends</Link></li>
+                <li>
+                  <button 
+                    onClick={handleShareApp}
+                    className="hover:text-red-200 transition-colors text-left"
+                  >
+                    Invite Friends
+                  </button>
+                </li>
               </ul>
             </div>
 
@@ -84,22 +120,31 @@ export const Footer = () => {
               <ul className="space-y-2">
                 <li><Link to="/help" className="hover:text-red-200 transition-colors">Submit Support Query</Link></li>
                 <li><Link to="/help" className="hover:text-red-200 transition-colors">Give Us Feedback</Link></li>
-                <li><Link to="/help" className="hover:text-red-200 transition-colors">Review SocialDealr</Link></li>
               </ul>
             </div>
 
             {/* Follow Us */}
             <div>
-              <h3 className="text-xl font-bold mb-4">Follow Us</h3>
+              <h3 className="text-xl font-bold mb-4 text-center">Follow Us</h3>
               <ul className="space-y-2">
-                <li>
-                  <a href="#" className="hover:text-red-200 transition-colors flex items-center">
+                <li className="text-center">
+                  <a 
+                    href="https://www.instagram.com/socialdealr/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-red-200 transition-colors flex items-center justify-center"
+                  >
                     <Instagram className="h-4 w-4 mr-2" />
                     Instagram
                   </a>
                 </li>
-                <li>
-                  <a href="#" className="hover:text-red-200 transition-colors flex items-center">
+                <li className="text-center">
+                  <a 
+                    href="https://www.tiktok.com/@socialdealr" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="hover:text-red-200 transition-colors flex items-center justify-center"
+                  >
                     <Youtube className="h-4 w-4 mr-2" />
                     Tiktok
                   </a>
