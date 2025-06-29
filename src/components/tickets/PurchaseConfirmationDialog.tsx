@@ -9,7 +9,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { MapPin, Calendar, CreditCard, Shield } from 'lucide-react';
+import { MapPin, Calendar, CreditCard, Shield, AlertTriangle } from 'lucide-react';
 
 interface TicketInfo {
   id: string;
@@ -72,12 +72,12 @@ export const PurchaseConfirmationDialog = ({
             <div className="border-t pt-3">
               <div className="flex justify-between items-center mb-2">
                 <span className="text-sm">{ticket.quantity} X {ticket.ticket_type}</span>
-                <span className="font-semibold">€{ticket.selling_price}</span>
+                <span className="font-semibold">£{ticket.selling_price}</span>
               </div>
               
               <div className="flex justify-between items-center font-semibold text-lg">
                 <span>Confirmed Amount</span>
-                <span>€{totalAmount}</span>
+                <span>£{totalAmount}</span>
               </div>
             </div>
           </CardContent>
@@ -94,6 +94,18 @@ export const PurchaseConfirmationDialog = ({
                 <li>• Complete payment outside the platform as instructed</li>
                 <li>• Receive your tickets after payment confirmation</li>
               </ul>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+          <div className="flex items-start space-x-3">
+            <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+            <div>
+              <h4 className="font-semibold text-orange-900 mb-1">Important</h4>
+              <p className="text-sm text-orange-800">
+                Remember to confirm the transaction once completed. Failure to do so could result in a ban or fine.
+              </p>
             </div>
           </div>
         </div>

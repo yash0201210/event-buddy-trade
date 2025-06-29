@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { Shield, AlertTriangle } from 'lucide-react';
 
 interface MakeOfferDialogProps {
   isOpen: boolean;
@@ -80,6 +81,34 @@ export const MakeOfferDialog = ({
               onChange={(e) => setMessage(e.target.value)}
               rows={3}
             />
+          </div>
+
+          <div className="bg-blue-50 p-4 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-blue-900 mb-1">How it works</h4>
+                <ul className="text-sm text-blue-800 space-y-1">
+                  <li>• Your offer will be sent to the seller for review</li>
+                  <li>• The seller can accept, decline, or make a counter-offer</li>
+                  <li>• If accepted, you'll receive payment details to complete the transaction</li>
+                  <li>• Complete payment outside the platform as instructed</li>
+                  <li>• Receive your tickets after payment confirmation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
+            <div className="flex items-start space-x-3">
+              <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+              <div>
+                <h4 className="font-semibold text-orange-900 mb-1">Important</h4>
+                <p className="text-sm text-orange-800">
+                  Remember to confirm the transaction once completed. Failure to do so could result in a ban or fine.
+                </p>
+              </div>
+            </div>
           </div>
 
           <div className="flex gap-3 pt-4">
