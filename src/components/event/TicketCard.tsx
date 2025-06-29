@@ -48,10 +48,10 @@ export const TicketCard = ({ ticket }: TicketCardProps) => {
 
   return (
     <Card className="border-l-4 border-l-[#E8550D] bg-white shadow-sm">
-      <CardContent className="p-4">
+      <CardContent className="p-3">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-2">
               <div className="flex items-center text-sm text-gray-500">
                 <User className="h-3 w-3 mr-1" />
                 <span>{ticket.profiles?.full_name || 'Unknown'}</span>

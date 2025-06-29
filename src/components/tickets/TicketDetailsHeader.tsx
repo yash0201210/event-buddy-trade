@@ -8,13 +8,15 @@ export const TicketDetailsHeader = () => {
   const navigate = useNavigate();
 
   return (
-    <Button 
-      variant="ghost" 
-      onClick={() => navigate(-1)}
-      className="mb-6"
-    >
-      <ArrowLeft className="h-4 w-4 mr-2" />
-      Back to event
-    </Button>
+    <div className="flex justify-start mb-6">
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate(-1)}
+        className="p-2"
+      >
+        <ArrowLeft className="h-4 w-4 mr-2" />
+        Back to event
+      </Button>
+    </div>
   );
 };

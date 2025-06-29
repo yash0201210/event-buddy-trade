@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { AuthProvider } from '@/hooks/useAuth';
@@ -34,6 +33,7 @@ import AdminUsers from '@/pages/admin/AdminUsers';
 import AdminAnalytics from '@/pages/admin/AdminAnalytics';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import './App.css';
+import SellerProfile from './pages/SellerProfile';
 
 const queryClient = new QueryClient();
 
@@ -76,6 +76,8 @@ const AppRoutes = () => {
         <Route path="analytics" element={<AdminAnalytics />} />
         <Route path="settings" element={<AdminSettings />} />
       </Route>
+      
+      <Route path="/seller/:sellerId" element={<SellerProfile />} />
       
       <Route path="*" element={<NotFound />} />
     </Routes>

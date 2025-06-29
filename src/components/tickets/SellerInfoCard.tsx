@@ -3,9 +3,11 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { User, Shield, Star } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface SellerInfoCardProps {
   ticket: {
+    seller_id: string;
     profiles: {
       full_name: string;
       is_verified: boolean;
@@ -20,6 +22,12 @@ interface SellerInfoCardProps {
 }
 
 export const SellerInfoCard = ({ ticket, sellerStats }: SellerInfoCardProps) => {
+  const navigate = useNavigate();
+
+  const handleSellerClick = () => {
+    navigate(`/seller/${ticket.seller_id}`);
+  };
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -32,7 +40,12 @@ export const SellerInfoCard = ({ ticket, sellerStats }: SellerInfoCardProps) => 
             </div>
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1">
-                <p className="font-semibold">{ticket.profiles.full_name}</p>
+                <button 
+                  onClick={handleSellerClick}
+                  className="font-semibold text-blue-600 hover:text-blue-800 hover:underline transition-colors"
+                >
+                  {ticket.profiles.full_name}
+                </button>
                 {ticket.profiles.is_verified && (
                   <Badge variant="outline" className="text-xs">
                     <Shield className="h-3 w-3 mr-1" />
