@@ -1,4 +1,5 @@
-import React from 'react';
+
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
@@ -10,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Layout } from '@/components/layout/Layout';
 import { SellingStats } from '@/components/selling/SellingStats';
+import { EditTicketDialog } from '@/components/selling/EditTicketDialog';
 import { Plus } from 'lucide-react';
 
 interface Ticket {
@@ -23,6 +25,9 @@ interface Ticket {
   title: string;
   status: string;
   sold_at?: string;
+  original_price: number;
+  is_negotiable: boolean;
+  description?: string;
   events: {
     name: string;
     event_date: string;
@@ -34,8 +39,9 @@ interface Ticket {
 export default function SellingHub() {
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [editingTicket, setEditingTicket] = useState<Ticket | null>(null);
 
-  const { data: tickets, isLoading } = useQuery({
+  const { data: tickets, isLoading, refetch } = useQuery({
     queryKey: ['seller-tickets', user?.id],
     queryFn: async () => {
       if (!user) return [];
@@ -59,8 +65,17 @@ export default function SellingHub() {
     enabled: !!user,
   });
 
-  const handleViewTransactionDetails = (ticketId: string) => {
+  const handleViewSoldTicket = (ticketId: string) => {
     navigate(`/seller-transaction/${ticketId}`);
+  };
+
+  const handleViewListing = (ticket: Ticket) => {
+    setEditingTicket(ticket);
+  };
+
+  const handleEditSuccess = () => {
+    refetch();
+    setEditingTicket(null);
   };
 
   if (isLoading) {
@@ -134,11 +149,13 @@ export default function SellingHub() {
                         Price: €{ticket.selling_price} | Quantity: {ticket.quantity}
                       </p>
 
-                      <div className="mt-4 flex justify-between">
-                        <Link to={`/ticket/${ticket.id}`}>
-                          <Button variant="outline">View Ticket</Button>
-                        </Link>
-                        <Button>Manage Listing</Button>
+                      <div className="mt-4">
+                        <Button 
+                          onClick={() => handleViewListing(ticket)}
+                          className="w-full"
+                        >
+                          View Listing
+                        </Button>
                       </div>
                     </CardContent>
                   </Card>
@@ -184,7 +201,7 @@ export default function SellingHub() {
                         <Button 
                           variant="outline" 
                           className="w-full"
-                          onClick={() => handleViewTransactionDetails(ticket.id)}
+                          onClick={() => handleViewSoldTicket(ticket.id)}
                         >
                           View Details
                         </Button>
@@ -196,6 +213,15 @@ export default function SellingHub() {
             )}
           </TabsContent>
         </Tabs>
+
+        {editingTicket && (
+          <EditTicketDialog
+            ticket={editingTicket}
+            open={!!editingTicket}
+            onClose={() => setEditingTicket(null)}
+            onSuccess={handleEditSuccess}
+          />
+        )}
       </div>
     </Layout>
   );
