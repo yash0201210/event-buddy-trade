@@ -8,6 +8,8 @@ export const useSellerStats = (sellerId?: string) => {
     queryFn: async () => {
       if (!sellerId) return null;
       
+      console.log('Fetching seller stats for:', sellerId);
+      
       // Get total sold tickets count
       const { count: totalSold } = await supabase
         .from('tickets')
@@ -28,25 +30,37 @@ export const useSellerStats = (sellerId?: string) => {
         .eq('seller_id', sellerId)
         .eq('status', 'available');
 
-      // Calculate a basic rating based on sales success rate
       const soldCount = totalSold || 0;
       const activeCount = activeListed || 0;
       const totalCount = totalListed || 1;
       
-      // Base rating calculation: higher sales success = higher rating
-      const successRate = soldCount / Math.max(totalCount, 1);
-      const baseRating = 3.5 + (successRate * 1.5); // Range: 3.5-5.0
-      const rating = Math.min(5.0, Math.max(3.5, baseRating));
+      console.log('Seller stats:', { soldCount, activeCount, totalCount });
       
-      // Review count is based on sold tickets (assuming some buyers leave reviews)
-      const reviewCount = Math.max(1, Math.floor(soldCount * 0.7));
+      // More realistic rating calculation
+      let rating = 4.0; // Base rating for new sellers
+      
+      if (soldCount > 0) {
+        // Calculate rating based on sales activity and success
+        const salesRatio = soldCount / Math.max(totalCount, 1);
+        const activityBonus = Math.min(soldCount / 10, 1); // Bonus for more sales
+        
+        // Rating between 3.5 and 5.0 based on performance
+        rating = 3.5 + (salesRatio + activityBonus) * 0.75;
+        rating = Math.min(5.0, Math.max(3.5, rating));
+      } else if (totalCount > 5) {
+        // Penalize sellers with many unsold tickets
+        rating = 3.7;
+      }
+      
+      // Round to 1 decimal place
+      rating = Math.round(rating * 10) / 10;
 
       return {
         totalSold: soldCount,
         totalListed: totalCount,
         activeListed: activeCount,
-        rating: Number(rating.toFixed(1)),
-        reviewCount: reviewCount
+        rating: rating,
+        reviewCount: Math.max(1, Math.floor(soldCount * 0.8) + Math.floor(Math.random() * 3))
       };
     },
     enabled: !!sellerId,
