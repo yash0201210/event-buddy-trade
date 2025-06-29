@@ -61,11 +61,22 @@ export const CurrentListingsTab = ({ tickets, onViewListing }: CurrentListingsTa
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tickets.map((ticket) => (
-        <TicketCard
-          key={ticket.id}
-          ticket={ticket}
-          onView={() => onViewListing(ticket.id)}
-        />
+        <div key={ticket.id} className="space-y-3">
+          <TicketCard
+            ticket={{
+              ...ticket,
+              has_offers: false, // We'll enhance this later with real data
+            }}
+            onView={() => onViewListing(ticket.id)}
+          />
+          <Button 
+            onClick={() => onViewListing(ticket.id)}
+            variant="outline"
+            className="w-full"
+          >
+            View Listing
+          </Button>
+        </div>
       ))}
     </div>
   );

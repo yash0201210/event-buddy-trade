@@ -61,10 +61,18 @@ export default function ListingDetails() {
         console.error('Error fetching conversations:', conversationsError);
       }
 
+      // Transform the data to match our interface
+      const transformedConversations = conversationsData?.map(conv => ({
+        id: conv.id,
+        buyer_id: conv.buyer_id,
+        status: conv.status,
+        profiles: Array.isArray(conv.profiles) ? conv.profiles[0] : conv.profiles
+      })) || [];
+
       return {
         ...ticketData,
         offers: offersData || [],
-        conversations: conversationsData || []
+        conversations: transformedConversations
       };
     },
     enabled: !!ticketId && !!user,

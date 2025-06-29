@@ -1,6 +1,7 @@
 
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { TicketCard } from './TicketCard';
 
 interface Ticket {
@@ -49,11 +50,22 @@ export const SellingHistoryTab = ({ tickets, onViewDetails }: SellingHistoryTabP
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {tickets.map((ticket) => (
-        <TicketCard
-          key={ticket.id}
-          ticket={ticket}
-          onView={() => onViewDetails(ticket.id)}
-        />
+        <div key={ticket.id} className="space-y-3">
+          <TicketCard
+            ticket={{
+              ...ticket,
+              has_offers: false, // We'll enhance this later with real data
+            }}
+            onView={() => onViewDetails(ticket.id)}
+          />
+          <Button 
+            onClick={() => onViewDetails(ticket.id)}
+            variant="outline"
+            className="w-full"
+          >
+            View Details
+          </Button>
+        </div>
       ))}
     </div>
   );
