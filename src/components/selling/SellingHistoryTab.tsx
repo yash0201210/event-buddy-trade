@@ -54,7 +54,7 @@ export const SellingHistoryTab = ({ tickets, onViewDetails }: SellingHistoryTabP
           <TicketCard
             ticket={{
               ...ticket,
-              has_offers: false, // We'll enhance this later with real data
+              has_offers: false,
             }}
             onView={() => onViewDetails(ticket.id)}
           />
@@ -63,7 +63,7 @@ export const SellingHistoryTab = ({ tickets, onViewDetails }: SellingHistoryTabP
             variant="outline"
             className="w-full"
           >
-            View Details
+            View Transaction Details
           </Button>
         </div>
       ))}

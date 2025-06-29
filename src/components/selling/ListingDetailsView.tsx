@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Calendar, User, Star, Edit, Trash2, Upload } from 'lucide-react';
+import { MapPin, Calendar, User, Star, Edit, MessageSquare, Eye } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 import { EditTicketDialog } from './EditTicketDialog';
@@ -58,7 +58,6 @@ export const ListingDetailsView = ({ ticket, onBack, onUpdate }: ListingDetailsV
   const [showEditDialog, setShowEditDialog] = useState(false);
 
   const pendingOffers = ticket.offers?.filter(offer => offer.status === 'pending') || [];
-  const acceptedOffers = ticket.offers?.filter(offer => offer.status === 'accepted') || [];
   const hasActiveConversations = ticket.conversations && ticket.conversations.length > 0;
 
   const getListingStatus = () => {
@@ -86,7 +85,7 @@ export const ListingDetailsView = ({ ticket, onBack, onUpdate }: ListingDetailsV
       </div>
 
       {/* Listing Status Header */}
-      <Card>
+      <Card className="bg-gradient-to-r from-blue-50 to-green-50 border-blue-200">
         <CardContent className="p-6">
           <div className="flex items-center justify-between mb-4">
             <div>
@@ -98,18 +97,43 @@ export const ListingDetailsView = ({ ticket, onBack, onUpdate }: ListingDetailsV
             </Badge>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Current Price</p>
-              <p className="text-lg font-semibold">€{ticket.selling_price}</p>
+          <div className="bg-white/50 p-3 rounded-lg">
+            <p className="text-sm text-gray-700">
+              💰 Current asking price: €{ticket.selling_price}<br/>
+              📊 {pendingOffers.length} pending offers<br/>
+              💬 {hasActiveConversations ? 'Active conversations' : 'No active conversations'}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Listing Summary */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center justify-between">
+            Listing Summary
+            <Badge variant="outline" className="text-xs">
+              Active
+            </Badge>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-600">Listing ID:</span>
+              <p className="font-mono text-xs">{ticket.id}</p>
             </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Quantity</p>
-              <p className="text-lg font-semibold">{ticket.quantity}</p>
+            <div>
+              <span className="text-gray-600">Listed Date:</span>
+              <p>{format(new Date(ticket.created_at), 'PPP')}</p>
             </div>
-            <div className="bg-gray-50 p-3 rounded-lg">
-              <p className="text-sm text-gray-600">Pending Offers</p>
-              <p className="text-lg font-semibold">{pendingOffers.length}</p>
+            <div>
+              <span className="text-gray-600">Asking Price:</span>
+              <p className="font-semibold text-lg">€{ticket.selling_price}</p>
+            </div>
+            <div>
+              <span className="text-gray-600">Quantity:</span>
+              <p className="font-medium">{ticket.quantity}</p>
             </div>
           </div>
         </CardContent>
@@ -121,6 +145,7 @@ export const ListingDetailsView = ({ ticket, onBack, onUpdate }: ListingDetailsV
           <CardTitle>Event Details</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
+          <h3 className="font-semibold text-lg">{ticket.events.name}</h3>
           <div className="flex items-center text-gray-600">
             <MapPin className="h-4 w-4 mr-2" />
             <span>{ticket.events.venue}, {ticket.events.city}</span>
@@ -219,6 +244,7 @@ export const ListingDetailsView = ({ ticket, onBack, onUpdate }: ListingDetailsV
                       size="sm" 
                       onClick={() => navigate('/messages')}
                     >
+                      <MessageSquare className="h-4 w-4 mr-2" />
                       View Messages
                     </Button>
                   </div>
@@ -245,6 +271,7 @@ export const ListingDetailsView = ({ ticket, onBack, onUpdate }: ListingDetailsV
               variant="outline"
               className="flex-1"
             >
+              <MessageSquare className="h-4 w-4 mr-2" />
               View Messages
             </Button>
           </div>
