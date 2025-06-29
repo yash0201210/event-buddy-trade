@@ -41,7 +41,7 @@ export const PurchaseConfirmationDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Confirm Purchase</DialogTitle>
           <DialogDescription>
@@ -50,12 +50,12 @@ export const PurchaseConfirmationDialog = ({
         </DialogHeader>
 
         <Card className="bg-gray-50">
-          <CardContent className="p-4">
-            <h3 className="font-semibold mb-2">{ticket.events.name}</h3>
+          <CardContent className="p-3">
+            <h3 className="font-semibold mb-2 text-sm">{ticket.events.name}</h3>
             
-            <div className="space-y-2 text-sm text-gray-600 mb-4">
+            <div className="space-y-1 text-xs text-gray-600 mb-3">
               <div className="flex items-center">
-                <Calendar className="h-4 w-4 mr-2" />
+                <Calendar className="h-3 w-3 mr-2" />
                 <span>{new Date(ticket.events.event_date).toLocaleDateString('en-GB', {
                   weekday: 'long',
                   day: 'numeric',
@@ -64,31 +64,31 @@ export const PurchaseConfirmationDialog = ({
                 })}</span>
               </div>
               <div className="flex items-center">
-                <MapPin className="h-4 w-4 mr-2" />
+                <MapPin className="h-3 w-3 mr-2" />
                 <span>{ticket.events.venue}, {ticket.events.city}</span>
               </div>
             </div>
 
-            <div className="border-t pt-3">
-              <div className="flex justify-between items-center mb-2">
-                <span className="text-sm">{ticket.quantity} X {ticket.ticket_type}</span>
-                <span className="font-semibold">£{ticket.selling_price}</span>
+            <div className="border-t pt-2">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-xs">{ticket.quantity} X {ticket.ticket_type}</span>
+                <span className="font-semibold text-sm">£{ticket.selling_price}</span>
               </div>
               
-              <div className="flex justify-between items-center font-semibold text-lg">
-                <span>Confirmed Amount</span>
-                <span>£{totalAmount}</span>
+              <div className="flex justify-between items-center font-semibold">
+                <span className="text-sm">Confirmed Amount</span>
+                <span className="text-lg">£{totalAmount}</span>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <div className="flex items-start space-x-3">
-            <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+        <div className="bg-blue-50 p-3 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div>
-              <h4 className="font-semibold text-blue-900 mb-1">How it works</h4>
-              <ul className="text-sm text-blue-800 space-y-1">
+              <h4 className="font-semibold text-blue-900 mb-1 text-sm">How it works</h4>
+              <ul className="text-xs text-blue-800 space-y-0.5">
                 <li>• Your purchase request will be sent to the seller</li>
                 <li>• The seller will confirm availability and share payment details</li>
                 <li>• Complete payment outside the platform as instructed</li>
@@ -98,12 +98,12 @@ export const PurchaseConfirmationDialog = ({
           </div>
         </div>
 
-        <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-          <div className="flex items-start space-x-3">
-            <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+        <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+          <div className="flex items-start space-x-2">
+            <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
             <div>
-              <h4 className="font-semibold text-orange-900 mb-1">Important</h4>
-              <p className="text-sm text-orange-800">
+              <h4 className="font-semibold text-orange-900 mb-1 text-sm">Important</h4>
+              <p className="text-xs text-orange-800">
                 Remember to confirm the transaction once completed. Failure to do so could result in a ban or fine.
               </p>
             </div>

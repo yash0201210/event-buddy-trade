@@ -40,12 +40,12 @@ export const MakeOfferDialog = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Make an Offer</DialogTitle>
         </DialogHeader>
         
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <Label htmlFor="offer-amount">Offer per ticket</Label>
             <div className="relative">
@@ -63,7 +63,7 @@ export const MakeOfferDialog = ({
               />
             </div>
             {offerAmount && (
-              <div className="mt-2 text-sm text-gray-600">
+              <div className="mt-1 text-sm text-gray-600">
                 <p>Total offer: £{totalOffer.toFixed(2)} for {quantity} ticket{quantity > 1 ? 's' : ''}</p>
                 {savings > 0 && (
                   <p className="text-green-600">You save: £{savings.toFixed(2)}</p>
@@ -79,16 +79,16 @@ export const MakeOfferDialog = ({
               placeholder="Add a personal message to the seller..."
               value={message}
               onChange={(e) => setMessage(e.target.value)}
-              rows={3}
+              rows={2}
             />
           </div>
 
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <Shield className="h-5 w-5 text-blue-600 mt-0.5" />
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <div className="flex items-start space-x-2">
+              <Shield className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-semibold text-blue-900 mb-1">How it works</h4>
-                <ul className="text-sm text-blue-800 space-y-1">
+                <h4 className="font-semibold text-blue-900 mb-1 text-sm">How it works</h4>
+                <ul className="text-xs text-blue-800 space-y-0.5">
                   <li>• Your offer will be sent to the seller for review</li>
                   <li>• The seller can accept, decline, or make a counter-offer</li>
                   <li>• If accepted, you'll receive payment details to complete the transaction</li>
@@ -99,19 +99,19 @@ export const MakeOfferDialog = ({
             </div>
           </div>
 
-          <div className="bg-orange-50 border border-orange-200 p-4 rounded-lg">
-            <div className="flex items-start space-x-3">
-              <AlertTriangle className="h-5 w-5 text-orange-600 mt-0.5" />
+          <div className="bg-orange-50 border border-orange-200 p-3 rounded-lg">
+            <div className="flex items-start space-x-2">
+              <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
               <div>
-                <h4 className="font-semibold text-orange-900 mb-1">Important</h4>
-                <p className="text-sm text-orange-800">
+                <h4 className="font-semibold text-orange-900 mb-1 text-sm">Important</h4>
+                <p className="text-xs text-orange-800">
                   Remember to confirm the transaction once completed. Failure to do so could result in a ban or fine.
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="flex gap-3 pt-4">
+          <div className="flex gap-3 pt-2">
             <Button type="button" variant="outline" onClick={onClose} className="flex-1">
               Cancel
             </Button>
