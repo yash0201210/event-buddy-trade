@@ -52,6 +52,11 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
     return { dateStr, timeStr };
   };
 
+  const handleMapClick = () => {
+    const searchQuery = encodeURIComponent(`${venue?.name || event.venue}, ${venue?.address || event.city}`);
+    window.open(`https://www.google.com/maps/search/${searchQuery}`, '_blank');
+  };
+
   const { dateStr, timeStr } = formatEventDateTime(event.event_date);
 
   return (
@@ -72,7 +77,7 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
                   <p className="text-sm font-medium text-gray-900 mb-1">University</p>
                   <Link 
                     to={`/university/${event.university_id}`}
-                    className="text-[#E8550D] hover:text-[#D44B0B] hover:underline break-words"
+                    className="text-[#E8550D] hover:text-[#D44B0B] hover:underline break-words underline decoration-2 underline-offset-2 decoration-[#E8550D]/50"
                   >
                     {university.name}
                   </Link>
@@ -97,7 +102,7 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
                   {event.venue_id ? (
                     <Link 
                       to={`/venue/${event.venue_id}`}
-                      className="text-[#E8550D] hover:text-[#D44B0B] hover:underline"
+                      className="text-[#E8550D] hover:text-[#D44B0B] hover:underline underline decoration-2 underline-offset-2 decoration-[#E8550D]/50"
                     >
                       {venue?.name || event.venue}
                     </Link>
@@ -120,14 +125,17 @@ export const EventInformation = ({ event, venue, university }: EventInformationP
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center relative overflow-hidden">
+            <div 
+              className="w-full h-48 bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg flex items-center justify-center relative overflow-hidden cursor-pointer hover:from-blue-200 hover:to-blue-300 transition-all duration-200"
+              onClick={handleMapClick}
+            >
               <div className="absolute inset-0 bg-blue-200 opacity-30"></div>
               <div className="relative z-10 text-center p-4">
                 <MapPin className="h-8 w-8 text-blue-600 mx-auto mb-2" />
                 <p className="text-blue-700 font-medium break-words">{venue?.name || event.venue}</p>
                 <p className="text-blue-600 text-sm break-words">{venue?.address || event.city}</p>
                 <button className="mt-3 text-blue-600 underline text-sm hover:text-blue-700">
-                  View on map
+                  View on Google Maps
                 </button>
               </div>
             </div>

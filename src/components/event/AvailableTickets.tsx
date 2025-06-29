@@ -108,38 +108,36 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
       <div className="space-y-3">
         {ticketGroups.map((group) => (
           <div key={group.type}>
-            {/* Ticket Type Header */}
-            <Card className="hover:shadow-md transition-shadow">
-              <CardContent className="p-4">
+            {/* Ticket Type Header - Improved UI */}
+            <Card className="hover:shadow-md transition-shadow border border-gray-200">
+              <CardContent className="p-0">
                 <div 
-                  className="flex items-center justify-between cursor-pointer"
+                  className="flex items-center justify-between cursor-pointer p-4 hover:bg-gray-50 transition-colors"
                   onClick={() => toggleGroup(group.type)}
                 >
                   <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                    <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold text-gray-900 text-lg">
                         {group.type}
                       </h3>
-                      <Badge variant="outline" className="text-xs">
-                        {group.totalQuantity} available
-                      </Badge>
-                    </div>
-                    <p className="text-gray-600 text-sm">
-                      From £{group.minPrice} per ticket
-                    </p>
-                  </div>
-                  
-                  <div className="flex items-center gap-3">
-                    <div className="text-right">
-                      <div className="text-xl font-bold text-gray-900">
-                        £{group.minPrice}+
+                      <div className="text-right">
+                        <div className="text-lg font-semibold text-gray-900">
+                          From £{group.minPrice}
+                        </div>
                       </div>
                     </div>
-                    {expandedGroups.has(group.type) ? (
-                      <ChevronUp className="h-5 w-5 text-gray-400" />
-                    ) : (
-                      <ChevronDown className="h-5 w-5 text-gray-400" />
-                    )}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs bg-gray-100">
+                          {group.totalQuantity} available
+                        </Badge>
+                      </div>
+                      {expandedGroups.has(group.type) ? (
+                        <ChevronUp className="h-5 w-5 text-gray-400" />
+                      ) : (
+                        <ChevronDown className="h-5 w-5 text-gray-400" />
+                      )}
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -149,7 +147,7 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
             {expandedGroups.has(group.type) && (
               <div className="ml-4 mt-2 space-y-2">
                 {group.tickets.map((ticket) => (
-                  <Card key={ticket.id} className="border-l-4 border-l-[#E8550D]">
+                  <Card key={ticket.id} className="border-l-4 border-l-[#E8550D] bg-white shadow-sm">
                     <CardContent className="p-4">
                       <div className="flex items-center justify-between">
                         <div className="flex-1">

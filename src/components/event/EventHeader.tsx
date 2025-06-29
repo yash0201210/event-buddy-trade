@@ -83,7 +83,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
                   {event.venue_id ? (
                     <Link 
                       to={`/venue/${event.venue_id}`}
-                      className="hover:underline"
+                      className="hover:underline underline decoration-2 underline-offset-2 decoration-white/70"
                     >
                       {venue?.name || event.venue}
                     </Link>
@@ -109,7 +109,7 @@ export const EventHeader = ({ event, venue, university }: EventHeaderProps) => {
                   <GraduationCap className="h-4 w-4 mr-2" />
                   <Link 
                     to={`/university/${event.university_id}`}
-                    className="hover:underline"
+                    className="hover:underline underline decoration-2 underline-offset-2 decoration-white/70"
                   >
                     {university.name}
                   </Link>
