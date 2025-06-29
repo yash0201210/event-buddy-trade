@@ -48,10 +48,10 @@ export const TicketCard = ({ ticket }: TicketCardProps) => {
 
   return (
     <Card className="border-l-4 border-l-[#E8550D] bg-white shadow-sm">
-      <CardContent className="p-4">
+      <CardContent className="p-2">
         <div className="flex items-center justify-between">
           <div className="flex-1">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-1">
               <div className="flex items-center text-sm text-gray-500">
                 <User className="h-3 w-3 mr-1" />
                 <span>{ticket.profiles?.full_name || 'Unknown'}</span>
@@ -74,15 +74,15 @@ export const TicketCard = ({ ticket }: TicketCardProps) => {
               </p>
               
               <div className="text-right">
-                <div className="text-xl font-bold text-gray-900 mb-1">
+                <div className="text-lg font-bold text-gray-900 mb-1">
                   £{ticket.selling_price}
                 </div>
-                <div className="text-sm text-gray-500 mb-2">
+                <div className="text-xs text-gray-500 mb-1">
                   per ticket
                 </div>
                 <Button 
                   size="sm"
-                  className="bg-[#E8550D] hover:bg-[#D44B0B] text-white"
+                  className="bg-[#E8550D] hover:bg-[#D44B0B] text-white h-7 px-3 text-xs"
                   onClick={() => handleViewTicket(ticket.id)}
                 >
                   View
@@ -91,7 +91,7 @@ export const TicketCard = ({ ticket }: TicketCardProps) => {
             </div>
             
             {ticket.description && (
-              <p className="text-gray-600 text-sm mt-2">
+              <p className="text-gray-600 text-sm mt-1">
                 {ticket.description}
               </p>
             )}
