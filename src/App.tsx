@@ -34,6 +34,7 @@ import AdminAnalytics from '@/pages/admin/AdminAnalytics';
 import AdminSettings from '@/pages/admin/AdminSettings';
 import './App.css';
 import SellerProfile from './pages/SellerProfile';
+import ListingDetails from './pages/ListingDetails';
 
 const queryClient = new QueryClient();
 
@@ -54,6 +55,7 @@ const AppRoutes = () => {
       <Route path="/my-tickets" element={<MyTickets />} />
       <Route path="/buyer-transaction/:id" element={<BuyerTransactionDetails />} />
       <Route path="/selling-hub" element={<SellingHub />} />
+      <Route path="/listing-details/:ticketId" element={<ListingDetails />} />
       <Route path="/seller-transaction/:id" element={<SellerTransactionDetails />} />
       <Route path="/settings" element={<Settings />} />
       <Route path="/universities" element={<Universities />} />
