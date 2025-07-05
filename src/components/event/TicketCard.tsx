@@ -48,46 +48,61 @@ export const TicketCard = ({
     }
     navigate(`/ticket/${ticketId}`);
   };
-  return <Card className="border-l-4 border-l-[#E8550D] bg-white shadow-sm">
-      <CardContent className="p-2 px-[9px]">
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <div className="flex items-center gap-3 mb-1">
-              <div className="flex items-center text-sm text-gray-500">
-                <User className="h-3 w-3 mr-1" />
-                <span>{ticket.profiles?.full_name || 'Unknown'}</span>
+  return <Card className="border-l-4 border-l-primary bg-card shadow-sm hover:shadow-md transition-shadow">
+      <CardContent className="p-4">
+        <div className="space-y-4">
+          {/* Seller Info Section */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex items-center text-sm text-muted-foreground">
+                <User className="h-4 w-4 mr-2" />
+                <span className="font-medium">{ticket.profiles?.full_name || 'Unknown'}</span>
               </div>
-              <div className="flex items-center text-sm text-[#E8550D]">
-                <Star className="h-3 w-3 mr-1 fill-current" />
-                <span>{sellerStats?.rating || '0.0'}</span>
-                <span className="ml-1 text-gray-500">({sellerStats?.totalSold || 0} sold)</span>
+              <div className="flex items-center text-sm text-primary">
+                <Star className="h-4 w-4 mr-1 fill-current" />
+                <span className="font-semibold">{sellerStats?.rating || '0.0'}</span>
+                <span className="ml-1 text-muted-foreground">({sellerStats?.totalSold || 0} sold)</span>
               </div>
-              {ticket.is_negotiable && <Badge className="bg-blue-100 text-blue-700 text-xs">
-                  Negotiable
-                </Badge>}
             </div>
-            
-            <div className="flex items-center justify-between">
-              <p className="text-gray-600 text-sm">
-                Quantity: {ticket.quantity}
+            {ticket.is_negotiable && (
+              <Badge variant="secondary" className="text-xs">
+                Negotiable
+              </Badge>
+            )}
+          </div>
+          
+          {/* Main Content Section */}
+          <div className="flex items-start justify-between">
+            <div className="flex-1 pr-4">
+              <p className="text-sm text-muted-foreground mb-2">
+                <span className="font-medium">Quantity:</span> {ticket.quantity}
               </p>
               
-              <div className="text-right">
-                <div className="text-lg font-bold text-gray-900 mb-1">
-                  £{ticket.selling_price}
-                </div>
-                <div className="text-xs text-gray-500 mb-1">
-                  per ticket
-                </div>
-                <Button size="sm" className="bg-[#E8550D] hover:bg-[#D44B0B] text-white h-7 px-3 text-xs" onClick={() => handleViewTicket(ticket.id)}>
-                  View
-                </Button>
-              </div>
+              {ticket.description && (
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  {ticket.description}
+                </p>
+              )}
             </div>
             
-            {ticket.description && <p className="text-gray-600 text-sm mt-1">
-                {ticket.description}
-              </p>}
+            {/* Price and Action Section */}
+            <div className="text-right space-y-2">
+              <div>
+                <div className="text-xl font-bold text-foreground">
+                  £{ticket.selling_price}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  per ticket
+                </div>
+              </div>
+              <Button 
+                size="sm" 
+                className="w-full min-w-[80px]" 
+                onClick={() => handleViewTicket(ticket.id)}
+              >
+                View Details
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
