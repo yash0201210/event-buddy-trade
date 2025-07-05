@@ -48,9 +48,9 @@ export const TicketCard = ({
     }
     navigate(`/ticket/${ticketId}`);
   };
-  return <Card className="border-l-4 border-l-primary bg-card shadow-sm hover:shadow-md transition-shadow">
-      <CardContent className="p-4">
-        <div className="space-y-4">
+  return <Card className="border-l-4 bg-card shadow-sm hover:shadow-md transition-shadow" style={{ borderLeftColor: '#E8550D' }}>
+      <CardContent className="p-3">
+        <div className="space-y-3">
           {/* Seller Info Section */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
@@ -58,8 +58,8 @@ export const TicketCard = ({
                 <User className="h-4 w-4 mr-2" />
                 <span className="font-medium">{ticket.profiles?.full_name || 'Unknown'}</span>
               </div>
-              <div className="flex items-center text-sm text-primary">
-                <Star className="h-4 w-4 mr-1 fill-current" />
+              <div className="flex items-center text-sm" style={{ color: '#E8550D' }}>
+                <Star className="h-4 w-4 mr-1" style={{ fill: '#E8550D', color: '#E8550D' }} />
                 <span className="font-semibold">{sellerStats?.rating || '0.0'}</span>
                 <span className="ml-1 text-muted-foreground">({sellerStats?.totalSold || 0} sold)</span>
               </div>
@@ -73,7 +73,7 @@ export const TicketCard = ({
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
               <p className="text-sm text-muted-foreground mb-2 text-left">
-                <span className="font-medium">Quantity:</span> {ticket.quantity}
+                <span className="font-medium">{ticket.quantity} Ticket{ticket.quantity !== 1 ? 's' : ''} Available</span>
               </p>
               
               {ticket.description && <p className="text-sm text-muted-foreground leading-relaxed">
@@ -91,7 +91,12 @@ export const TicketCard = ({
                   per ticket
                 </div>
               </div>
-              <Button size="sm" className="w-full min-w-[80px]" onClick={() => handleViewTicket(ticket.id)}>
+              <Button 
+                size="sm" 
+                className="w-full min-w-[80px]" 
+                style={{ backgroundColor: '#E8550D', borderColor: '#E8550D' }}
+                onClick={() => handleViewTicket(ticket.id)}
+              >
                 View Details
               </Button>
             </div>
