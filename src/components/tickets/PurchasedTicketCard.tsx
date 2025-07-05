@@ -95,8 +95,8 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
           </div>
         )}
         
-        {ticket.status === 'completed' && (
-          <div className="flex gap-2 mt-4">
+        <div className="flex gap-2 mt-4">
+          {ticket.status === 'completed' && (
             <Button 
               size="sm" 
               className="flex-1 bg-green-600 hover:bg-green-700"
@@ -105,17 +105,17 @@ export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: Purch
               <Download className="h-4 w-4 mr-2" />
               Download Ticket
             </Button>
-            <Button 
-              size="sm" 
-              variant="outline"
-              className="flex-1"
-              onClick={onViewDetails}
-            >
-              <Eye className="h-4 w-4 mr-2" />
-              View Details
-            </Button>
-          </div>
-        )}
+          )}
+          <Button 
+            size="sm" 
+            variant="outline"
+            className={ticket.status === 'completed' ? 'flex-1' : 'w-full'}
+            onClick={onViewDetails}
+          >
+            <Eye className="h-4 w-4 mr-2" />
+            View Details
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search, TrendingUp } from 'lucide-react';
+import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search, TrendingUp, Bell } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,17 +13,19 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import { useNotifications } from '@/hooks/useNotifications';
 
 export const Header = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const { toast } = useToast();
+  const { hasUnreadMessages, unreadCount } = useNotifications();
   const [searchQuery, setSearchQuery] = useState('');
   const [isSigningOut, setIsSigningOut] = useState(false);
 
   const handleSignOut = async () => {
-    if (isSigningOut) return; // Prevent multiple calls
+    if (isSigningOut) return;
     
     setIsSigningOut(true);
     
@@ -35,7 +37,6 @@ export const Header = () => {
         title: "Signed out successfully",
       });
       
-      // Navigate to home page after successful logout
       navigate('/', { replace: true });
       
     } catch (error: any) {
@@ -68,7 +69,7 @@ export const Header = () => {
             <span className="font-bold text-xl text-gray-900">socialdealr</span>
           </Link>
 
-          {/* Search Bar - only show on non-home pages, smaller and better positioned */}
+          {/* Search Bar - only show on non-home pages */}
           {!isHomePage && (
             <div className="flex-1 max-w-sm mx-6">
               <div className="bg-white rounded-lg border border-gray-200 shadow-sm flex items-center">
@@ -111,9 +112,12 @@ export const Header = () => {
 
                 <Link
                   to="/messages"
-                  className="text-gray-600 hover:text-gray-900"
+                  className="text-gray-600 hover:text-gray-900 relative"
                 >
                   <MessageSquare className="h-5 w-5" />
+                  {hasUnreadMessages && (
+                    <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                  )}
                 </Link>
 
                 <DropdownMenu>
@@ -125,9 +129,22 @@ export const Header = () => {
                           {getUserInitials(user.email || '')}
                         </AvatarFallback>
                       </Avatar>
+                      {unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full"></div>
+                      )}
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuItem onClick={() => navigate('/notifications')}>
+                      <Bell className="mr-2 h-4 w-4" />
+                      <span>Notifications</span>
+                      {unreadCount > 0 && (
+                        <span className="ml-auto bg-red-500 text-white text-xs rounded-full px-2 py-1">
+                          {unreadCount}
+                        </span>
+                      )}
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => navigate('/my-tickets')}>
                       <User className="mr-2 h-4 w-4" />
                       <span>My Tickets</span>
