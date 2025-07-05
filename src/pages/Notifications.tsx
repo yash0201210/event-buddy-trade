@@ -4,7 +4,7 @@ import { Layout } from '@/components/layout/Layout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Bell, Message, Ticket, Clock } from 'lucide-react';
+import { Bell, MessageSquare, Ticket, Clock } from 'lucide-react';
 import { useNotifications } from '@/hooks/useNotifications';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
@@ -16,7 +16,7 @@ const Notifications = () => {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'message':
-        return <Message className="h-5 w-5 text-blue-600" />;
+        return <MessageSquare className="h-5 w-5 text-blue-600" />;
       case 'offer':
         return <Ticket className="h-5 w-5 text-green-600" />;
       case 'ticket_alert':
