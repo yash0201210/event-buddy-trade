@@ -63,7 +63,7 @@ export const SellerInfoCard = ({ ticket, sellerStats }: SellerInfoCardProps) => 
               </div>
               
               <div className="text-sm text-gray-600">
-                <p>{sellerStats?.totalSold || 0} tickets sold • {sellerStats?.totalListed || 1} total listings</p>
+                <p>{sellerStats?.totalSold || 0} tickets sold • {sellerStats?.totalListed || 1} Current listings</p>
               </div>
             </div>
           </div>
