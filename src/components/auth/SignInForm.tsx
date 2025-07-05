@@ -19,12 +19,15 @@ export const SignInForm = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      console.log('Attempting sign in with email:', email);
+      
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
       if (error) {
+        console.error('Sign in error:', error);
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Invalid credentials",
@@ -32,16 +35,28 @@ export const SignInForm = () => {
             variant: "destructive"
           });
         } else {
-          throw error;
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive"
+          });
         }
-      } else {
-        console.log('Sign in successful, redirecting...');
-        navigate('/', { replace: true });
+      } else if (data.user) {
+        console.log('Sign in successful, user:', data.user.email);
+        toast({
+          title: "Success",
+          description: "Signed in successfully!",
+        });
+        // Navigate after a short delay to ensure auth state is updated
+        setTimeout(() => {
+          navigate('/', { replace: true });
+        }, 100);
       }
     } catch (error: any) {
+      console.error('Unexpected sign in error:', error);
       toast({
         title: "Error",
-        description: error.message,
+        description: error.message || "An unexpected error occurred",
         variant: "destructive"
       });
     } finally {

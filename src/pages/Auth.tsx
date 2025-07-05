@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { supabase } from '@/integrations/supabase/client';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Header } from '@/components/layout/Header';
@@ -14,15 +13,15 @@ const Auth = () => {
   const [showVerification, setShowVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState('');
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     // If user is already authenticated, redirect to home
-    if (user) {
+    if (!loading && user) {
       console.log('User already authenticated, redirecting to home');
       navigate('/', { replace: true });
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const handleSignUpSuccess = (email: string) => {
     setPendingEmail(email);
@@ -39,6 +38,18 @@ const Auth = () => {
     setShowVerification(false);
     setPendingEmail('');
   };
+
+  // Show loading state while checking auth
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <Header />
+        <div className="flex items-center justify-center py-12 px-4">
+          <div className="text-center">Loading...</div>
+        </div>
+      </div>
+    );
+  }
 
   // Don't render the auth form if user is already authenticated
   if (user) {

@@ -4,6 +4,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { AuthProvider } from "@/hooks/useAuth";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Event from "./pages/Event";
@@ -42,47 +43,49 @@ const queryClient = new QueryClient();
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/event/:id" element={<Event />} />
-            <Route path="/ticket/:id" element={<TicketDetails />} />
-            <Route path="/sell-tickets" element={<SellTickets />} />
-            <Route path="/my-tickets" element={<MyTickets />} />
-            <Route path="/messages" element={<Messages />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/favourites" element={<Favourites />} />
-            <Route path="/selling-hub" element={<SellingHub />} />
-            <Route path="/listing/:id" element={<ListingDetails />} />
-            <Route path="/buyer-transaction/:id" element={<BuyerTransactionDetails />} />
-            <Route path="/seller-transaction/:ticketId" element={<SellerTransactionDetails />} />
-            <Route path="/seller/:id" element={<SellerProfile />} />
-            <Route path="/universities" element={<Universities />} />
-            <Route path="/university/:id" element={<University />} />
-            <Route path="/venue/:id" element={<Venue />} />
-            <Route path="/events" element={<AllEvents />} />
-            <Route path="/submit-event" element={<SubmitEvent />} />
-            <Route path="/help" element={<Help />} />
-            
-            {/* Admin Routes */}
-            <Route path="/admin/auth" element={<AdminAuth />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/events" element={<AdminEvents />} />
-            <Route path="/admin/event-requests" element={<AdminEventRequests />} />
-            <Route path="/admin/universities" element={<AdminUniversities />} />
-            <Route path="/admin/venues" element={<AdminVenues />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
-            
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/event/:id" element={<Event />} />
+              <Route path="/ticket/:id" element={<TicketDetails />} />
+              <Route path="/sell-tickets" element={<SellTickets />} />
+              <Route path="/my-tickets" element={<MyTickets />} />
+              <Route path="/messages" element={<Messages />} />
+              <Route path="/notifications" element={<Notifications />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/favourites" element={<Favourites />} />
+              <Route path="/selling-hub" element={<SellingHub />} />
+              <Route path="/listing/:id" element={<ListingDetails />} />
+              <Route path="/buyer-transaction/:id" element={<BuyerTransactionDetails />} />
+              <Route path="/seller-transaction/:ticketId" element={<SellerTransactionDetails />} />
+              <Route path="/seller/:id" element={<SellerProfile />} />
+              <Route path="/universities" element={<Universities />} />
+              <Route path="/university/:id" element={<University />} />
+              <Route path="/venue/:id" element={<Venue />} />
+              <Route path="/events" element={<AllEvents />} />
+              <Route path="/submit-event" element={<SubmitEvent />} />
+              <Route path="/help" element={<Help />} />
+              
+              {/* Admin Routes */}
+              <Route path="/admin/auth" element={<AdminAuth />} />
+              <Route path="/admin/analytics" element={<AdminAnalytics />} />
+              <Route path="/admin/users" element={<AdminUsers />} />
+              <Route path="/admin/events" element={<AdminEvents />} />
+              <Route path="/admin/event-requests" element={<AdminEventRequests />} />
+              <Route path="/admin/universities" element={<AdminUniversities />} />
+              <Route path="/admin/venues" element={<AdminVenues />} />
+              <Route path="/admin/settings" element={<AdminSettings />} />
+              
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

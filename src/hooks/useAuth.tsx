@@ -39,16 +39,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         throw error;
       }
       
-      // Clear local state immediately
-      setUser(null);
-      setSession(null);
-      
       console.log('Sign out successful');
     } catch (error) {
       console.error('Sign out failed:', error);
-      // Force clear state even if API call fails
-      setUser(null);
-      setSession(null);
       throw error;
     }
   };
@@ -56,26 +49,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   useEffect(() => {
     let mounted = true;
 
-    // Set up auth state listener
+    // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
+        console.log('Auth state changed:', event, session?.user?.email || 'no user');
         
         if (!mounted) return;
         
-        if (event === 'SIGNED_OUT' || !session) {
-          setSession(null);
-          setUser(null);
-        } else {
-          setSession(session);
-          setUser(session.user);
-        }
-        
+        setSession(session);
+        setUser(session?.user ?? null);
         setLoading(false);
       }
     );
 
-    // Check for existing session
+    // Then check for existing session
     supabase.auth.getSession().then(({ data: { session }, error }) => {
       if (!mounted) return;
       
@@ -83,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.error('Error getting session:', error);
       }
       
-      console.log('Initial session check:', session?.user?.email);
+      console.log('Initial session check:', session?.user?.email || 'no session');
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
