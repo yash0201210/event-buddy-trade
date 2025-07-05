@@ -64,25 +64,21 @@ export const TicketCard = ({
                 <span className="ml-1 text-muted-foreground">({sellerStats?.totalSold || 0} sold)</span>
               </div>
             </div>
-            {ticket.is_negotiable && (
-              <Badge variant="secondary" className="text-xs">
+            {ticket.is_negotiable && <Badge variant="secondary" className="text-xs">
                 Negotiable
-              </Badge>
-            )}
+              </Badge>}
           </div>
           
           {/* Main Content Section */}
           <div className="flex items-start justify-between">
             <div className="flex-1 pr-4">
-              <p className="text-sm text-muted-foreground mb-2">
+              <p className="text-sm text-muted-foreground mb-2 text-left">
                 <span className="font-medium">Quantity:</span> {ticket.quantity}
               </p>
               
-              {ticket.description && (
-                <p className="text-sm text-muted-foreground leading-relaxed">
+              {ticket.description && <p className="text-sm text-muted-foreground leading-relaxed">
                   {ticket.description}
-                </p>
-              )}
+                </p>}
             </div>
             
             {/* Price and Action Section */}
@@ -95,11 +91,7 @@ export const TicketCard = ({
                   per ticket
                 </div>
               </div>
-              <Button 
-                size="sm" 
-                className="w-full min-w-[80px]" 
-                onClick={() => handleViewTicket(ticket.id)}
-              >
+              <Button size="sm" className="w-full min-w-[80px]" onClick={() => handleViewTicket(ticket.id)}>
                 View Details
               </Button>
             </div>
