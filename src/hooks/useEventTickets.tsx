@@ -41,6 +41,7 @@ export const useEventTickets = (eventId?: string) => {
         .select(`
           id,
           ticket_id,
+          order_confirmed_at,
           messages!inner (
             message_type,
             created_at
@@ -50,12 +51,13 @@ export const useEventTickets = (eventId?: string) => {
 
       console.log('Found conversations:', conversations);
 
-      // Create a set of ticket IDs that have been confirmed (order_confirmed message exists)
+      // Create a set of ticket IDs that have been confirmed (either order_confirmed message exists OR order_confirmed_at is set)
       const confirmedTicketIds = new Set();
       
       if (conversations) {
         conversations.forEach(conv => {
-          const hasOrderConfirmed = conv.messages.some(msg => msg.message_type === 'order_confirmed');
+          const hasOrderConfirmed = conv.messages.some(msg => msg.message_type === 'order_confirmed') || 
+                                   conv.order_confirmed_at !== null;
           if (hasOrderConfirmed) {
             confirmedTicketIds.add(conv.ticket_id);
             console.log('Ticket marked as confirmed:', conv.ticket_id);

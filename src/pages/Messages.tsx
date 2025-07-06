@@ -10,6 +10,7 @@ import { BankDetailsDialog } from '@/components/messages/BankDetailsDialog';
 import { CounterOfferDialog } from '@/components/messages/CounterOfferDialog';
 import { ConversationList } from '@/components/messages/ConversationList';
 import { ChatArea } from '@/components/messages/ChatArea';
+import { OrderExpirationCard } from '@/components/messages/OrderExpirationCard';
 import { useConversations } from '@/hooks/useConversations';
 
 const Messages = () => {
@@ -22,7 +23,16 @@ const Messages = () => {
   const [showCounterOffer, setShowCounterOffer] = useState(false);
   const [pendingAcceptConversation, setPendingAcceptConversation] = useState<string | null>(null);
 
-  const { conversations, isLoading, sendMessageMutation, markTicketAsSold } = useConversations(user?.id);
+  const { 
+    conversations, 
+    isLoading, 
+    sendMessageMutation, 
+    confirmOrderMutation,
+    cancelOrderMutation,
+    markTicketAsSold,
+    isOrderExpired,
+    getTimeRemaining
+  } = useConversations(user?.id);
 
   if (!user) {
     return (
@@ -63,8 +73,12 @@ const Messages = () => {
     setPendingAcceptConversation(conversationId);
   };
 
-  const handleBankDetailsSubmitted = () => {
+  const handleBankDetailsSubmitted = async () => {
     if (pendingAcceptConversation) {
+      // First confirm the order in the database
+      await confirmOrderMutation.mutateAsync(pendingAcceptConversation);
+      
+      // Then send the confirmation message
       sendMessageMutation.mutate({
         conversationId: pendingAcceptConversation,
         content: "Order Confirmed!\n\nThe order has now been confirmed. Transfer €9.73 to the seller once they share their bank details!\n\nHi, please send me €9.73 on the following bank details:\n\nFull Name: Yash Agrawal\nSort Code: XX - XX - XX\nAccount Number: 12736892\n\nRemember to confirm here once you have sent this money across!",
@@ -109,6 +123,10 @@ const Messages = () => {
     navigate(`/my-tickets?conversation=${conversationId}`);
   };
 
+  const handleCancelOrder = (conversationId: string) => {
+    cancelOrderMutation.mutate(conversationId);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
@@ -134,21 +152,36 @@ const Messages = () => {
               currentUserId={user.id}
             />
 
-            <ChatArea
-              selectedConv={selectedConv}
-              currentUserId={user.id}
-              newMessage={newMessage}
-              setNewMessage={setNewMessage}
-              onSendMessage={handleSendMessage}
-              isSending={sendMessageMutation.isPending}
-              onBack={() => setSelectedConversation(null)}
-              onAcceptPurchaseRequest={handleAcceptPurchaseRequest}
-              onRejectPurchaseRequest={handleRejectPurchaseRequest}
-              onConfirmTransfer={handleConfirmTransfer}
-              onViewTransactionDetails={handleViewTransactionDetails}
-              onFundsReceived={handleFundsReceived}
-              onNavigateToSellingHub={() => navigate('/selling-hub')}
-            />
+            <div className="lg:col-span-2 flex flex-col gap-4">
+              {selectedConv && (
+                <OrderExpirationCard
+                  conversation={selectedConv}
+                  currentUserId={user.id}
+                  timeRemaining={getTimeRemaining(selectedConv)}
+                  isExpired={isOrderExpired(selectedConv)}
+                  onCancelOrder={handleCancelOrder}
+                  isCancelling={cancelOrderMutation.isPending}
+                />
+              )}
+
+              <div className="flex-1">
+                <ChatArea
+                  selectedConv={selectedConv}
+                  currentUserId={user.id}
+                  newMessage={newMessage}
+                  setNewMessage={setNewMessage}
+                  onSendMessage={handleSendMessage}
+                  isSending={sendMessageMutation.isPending}
+                  onBack={() => setSelectedConversation(null)}
+                  onAcceptPurchaseRequest={handleAcceptPurchaseRequest}
+                  onRejectPurchaseRequest={handleRejectPurchaseRequest}
+                  onConfirmTransfer={handleConfirmTransfer}
+                  onViewTransactionDetails={handleViewTransactionDetails}
+                  onFundsReceived={handleFundsReceived}
+                  onNavigateToSellingHub={() => navigate('/selling-hub')}
+                />
+              </div>
+            </div>
           </div>
         </div>
       </main>

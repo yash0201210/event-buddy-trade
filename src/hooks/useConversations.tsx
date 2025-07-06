@@ -10,6 +10,8 @@ interface Conversation {
   seller_id: string;
   status: string;
   created_at: string;
+  order_confirmed_at?: string;
+  order_expires_at?: string;
   ticket_title?: string;
   ticket_price?: number;
   event_name?: string;
@@ -132,6 +134,56 @@ export const useConversations = (userId: string | undefined) => {
     },
   });
 
+  const confirmOrderMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ 
+          order_confirmed_at: new Date().toISOString(),
+          status: 'confirmed'
+        })
+        .eq('id', conversationId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['event-tickets'] });
+    },
+  });
+
+  const cancelOrderMutation = useMutation({
+    mutationFn: async (conversationId: string) => {
+      const { error } = await supabase
+        .from('conversations')
+        .update({ 
+          order_confirmed_at: null,
+          order_expires_at: null,
+          status: 'active'
+        })
+        .eq('id', conversationId);
+
+      if (error) throw error;
+
+      // Also remove the order_confirmed message to reset the conversation
+      const { error: messageError } = await supabase
+        .from('messages')
+        .delete()
+        .eq('conversation_id', conversationId)
+        .eq('message_type', 'order_confirmed');
+
+      if (messageError) console.error('Error removing order confirmed message:', messageError);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['conversations'] });
+      queryClient.invalidateQueries({ queryKey: ['event-tickets'] });
+      toast({
+        title: "Order Cancelled",
+        description: "The order has been cancelled and your listing is now visible again.",
+      });
+    },
+  });
+
   const markTicketAsSold = async (conversationId: string) => {
     const conversation = conversations.find(c => c.id === conversationId);
     if (!conversation) return;
@@ -196,10 +248,39 @@ export const useConversations = (userId: string | undefined) => {
     }
   };
 
+  // Helper function to check if an order has expired
+  const isOrderExpired = (conversation: Conversation) => {
+    if (!conversation.order_expires_at) return false;
+    return new Date() > new Date(conversation.order_expires_at);
+  };
+
+  // Helper function to get time remaining
+  const getTimeRemaining = (conversation: Conversation) => {
+    if (!conversation.order_expires_at) return null;
+    
+    const now = new Date();
+    const expiry = new Date(conversation.order_expires_at);
+    const diff = expiry.getTime() - now.getTime();
+    
+    if (diff <= 0) return 'Expired';
+    
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+    
+    if (hours > 0) {
+      return `${hours}h ${minutes}m remaining`;
+    }
+    return `${minutes}m remaining`;
+  };
+
   return {
     conversations,
     isLoading,
     sendMessageMutation,
-    markTicketAsSold
+    confirmOrderMutation,
+    cancelOrderMutation,
+    markTicketAsSold,
+    isOrderExpired,
+    getTimeRemaining
   };
 };

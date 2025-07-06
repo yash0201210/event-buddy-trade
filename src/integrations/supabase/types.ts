@@ -14,6 +14,8 @@ export type Database = {
           buyer_id: string
           created_at: string
           id: string
+          order_confirmed_at: string | null
+          order_expires_at: string | null
           seller_id: string
           status: string
           ticket_id: string
@@ -23,6 +25,8 @@ export type Database = {
           buyer_id: string
           created_at?: string
           id?: string
+          order_confirmed_at?: string | null
+          order_expires_at?: string | null
           seller_id: string
           status?: string
           ticket_id: string
@@ -32,6 +36,8 @@ export type Database = {
           buyer_id?: string
           created_at?: string
           id?: string
+          order_confirmed_at?: string | null
+          order_expires_at?: string | null
           seller_id?: string
           status?: string
           ticket_id?: string
