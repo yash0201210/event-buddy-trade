@@ -1,31 +1,29 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Instagram, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
-
 export const Footer = () => {
   const [email, setEmail] = useState('');
-
   const handleEmailSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Email submitted:', email);
     // Handle email submission here
     setEmail('');
   };
-
   const handleScrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
   };
-
   const handleShareApp = () => {
     if (navigator.share) {
       navigator.share({
         title: 'SocialDealr',
         text: 'Check out SocialDealr - the student ticket marketplace!',
         url: window.location.origin
-      }).catch((error) => console.log('Error sharing:', error));
+      }).catch(error => console.log('Error sharing:', error));
     } else {
       // Fallback for browsers that don't support Web Share API
       const url = window.location.origin;
@@ -36,9 +34,7 @@ export const Footer = () => {
       });
     }
   };
-
-  return (
-    <footer className="bg-red-600 text-white">
+  return <footer className="bg-red-600 text-white">
       {/* Newsletter section */}
       <div className="bg-red-700 py-12">
         <div className="max-w-4xl mx-auto px-4 text-center">
@@ -48,20 +44,9 @@ export const Footer = () => {
           
           <form onSubmit={handleEmailSubmit} className="flex flex-col sm:flex-row gap-4 max-w-lg mx-auto">
             <div className="flex-1">
-              <Input
-                type="email"
-                placeholder="Email Address"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="bg-transparent border-b-2 border-white border-t-0 border-l-0 border-r-0 rounded-none text-white placeholder-white focus:border-white focus-visible:ring-0"
-                required
-              />
+              <Input type="email" placeholder="Email Address" value={email} onChange={e => setEmail(e.target.value)} className="bg-transparent border-b-2 border-white border-t-0 border-l-0 border-r-0 rounded-none text-white placeholder-white focus:border-white focus-visible:ring-0" required />
             </div>
-            <Button 
-              type="submit"
-              variant="outline"
-              className="bg-transparent border-white text-white hover:bg-white hover:text-red-600 rounded-full px-8"
-            >
+            <Button type="submit" variant="outline" className="bg-transparent border-white text-white hover:bg-white hover:text-red-600 rounded-full px-8">
               Join the List
             </Button>
           </form>
@@ -77,10 +62,7 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-4">Secure</h3>
               <ul className="space-y-2">
                 <li>
-                  <button 
-                    onClick={handleScrollToTop}
-                    className="hover:text-red-200 transition-colors text-left"
-                  >
+                  <button onClick={handleScrollToTop} className="hover:text-red-200 transition-colors text-left">
                     Buy Tickets
                   </button>
                 </li>
@@ -104,10 +86,7 @@ export const Footer = () => {
               <ul className="space-y-2">
                 <li><Link to="/settings" className="hover:text-red-200 transition-colors">My Account</Link></li>
                 <li>
-                  <button 
-                    onClick={handleShareApp}
-                    className="hover:text-red-200 transition-colors text-left"
-                  >
+                  <button onClick={handleShareApp} className="hover:text-red-200 transition-colors text-left">
                     Invite Friends
                   </button>
                 </li>
@@ -128,23 +107,13 @@ export const Footer = () => {
               <h3 className="text-xl font-bold mb-4 text-center">Follow Us</h3>
               <ul className="space-y-2">
                 <li className="text-center">
-                  <a 
-                    href="https://www.instagram.com/socialdealr/" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-red-200 transition-colors flex items-center justify-center"
-                  >
+                  <a href="https://www.instagram.com/socialdealr/" target="_blank" rel="noopener noreferrer" className="hover:text-red-200 transition-colors flex items-center justify-center">
                     <Instagram className="h-4 w-4 mr-2" />
                     Instagram
                   </a>
                 </li>
                 <li className="text-center">
-                  <a 
-                    href="https://www.tiktok.com/@socialdealr" 
-                    target="_blank" 
-                    rel="noopener noreferrer"
-                    className="hover:text-red-200 transition-colors flex items-center justify-center"
-                  >
+                  <a href="https://www.tiktok.com/@socialdealr" target="_blank" rel="noopener noreferrer" className="hover:text-red-200 transition-colors flex items-center justify-center">
                     <Youtube className="h-4 w-4 mr-2" />
                     Tiktok
                   </a>
@@ -158,9 +127,7 @@ export const Footer = () => {
       {/* Bottom footer */}
       <div className="border-t border-red-500 py-6">
         <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center">
-          <div className="text-sm text-red-200 mb-4 md:mb-0">
-            © 2024 SocialDealr. All rights reserved.
-          </div>
+          <div className="text-sm text-red-200 mb-4 md:mb-0">© 2025 SocialDealr. All rights reserved.</div>
           
           {/* Logo */}
           <div className="text-2xl font-bold">
@@ -168,6 +135,5 @@ export const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
