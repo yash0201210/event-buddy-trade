@@ -4,7 +4,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search, TrendingUp, Bell } from 'lucide-react';
+import { Heart, MessageSquare, User, Settings, LogOut, Plus, Calendar, Search, TrendingUp, Bell, HelpCircle, Info } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -94,6 +94,23 @@ export const Header = () => {
 
           {/* Navigation */}
           <nav className="flex items-center space-x-6">
+            {/* About and Help links */}
+            <Link
+              to="/about"
+              className="text-gray-600 hover:text-gray-900 flex items-center space-x-1"
+            >
+              <Info className="h-4 w-4" />
+              <span className="hidden sm:inline">About</span>
+            </Link>
+
+            <Link
+              to="/help"
+              className="text-gray-600 hover:text-gray-900 flex items-center space-x-1"
+            >
+              <HelpCircle className="h-4 w-4" />
+              <span className="hidden sm:inline">Help</span>
+            </Link>
+
             {user ? (
               <>
                 <Button

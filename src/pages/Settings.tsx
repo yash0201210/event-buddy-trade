@@ -7,6 +7,7 @@ import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { PasswordSettings } from '@/components/settings/PasswordSettings';
 import { BankDetailsSettings } from '@/components/settings/BankDetailsSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
+import { AccountSettings } from '@/components/settings/AccountSettings';
 
 const Settings = () => {
   return (
@@ -18,11 +19,12 @@ const Settings = () => {
         </div>
 
         <Tabs defaultValue="profile" className="w-full">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="profile">Profile</TabsTrigger>
             <TabsTrigger value="password">Password</TabsTrigger>
             <TabsTrigger value="banking">Banking</TabsTrigger>
             <TabsTrigger value="notifications">Notifications</TabsTrigger>
+            <TabsTrigger value="account">Account</TabsTrigger>
           </TabsList>
           
           <TabsContent value="profile" className="mt-6">
@@ -39,6 +41,10 @@ const Settings = () => {
           
           <TabsContent value="notifications" className="mt-6">
             <NotificationSettings />
+          </TabsContent>
+          
+          <TabsContent value="account" className="mt-6">
+            <AccountSettings />
           </TabsContent>
         </Tabs>
       </div>
