@@ -100,25 +100,50 @@ export const usePurchasedTickets = () => {
             console.log('Ticket data:', ticket);
             console.log('PDF URL for ticket:', ticket.pdf_url);
 
-            // Determine status based on messages
+            // Determine status based on messages - improved logic
             const messages = conv.messages.sort((a, b) => 
               new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
             );
             
-            let status = 'pending';
+            let status: 'pending' | 'confirmed' | 'completed' = 'pending';
             let buyerConfirmed = false;
             let sellerConfirmed = false;
             
+            // Check each message type to determine the current status
+            let hasOrderConfirmed = false;
+            let hasTransferConfirmation = false;
+            let hasFundsReceived = false;
+            
             for (const msg of messages) {
               if (msg.message_type === 'order_confirmed') {
-                status = 'confirmed';
+                hasOrderConfirmed = true;
               } else if (msg.message_type === 'transfer_confirmation') {
+                hasTransferConfirmation = true;
                 buyerConfirmed = true;
               } else if (msg.message_type === 'funds_received') {
+                hasFundsReceived = true;
                 sellerConfirmed = true;
-                status = 'completed';
               }
             }
+
+            // Determine final status based on message progression
+            if (hasFundsReceived && sellerConfirmed) {
+              status = 'completed';
+            } else if (hasOrderConfirmed) {
+              status = 'confirmed';
+            } else {
+              status = 'pending';
+            }
+
+            console.log('Transaction status determination:', {
+              conversationId: conv.id,
+              hasOrderConfirmed,
+              hasTransferConfirmation,
+              hasFundsReceived,
+              finalStatus: status,
+              buyerConfirmed,
+              sellerConfirmed
+            });
 
             return {
               id: conv.id,

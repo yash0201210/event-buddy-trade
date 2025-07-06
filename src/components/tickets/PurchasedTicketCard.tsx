@@ -17,21 +17,32 @@ interface PurchasedTicketCardProps {
 export const PurchasedTicketCard = ({ ticket, onDownload, onViewDetails }: PurchasedTicketCardProps) => {
   const navigate = useNavigate();
 
+  // Get consistent status display
+  const getStatusDisplay = () => {
+    if (ticket.status === 'completed') {
+      return { label: 'Ready', variant: 'default' as const };
+    } else if (ticket.status === 'confirmed') {
+      if (ticket.buyer_confirmed && !ticket.seller_confirmed) {
+        return { label: 'Payment Sent', variant: 'secondary' as const };
+      } else {
+        return { label: 'Payment Required', variant: 'secondary' as const };
+      }
+    } else {
+      return { label: 'Awaiting Seller', variant: 'outline' as const };
+    }
+  };
+
+  const statusDisplay = getStatusDisplay();
+
   return (
     <Card className="bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-xl transition-shadow">
       <CardHeader className="p-6 bg-gradient-to-r from-blue-50 to-indigo-50">
         <CardTitle className="text-xl font-bold text-gray-900">{ticket.ticket.events?.name || 'Event Name'}</CardTitle>
         <Badge 
-          variant={
-            ticket.status === 'completed' ? 'default' : 
-            ticket.status === 'confirmed' ? 'secondary' : 
-            'outline'
-          }
+          variant={statusDisplay.variant}
           className="w-fit"
         >
-          {ticket.status === 'completed' ? 'Ready' : 
-           ticket.status === 'confirmed' ? 'Pending Transfer' : 
-           'Pending Seller'}
+          {statusDisplay.label}
         </Badge>
       </CardHeader>
       

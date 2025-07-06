@@ -24,6 +24,43 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
     downloadTicket(ticket);
   };
 
+  // Get consistent status display that matches the card
+  const getStatusDisplay = () => {
+    if (ticket.status === 'completed') {
+      return { 
+        label: 'Transaction Completed', 
+        variant: 'default' as const,
+        bgColor: 'bg-gradient-to-r from-green-50 to-blue-50',
+        borderColor: 'border-green-200'
+      };
+    } else if (ticket.status === 'confirmed') {
+      if (ticket.buyer_confirmed && !ticket.seller_confirmed) {
+        return { 
+          label: 'Payment Sent - Awaiting Confirmation', 
+          variant: 'secondary' as const,
+          bgColor: 'bg-gradient-to-r from-orange-50 to-yellow-50',
+          borderColor: 'border-orange-200'
+        };
+      } else {
+        return { 
+          label: 'Payment Required', 
+          variant: 'secondary' as const,
+          bgColor: 'bg-gradient-to-r from-blue-50 to-indigo-50',
+          borderColor: 'border-blue-200'
+        };
+      }
+    } else {
+      return { 
+        label: 'Awaiting Seller Response', 
+        variant: 'outline' as const,
+        bgColor: 'bg-gradient-to-r from-yellow-50 to-orange-50',
+        borderColor: 'border-yellow-200'
+      };
+    }
+  };
+
+  const statusDisplay = getStatusDisplay();
+
   return (
     <div className="space-y-6">
       <div className="flex items-center gap-2 mb-4">
@@ -36,23 +73,29 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
         </Button>
       </div>
 
-      {/* Transaction Completed Header */}
-      <Card className="bg-gradient-to-r from-green-50 to-blue-50 border-green-200">
+      {/* Transaction Status Header */}
+      <Card className={`${statusDisplay.bgColor} ${statusDisplay.borderColor}`}>
         <CardContent className="p-6">
           <div className="flex items-center gap-3 mb-3">
-            <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-              <Shield className="h-6 w-6 text-green-600" />
+            <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+              <Shield className="h-6 w-6 text-blue-600" />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-gray-900">Transaction Completed</h2>
-              <p className="text-sm text-gray-600">Your ticket purchase was successful</p>
+              <h2 className="text-lg font-semibold text-gray-900">{statusDisplay.label}</h2>
+              <p className="text-sm text-gray-600">
+                {ticket.status === 'completed' && 'Your ticket purchase was successful'}
+                {ticket.status === 'confirmed' && !ticket.buyer_confirmed && 'Payment details have been shared'}
+                {ticket.status === 'confirmed' && ticket.buyer_confirmed && !ticket.seller_confirmed && 'Payment confirmed, waiting for seller'}
+                {ticket.status === 'pending' && 'Waiting for seller to confirm your purchase request'}
+              </p>
             </div>
           </div>
           <div className="bg-white/50 p-3 rounded-lg">
             <p className="text-sm text-gray-700">
-              ✅ Payment confirmed and processed<br/>
-              📧 Seller has acknowledged receipt<br/>
-              🎫 Your ticket is ready for download
+              {ticket.status === 'completed' && '✅ Payment confirmed and processed\n📧 Seller has acknowledged receipt\n🎫 Your ticket is ready for download'}
+              {ticket.status === 'confirmed' && !ticket.buyer_confirmed && '📧 Bank details shared by seller\n💰 Transfer payment to complete purchase\n✉️ Confirm transfer in messages'}
+              {ticket.status === 'confirmed' && ticket.buyer_confirmed && !ticket.seller_confirmed && '💰 Payment transfer confirmed\n⏳ Waiting for seller to acknowledge receipt\n📧 Seller will confirm and provide tickets'}
+              {ticket.status === 'pending' && '📝 Purchase request sent to seller\n⏳ Awaiting seller response\n📧 You will be notified once accepted'}
             </p>
           </div>
         </CardContent>
@@ -63,8 +106,10 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
             Transaction Summary
-            <Badge variant="default" className="text-xs bg-green-600">
-              Completed
+            <Badge variant={statusDisplay.variant} className="text-xs">
+              {ticket.status === 'completed' ? 'Completed' : 
+               ticket.status === 'confirmed' ? 'In Progress' : 
+               'Pending'}
             </Badge>
           </CardTitle>
         </CardHeader>
@@ -79,12 +124,20 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
               <p>{new Date(ticket.transaction_date).toLocaleDateString()}</p>
             </div>
             <div>
-              <span className="text-gray-600">Amount Paid:</span>
+              <span className="text-gray-600">Amount:</span>
               <p className="font-semibold text-lg">€{ticket.amount_paid}</p>
             </div>
             <div>
               <span className="text-gray-600">Payment Status:</span>
-              <p className="text-green-600 font-medium">Confirmed</p>
+              <p className={`font-medium ${
+                ticket.status === 'completed' ? 'text-green-600' : 
+                ticket.buyer_confirmed ? 'text-orange-600' : 
+                'text-yellow-600'
+              }`}>
+                {ticket.status === 'completed' ? 'Confirmed' : 
+                 ticket.buyer_confirmed ? 'Sent' : 
+                 'Pending'}
+              </p>
             </div>
           </div>
         </CardContent>
@@ -132,14 +185,16 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
                 </div>
               </div>
             </div>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setShowRatingDialog(true)}
-            >
-              <Star className="h-4 w-4 mr-2" />
-              Rate Seller
-            </Button>
+            {ticket.status === 'completed' && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowRatingDialog(true)}
+              >
+                <Star className="h-4 w-4 mr-2" />
+                Rate Seller
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -156,23 +211,27 @@ export const BuyerTransactionDetailsView = ({ ticket, onBack }: BuyerTransaction
               <MessageSquare className="h-4 w-4 mr-2" />
               View Messages
             </Button>
-            <Button 
-              onClick={handleDownloadTicket}
-              className="flex-1 bg-green-600 hover:bg-green-700"
-            >
-              <Download className="h-4 w-4 mr-2" />
-              Download Ticket
-            </Button>
+            {ticket.status === 'completed' && (
+              <Button 
+                onClick={handleDownloadTicket}
+                className="flex-1 bg-green-600 hover:bg-green-700"
+              >
+                <Download className="h-4 w-4 mr-2" />
+                Download Ticket
+              </Button>
+            )}
           </div>
         </CardContent>
       </Card>
 
-      <SellerRatingDialog
-        isOpen={showRatingDialog}
-        onClose={() => setShowRatingDialog(false)}
-        sellerName={ticket.seller.full_name}
-        transactionId={ticket.id}
-      />
+      {ticket.status === 'completed' && (
+        <SellerRatingDialog
+          isOpen={showRatingDialog}
+          onClose={() => setShowRatingDialog(false)}
+          sellerName={ticket.seller.full_name}
+          transactionId={ticket.id}
+        />
+      )}
     </div>
   );
 };
