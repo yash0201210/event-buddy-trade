@@ -1,10 +1,10 @@
+
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { VerifiedMark } from '@/components/shared/VerifiedMark';
 import { useSellerStats } from '@/hooks/useSellerStats';
 import { UserRating } from '@/components/shared/UserRating';
-import { useBuyerStats } from '@/hooks/useBuyerStats';
 
 interface TicketCardProps {
   ticket: {
@@ -15,7 +15,7 @@ interface TicketCardProps {
     seller_id: string;
     profiles: {
       full_name: string;
-      avatar_url: string;
+      avatar_url?: string;
       is_verified: boolean;
     } | null;
   };
@@ -24,7 +24,7 @@ interface TicketCardProps {
 
 export const TicketCard = ({ ticket, onViewDetails }: TicketCardProps) => {
   const sellerId = ticket.seller_id;
-  const sellerStats = useSellerStats(sellerId);
+  const { data: sellerStats } = useSellerStats(sellerId);
 
   return (
     <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onViewDetails(ticket.id)}>

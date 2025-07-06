@@ -15,6 +15,8 @@ interface Ticket {
   seller_id: string;
   profiles: {
     full_name: string;
+    avatar_url?: string;
+    is_verified: boolean;
   };
 }
 
@@ -26,7 +28,7 @@ interface TicketGroup {
 }
 
 interface AvailableTicketsProps {
-  tickets: Ticket[];
+  tickets: any[];
   isLoading: boolean;
 }
 
@@ -43,8 +45,18 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
     setExpandedGroups(newExpanded);
   };
 
+  // Transform tickets to match expected structure
+  const transformedTickets = tickets.map(ticket => ({
+    ...ticket,
+    profiles: {
+      full_name: ticket.profiles?.full_name || 'Unknown Seller',
+      avatar_url: ticket.profiles?.avatar_url || '',
+      is_verified: ticket.profiles?.is_verified || false
+    }
+  }));
+
   // Group tickets by type
-  const ticketGroups: TicketGroup[] = tickets.reduce((groups, ticket) => {
+  const ticketGroups: TicketGroup[] = transformedTickets.reduce((groups, ticket) => {
     const existingGroup = groups.find(g => g.type === ticket.ticket_type);
     if (existingGroup) {
       existingGroup.tickets.push(ticket);
@@ -82,6 +94,10 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
     );
   }
 
+  const handleViewDetails = (ticketId: string) => {
+    window.location.href = `/ticket/${ticketId}`;
+  };
+
   return (
     <div className="mb-6">
       <h2 className="text-2xl font-bold text-gray-900 mb-4">Available Tickets</h2>
@@ -98,7 +114,11 @@ export const AvailableTickets = ({ tickets, isLoading }: AvailableTicketsProps) 
             {expandedGroups.has(group.type) && (
               <div className="ml-4 mt-2 space-y-2">
                 {group.tickets.map((ticket) => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
+                  <TicketCard 
+                    key={ticket.id} 
+                    ticket={ticket} 
+                    onViewDetails={handleViewDetails}
+                  />
                 ))}
               </div>
             )}
