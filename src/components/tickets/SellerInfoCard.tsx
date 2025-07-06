@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { User, Shield, Star } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { UserRating } from '@/components/shared/UserRating';
 
 interface SellerInfoCardProps {
   ticket: {
@@ -56,11 +56,11 @@ export const SellerInfoCard = ({ ticket, sellerStats }: SellerInfoCardProps) => 
               </div>
               
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
-                <div className="flex items-center">
-                  <Star className="h-3 w-3 mr-1 fill-yellow-400 text-yellow-400" />
-                  <span className="font-medium">{sellerStats?.rating || 4.8}</span>
-                  <span className="ml-1">({sellerStats?.reviewCount || 1} reviews)</span>
-                </div>
+                <UserRating 
+                  rating={sellerStats?.rating || 4.0} 
+                  reviewCount={sellerStats?.reviewCount || 1}
+                  size="md"
+                />
               </div>
               
               <div className="text-sm text-gray-600">

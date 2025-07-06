@@ -98,6 +98,9 @@ export const VerificationForm = ({ email, onVerificationComplete, onBack }: Veri
         <p className="text-gray-600">
           We've sent a 6-digit verification code to <strong>{email}</strong>
         </p>
+        <p className="text-sm text-gray-500 mt-2">
+          The email is from SocialDealr and contains your verification code.
+        </p>
       </div>
 
       <form onSubmit={handleVerifyCode} className="space-y-4">
