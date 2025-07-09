@@ -37,7 +37,7 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
   return (
     <div
       onClick={() => onClick(result)}
-      className="flex items-start px-4 py-4 hover:bg-gray-50/80 cursor-pointer transition-colors"
+      className="flex items-start px-4 py-4 hover:bg-gray-50/80 cursor-pointer transition-colors border-b border-gray-100 last:border-b-0"
     >
       <div className="flex-shrink-0 mr-4">
         {result.image ? (
@@ -60,16 +60,16 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
         )}
       </div>
       
-      <div className="flex-1 min-w-0 space-y-1">
-        <h3 className="text-base font-semibold text-gray-900 leading-tight">
+      <div className="flex-1 min-w-0 text-left">
+        <h3 className="text-base font-semibold text-gray-900 leading-tight text-left mb-1">
           {result.title}
         </h3>
         {result.date && (
-          <p className="text-sm text-gray-600 leading-tight">
+          <p className="text-sm text-gray-600 leading-tight text-left mb-1">
             {formatDate(result.date)}
           </p>
         )}
-        <p className="text-sm text-gray-500 leading-tight">
+        <p className="text-sm text-gray-500 leading-tight text-left">
           {result.subtitle}
         </p>
       </div>
