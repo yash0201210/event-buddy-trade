@@ -23,6 +23,8 @@ export const useNotifications = () => {
     queryFn: async () => {
       if (!user) return [];
 
+      console.log('Fetching notifications for user:', user.id);
+
       // Get notifications from the notifications table
       const { data: dbNotifications, error } = await supabase
         .from('notifications')
@@ -33,9 +35,13 @@ export const useNotifications = () => {
 
       if (error) {
         console.error('Error fetching notifications:', error);
+        // If RLS is blocking, try to get session info
+        const { data: sessionData } = await supabase.auth.getSession();
+        console.log('Current session:', sessionData.session?.user?.id);
         return [];
       }
 
+      console.log('Fetched notifications:', dbNotifications);
       return dbNotifications || [];
     },
     enabled: !!user,
