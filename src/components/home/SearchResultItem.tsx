@@ -37,13 +37,13 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
   return (
     <div
       onClick={() => onClick(result)}
-      className={`flex items-center px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors ${
+      className={`flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
         !isLast ? 'border-b border-gray-100' : ''
       }`}
     >
-      <div className="flex-shrink-0 mr-4">
+      <div className="flex-shrink-0 mr-3">
         {result.image ? (
-          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-100 flex items-center justify-center">
             <img 
               src={result.image} 
               alt={result.title}
@@ -56,22 +56,22 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
             />
           </div>
         ) : (
-          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center">
             {getResultIcon(result.type)}
           </div>
         )}
       </div>
       
       <div className="flex-1 min-w-0">
-        <h3 className="text-lg font-semibold text-gray-900 mb-1">
+        <h3 className="text-sm font-medium text-gray-900 mb-0.5">
           {result.title}
         </h3>
         {result.date && (
-          <p className="text-sm text-gray-600 mb-1">
+          <p className="text-xs text-gray-600 mb-0.5">
             {formatDate(result.date)}
           </p>
         )}
-        <p className="text-sm text-gray-500">
+        <p className="text-xs text-gray-500">
           {result.subtitle}
         </p>
       </div>

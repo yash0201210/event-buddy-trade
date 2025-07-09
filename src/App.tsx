@@ -41,6 +41,7 @@ import AdminEventRequests from '@/pages/admin/AdminEventRequests';
 import AdminUniversities from '@/pages/admin/AdminUniversities';
 import AdminVenues from '@/pages/admin/AdminVenues';
 import AdminSettings from '@/pages/admin/AdminSettings';
+import { AdminLayout } from '@/components/admin/AdminLayout';
 
 const queryClient = new QueryClient();
 
@@ -75,13 +76,15 @@ function App() {
             
             {/* Admin routes */}
             <Route path="/admin" element={<AdminAuth />} />
-            <Route path="/admin/analytics" element={<AdminAnalytics />} />
-            <Route path="/admin/users" element={<AdminUsers />} />
-            <Route path="/admin/events" element={<AdminEvents />} />
-            <Route path="/admin/event-requests" element={<AdminEventRequests />} />
-            <Route path="/admin/universities" element={<AdminUniversities />} />
-            <Route path="/admin/venues" element={<AdminVenues />} />
-            <Route path="/admin/settings" element={<AdminSettings />} />
+            <Route path="/admin/*" element={<AdminLayout />}>
+              <Route path="analytics" element={<AdminAnalytics />} />
+              <Route path="users" element={<AdminUsers />} />
+              <Route path="events" element={<AdminEvents />} />
+              <Route path="event-requests" element={<AdminEventRequests />} />
+              <Route path="universities" element={<AdminUniversities />} />
+              <Route path="venues" element={<AdminVenues />} />
+              <Route path="settings" element={<AdminSettings />} />
+            </Route>
             
             <Route path="*" element={<NotFound />} />
           </Routes>
