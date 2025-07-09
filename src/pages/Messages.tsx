@@ -157,7 +157,7 @@ const Messages = () => {
     <div className="h-screen bg-gray-50 flex flex-col">
       <Header />
       
-      <main className="flex-1 overflow-hidden">
+      <main className="flex-1 min-h-0">
         <div className="container mx-auto px-4 h-full">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full py-4">
             <ConversationList
@@ -179,7 +179,7 @@ const Messages = () => {
                 />
               )}
 
-              <div className="flex-1 min-h-0">
+              <div className="flex-1 h-full">
                 <ChatArea
                   selectedConv={selectedConv}
                   currentUserId={user.id}
