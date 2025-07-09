@@ -12,14 +12,32 @@ serve(async (req) => {
   }
 
   try {
+    console.log('Webhook triggered, headers:', Object.fromEntries(req.headers))
+    
+    // Check if hook secret is configured
+    if (!hookSecret) {
+      console.error('SEND_EMAIL_HOOK_SECRET not configured')
+      return new Response('Hook secret not configured', { status: 500 })
+    }
+
     const payload = await req.text()
     const headers = Object.fromEntries(req.headers)
+    
+    console.log('Verifying webhook with secret')
     const wh = new Webhook(hookSecret)
+    
+    let webhookData
+    try {
+      webhookData = wh.verify(payload, headers)
+    } catch (verifyError) {
+      console.error('Webhook verification failed:', verifyError)
+      return new Response('Webhook verification failed: ' + verifyError.message, { status: 401 })
+    }
     
     const {
       user,
       email_data: { token, token_hash, redirect_to, email_action_type },
-    } = wh.verify(payload, headers) as {
+    } = webhookData as {
       user: {
         email: string
         user_metadata?: any
@@ -31,6 +49,8 @@ serve(async (req) => {
         email_action_type: string
       }
     }
+
+    console.log('Webhook verified successfully for user:', user.email)
 
     const userName = user.user_metadata?.full_name || 'there'
 
