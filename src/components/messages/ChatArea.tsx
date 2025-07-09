@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { MessageCircle, Send, ArrowLeft } from 'lucide-react';
 import { MessageBubble } from './MessageBubble';
+import { useNotifications } from '@/hooks/useNotifications';
 
 interface Conversation {
   id: string;
@@ -22,7 +23,6 @@ interface Conversation {
   seller_name?: string;
   messages: Message[];
 }
-
 interface Message {
   id: string;
   content: string;
@@ -62,6 +62,15 @@ export const ChatArea = ({
   onFundsReceived,
   onNavigateToSellingHub
 }: ChatAreaProps) => {
+  const { markMessagesAsRead } = useNotifications();
+  
+  // Mark messages as read when conversation is opened
+  useEffect(() => {
+    if (selectedConv?.id) {
+      markMessagesAsRead(selectedConv.id);
+    }
+  }, [selectedConv?.id, markMessagesAsRead]);
+  
   if (!selectedConv) {
     return (
       <Card className="lg:col-span-2 h-full border border-gray-200 shadow-sm">
@@ -94,7 +103,7 @@ export const ChatArea = ({
               {selectedConv.ticket_title}
             </CardTitle>
             <p className="text-sm text-gray-600 font-medium">
-              €{selectedConv.ticket_price} • {
+              £{selectedConv.ticket_price} • {
                 isUserBuyer 
                   ? selectedConv.seller_name
                   : selectedConv.buyer_name

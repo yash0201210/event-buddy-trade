@@ -10,7 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
 const Notifications = () => {
-  const { notifications, isLoading } = useNotifications();
+  const { notifications, isLoading, markAsRead } = useNotifications();
   const navigate = useNavigate();
 
   const getNotificationIcon = (type: string) => {
@@ -21,12 +21,20 @@ const Notifications = () => {
         return <Ticket className="h-5 w-5 text-green-600" />;
       case 'ticket_alert':
         return <Bell className="h-5 w-5 text-orange-600" />;
+      case 'system':
+        return <Bell className="h-5 w-5 text-purple-600" />;
       default:
         return <Bell className="h-5 w-5 text-gray-600" />;
     }
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = async (notification: any) => {
+    // Mark as read if not already read
+    if (!notification.is_read) {
+      await markAsRead([notification.id]);
+    }
+
+    // Navigate based on notification type
     if (notification.type === 'message' && notification.related_id) {
       navigate('/messages');
     } else if (notification.type === 'offer') {

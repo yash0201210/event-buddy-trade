@@ -162,6 +162,7 @@ export type Database = {
           created_at: string | null
           id: string
           message_type: string | null
+          read_at: string | null
           receiver_id: string
           sender_id: string
         }
@@ -171,6 +172,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           message_type?: string | null
+          read_at?: string | null
           receiver_id: string
           sender_id: string
         }
@@ -180,6 +182,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           message_type?: string | null
+          read_at?: string | null
           receiver_id?: string
           sender_id?: string
         }
@@ -206,6 +209,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          description: string
+          id: string
+          is_read: boolean
+          metadata: Json | null
+          read_at: string | null
+          related_id: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description: string
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          read_at?: string | null
+          related_id?: string | null
+          title: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          id?: string
+          is_read?: boolean
+          metadata?: Json | null
+          read_at?: string | null
+          related_id?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       offers: {
         Row: {
@@ -519,7 +564,25 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      create_notification: {
+        Args: {
+          target_user_id: string
+          notification_type: string
+          notification_title: string
+          notification_description: string
+          related_record_id?: string
+          notification_metadata?: Json
+        }
+        Returns: string
+      }
+      mark_messages_as_read: {
+        Args: { conversation_uuid: string; user_uuid: string }
+        Returns: undefined
+      }
+      mark_notifications_as_read: {
+        Args: { notification_ids: string[] }
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never
