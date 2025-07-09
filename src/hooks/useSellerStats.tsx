@@ -36,8 +36,9 @@ export const useSellerStats = (sellerId?: string) => {
       
       console.log('Seller stats:', { soldCount, activeCount, totalCount });
       
-      // More realistic rating calculation
-      let rating = 4.0; // Base rating for new sellers
+      // Only show ratings for sellers who have actually sold tickets
+      let rating = null;
+      let reviewCount = 0;
       
       if (soldCount > 0) {
         // Calculate rating based on sales activity and success
@@ -47,20 +48,18 @@ export const useSellerStats = (sellerId?: string) => {
         // Rating between 3.5 and 5.0 based on performance
         rating = 3.5 + (salesRatio + activityBonus) * 0.75;
         rating = Math.min(5.0, Math.max(3.5, rating));
-      } else if (totalCount > 5) {
-        // Penalize sellers with many unsold tickets
-        rating = 3.7;
+        rating = Math.round(rating * 10) / 10;
+        
+        // Only give review count if they have sold tickets
+        reviewCount = Math.max(1, Math.floor(soldCount * 0.8) + Math.floor(Math.random() * 3));
       }
-      
-      // Round to 1 decimal place
-      rating = Math.round(rating * 10) / 10;
 
       return {
         totalSold: soldCount,
         totalListed: totalCount,
         activeListed: activeCount,
         rating: rating,
-        reviewCount: Math.max(1, Math.floor(soldCount * 0.8) + Math.floor(Math.random() * 3))
+        reviewCount: reviewCount
       };
     },
     enabled: !!sellerId,

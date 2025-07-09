@@ -29,6 +29,15 @@ export const UserRating = ({
     lg: 'text-base'
   };
 
+  // Don't show rating if no rating or no reviews
+  if (!rating || reviewCount === 0) {
+    return (
+      <div className={`${textSizes[size]} text-gray-500 ${className}`}>
+        No reviews yet
+      </div>
+    );
+  }
+
   return (
     <div className={`flex items-center gap-1 ${className}`}>
       <div className="flex items-center">

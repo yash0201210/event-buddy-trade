@@ -28,36 +28,36 @@ export const TicketCard = ({ ticket, onViewDetails }: TicketCardProps) => {
 
   return (
     <Card className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => onViewDetails(ticket.id)}>
-      <CardContent className="p-4">
-        <div className="flex items-center mb-3">
-          <Avatar className="mr-3 h-8 w-8">
+      <CardContent className="p-3">
+        <div className="flex items-center mb-2">
+          <Avatar className="mr-2 h-6 w-6">
             <AvatarImage src={ticket.profiles?.avatar_url || ''} alt={ticket.profiles?.full_name || 'Seller'} />
-            <AvatarFallback>{ticket.profiles?.full_name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
+            <AvatarFallback className="text-xs">{ticket.profiles?.full_name?.charAt(0).toUpperCase() || 'U'}</AvatarFallback>
           </Avatar>
-          <div>
-            <div className="flex items-center">
-              <span className="font-semibold text-sm">{ticket.profiles?.full_name || 'Unknown Seller'}</span>
+          <div className="flex-1">
+            <div className="flex items-center gap-1">
+              <span className="font-medium text-xs">{ticket.profiles?.full_name || 'Unknown Seller'}</span>
               {ticket.profiles?.is_verified && <VerifiedMark />}
             </div>
             <p className="text-xs text-gray-500">Verified Seller</p>
           </div>
         </div>
-        <h3 className="font-bold text-lg mb-2">{ticket.title}</h3>
-        <p className="text-gray-600 text-sm mb-3">
+        <h3 className="font-semibold text-base mb-1">{ticket.title}</h3>
+        <p className="text-gray-600 text-xs mb-2">
           {ticket.ticket_type}
         </p>
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between mb-2">
           <UserRating 
-            rating={sellerStats?.rating || 4.0} 
-            reviewCount={sellerStats?.reviewCount || 1}
+            rating={sellerStats?.rating} 
+            reviewCount={sellerStats?.reviewCount || 0}
             size="sm"
           />
-          <span className="text-sm text-gray-500">
+          <span className="text-xs text-gray-500">
             {sellerStats?.totalSold || 0} sold
           </span>
         </div>
-        <div className="mt-4">
-          <span className="text-xl font-semibold">£{ticket.selling_price}</span>
+        <div className="mt-2">
+          <span className="text-lg font-semibold">£{ticket.selling_price}</span>
         </div>
       </CardContent>
     </Card>
