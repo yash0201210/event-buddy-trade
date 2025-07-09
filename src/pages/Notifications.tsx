@@ -19,6 +19,10 @@ const Notifications = () => {
         return <MessageSquare className="h-5 w-5 text-blue-600" />;
       case 'offer':
         return <Ticket className="h-5 w-5 text-green-600" />;
+      case 'offer_accepted':
+        return <Ticket className="h-5 w-5 text-green-600" />;
+      case 'offer_rejected':
+        return <Ticket className="h-5 w-5 text-red-600" />;
       case 'ticket_alert':
         return <Bell className="h-5 w-5 text-orange-600" />;
       case 'system':
@@ -29,16 +33,22 @@ const Notifications = () => {
   };
 
   const handleNotificationClick = async (notification: any) => {
-    // Mark as read if not already read
-    if (!notification.is_read) {
-      await markAsRead([notification.id]);
-    }
+    try {
+      // Mark as read if not already read
+      if (!notification.is_read) {
+        await markAsRead([notification.id]);
+      }
 
-    // Navigate based on notification type
-    if (notification.type === 'message' && notification.related_id) {
-      navigate('/messages');
-    } else if (notification.type === 'offer') {
-      navigate('/selling-hub');
+      // Navigate based on notification type
+      if (notification.type === 'message' && notification.related_id) {
+        navigate('/messages');
+      } else if (notification.type === 'offer' || notification.type === 'offer_accepted' || notification.type === 'offer_rejected') {
+        navigate('/selling-hub');
+      } else if (notification.type === 'ticket_alert' && notification.related_id) {
+        navigate(`/event/${notification.related_id}`);
+      }
+    } catch (error) {
+      console.error('Error handling notification click:', error);
     }
   };
 
