@@ -81,7 +81,7 @@ const Messages = () => {
       // Then send the confirmation message
       sendMessageMutation.mutate({
         conversationId: pendingAcceptConversation,
-        content: "Order Confirmed!\n\nThe order has now been confirmed. Transfer €9.73 to the seller once they share their bank details!\n\nHi, please send me €9.73 on the following bank details:\n\nFull Name: Yash Agrawal\nSort Code: XX - XX - XX\nAccount Number: 12736892\n\nRemember to confirm here once you have sent this money across!",
+        content: "Order Confirmed!\n\nThe order has now been confirmed. Transfer £9.73 to the seller once they share their bank details!\n\nHi, please send me £9.73 on the following bank details:\n\nFull Name: Yash Agrawal\nSort Code: XX - XX - XX\nAccount Number: 12736892\n\nRemember to confirm here once you have sent this money across!",
         messageType: 'order_confirmed',
       });
     }
@@ -93,12 +93,28 @@ const Messages = () => {
     if (pendingAcceptConversation) {
       sendMessageMutation.mutate({
         conversationId: pendingAcceptConversation,
-        content: `I appreciate your interest, but I'd like to counter with €${amount}. Let me know if this works for you!`,
+        content: `I appreciate your interest, but I'd like to counter with £${amount}. Let me know if this works for you!`,
         messageType: 'counter_offer',
       });
     }
     setShowCounterOffer(false);
     setPendingAcceptConversation(null);
+  };
+
+  const handleAcceptCounterOffer = (conversationId: string) => {
+    sendMessageMutation.mutate({
+      conversationId,
+      content: "Great! I accept your counter offer. Let's proceed with the transaction.",
+      messageType: 'text',
+    });
+  };
+
+  const handleRejectCounterOffer = (conversationId: string, newAmount: number) => {
+    sendMessageMutation.mutate({
+      conversationId,
+      content: `Thanks for the counter offer, but I'd like to propose £${newAmount} instead. What do you think?`,
+      messageType: 'counter_offer',
+    });
   };
 
   const handleConfirmTransfer = (conversationId: string) => {
@@ -175,6 +191,8 @@ const Messages = () => {
                   onBack={() => setSelectedConversation(null)}
                   onAcceptPurchaseRequest={handleAcceptPurchaseRequest}
                   onRejectPurchaseRequest={handleRejectPurchaseRequest}
+                  onAcceptCounterOffer={handleAcceptCounterOffer}
+                  onRejectCounterOffer={handleRejectCounterOffer}
                   onConfirmTransfer={handleConfirmTransfer}
                   onViewTransactionDetails={handleViewTransactionDetails}
                   onFundsReceived={handleFundsReceived}

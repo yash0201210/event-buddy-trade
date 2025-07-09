@@ -4,6 +4,7 @@ import { PurchaseRequestMessage } from './PurchaseRequestMessage';
 import { OrderConfirmedMessage } from './OrderConfirmedMessage';
 import { TransferConfirmationMessage } from './TransferConfirmationMessage';
 import { FundsReceivedMessage } from './FundsReceivedMessage';
+import { CounterOfferMessage } from './CounterOfferMessage';
 import { RegularMessage } from './RegularMessage';
 
 interface Message {
@@ -38,6 +39,8 @@ interface MessageBubbleProps {
   selectedConv: Conversation;
   onAcceptPurchaseRequest: (conversationId: string) => void;
   onRejectPurchaseRequest: (conversationId: string) => void;
+  onAcceptCounterOffer: (conversationId: string) => void;
+  onRejectCounterOffer: (conversationId: string, newAmount: number) => void;
   onConfirmTransfer: (conversationId: string) => void;
   onViewTransactionDetails: (conversationId: string) => void;
   onFundsReceived: (conversationId: string) => void;
@@ -51,6 +54,8 @@ export const MessageBubble = ({
   selectedConv,
   onAcceptPurchaseRequest,
   onRejectPurchaseRequest,
+  onAcceptCounterOffer,
+  onRejectCounterOffer,
   onConfirmTransfer,
   onViewTransactionDetails,
   onFundsReceived,
@@ -96,6 +101,21 @@ export const MessageBubble = ({
         <FundsReceivedMessage
           {...messageProps}
           onNavigateToSellingHub={onNavigateToSellingHub}
+        />
+      );
+    
+    case 'counter_offer':
+      // Extract the amount from the message content
+      const counterAmountMatch = message.content.match(/£(\d+(?:\.\d{2})?)/);
+      const counterAmount = counterAmountMatch ? parseFloat(counterAmountMatch[1]) : selectedConv.ticket_price || 0;
+      
+      return (
+        <CounterOfferMessage
+          {...messageProps}
+          counterAmount={counterAmount}
+          originalAmount={selectedConv.ticket_price || 0}
+          onAcceptCounterOffer={onAcceptCounterOffer}
+          onRejectCounterOffer={onRejectCounterOffer}
         />
       );
     

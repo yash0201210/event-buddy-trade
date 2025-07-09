@@ -37,12 +37,12 @@ export const PurchaseRequestMessage = ({
             <div className="space-y-1 text-xs text-gray-700">
               <div className="flex justify-between">
                 <span>1 X Regular Ticket</span>
-                <span className="font-medium">€9.73</span>
+                <span className="font-medium">£9.73</span>
               </div>
               <div className="border-t pt-1 mt-2">
                 <div className="flex justify-between font-semibold">
                   <span>Total Amount</span>
-                  <span>€9.73</span>
+                  <span>£9.73</span>
                 </div>
               </div>
             </div>

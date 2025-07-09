@@ -49,7 +49,7 @@ export const CounterOfferDialog = ({
             <Label htmlFor="originalPrice">Original Price</Label>
             <Input
               id="originalPrice"
-              value={`€${originalPrice}`}
+              value={`£${originalPrice}`}
               disabled
               className="bg-gray-100"
             />
