@@ -102,11 +102,10 @@ const Messages = () => {
   };
 
   const handleAcceptCounterOffer = (conversationId: string) => {
-    sendMessageMutation.mutate({
-      conversationId,
-      content: "Great! I accept your counter offer. Let's proceed with the transaction.",
-      messageType: 'text',
-    });
+    // If the current user is the seller (accepting buyer's counter offer), show bank details
+    // If the current user is the buyer (accepting seller's counter offer), also trigger bank details flow
+    setPendingAcceptConversation(conversationId);
+    setShowBankDetails(true);
   };
 
   const handleRejectCounterOffer = (conversationId: string, newAmount: number) => {

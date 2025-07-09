@@ -119,7 +119,7 @@ export const ChatArea = ({
 
       <CardContent className="flex flex-col flex-1 p-0 min-h-0 overflow-hidden bg-white">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 max-h-0">
           {selectedConv.messages?.map((message) => (
             <MessageBubble
               key={message.id}
