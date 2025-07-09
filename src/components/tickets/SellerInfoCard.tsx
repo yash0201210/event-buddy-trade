@@ -57,8 +57,8 @@ export const SellerInfoCard = ({ ticket, sellerStats }: SellerInfoCardProps) => 
               
               <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
                 <UserRating 
-                  rating={sellerStats?.rating || 4.0} 
-                  reviewCount={sellerStats?.reviewCount || 1}
+                  rating={sellerStats?.rating} 
+                  reviewCount={sellerStats?.reviewCount || 0}
                   size="md"
                 />
               </div>

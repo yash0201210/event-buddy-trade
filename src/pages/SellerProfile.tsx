@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, User, Shield, Star, Calendar, MapPin } from 'lucide-react';
 import { useSellerStats } from '@/hooks/useSellerStats';
+import { UserRating } from '@/components/shared/UserRating';
 
 interface SellerProfile {
   id: string;
@@ -142,11 +143,11 @@ const SellerProfile = () => {
                 </div>
                 
                 <div className="flex items-center justify-center gap-4 text-sm text-gray-600 mb-4">
-                  <div className="flex items-center">
-                    <Star className="h-4 w-4 mr-1 fill-yellow-400 text-yellow-400" />
-                    <span className="font-medium">{sellerStats?.rating || 4.8}</span>
-                    <span className="ml-1">({sellerStats?.reviewCount || 1} reviews)</span>
-                  </div>
+                  <UserRating 
+                    rating={sellerStats?.rating} 
+                    reviewCount={sellerStats?.reviewCount || 0}
+                    size="md"
+                  />
                 </div>
                 
                 <div className="grid grid-cols-2 gap-4 text-center">
