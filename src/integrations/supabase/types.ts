@@ -355,6 +355,30 @@ export type Database = {
         }
         Relationships: []
       }
+      ticket_alerts: {
+        Row: {
+          created_at: string
+          event_id: string
+          id: string
+          is_active: boolean
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_id: string
+          id?: string
+          is_active?: boolean
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_id?: string
+          id?: string
+          is_active?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       tickets: {
         Row: {
           created_at: string | null
@@ -582,6 +606,10 @@ export type Database = {
       mark_notifications_as_read: {
         Args: { notification_ids: string[] }
         Returns: undefined
+      }
+      toggle_ticket_alert: {
+        Args: { event_uuid: string }
+        Returns: boolean
       }
     }
     Enums: {
