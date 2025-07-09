@@ -37,30 +37,33 @@ export const SearchResultItem: React.FC<SearchResultItemProps> = ({ result, onCl
   return (
     <div
       onClick={() => onClick(result)}
-      className={`flex items-center px-4 py-3 hover:bg-gray-50 cursor-pointer transition-colors ${
+      className={`flex items-center px-6 py-4 hover:bg-gray-50 cursor-pointer transition-colors ${
         !isLast ? 'border-b border-gray-100' : ''
       }`}
     >
       <div className="flex-shrink-0 mr-4">
         {result.image ? (
-          <img 
-            src={result.image} 
-            alt={result.title}
-            className="w-12 h-12 rounded-full object-cover"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.style.display = 'none';
-              target.nextElementSibling?.classList.remove('hidden');
-            }}
-          />
-        ) : null}
-        <div className={`w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center ${result.image ? 'hidden' : ''}`}>
-          {getResultIcon(result.type)}
-        </div>
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
+            <img 
+              src={result.image} 
+              alt={result.title}
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.target as HTMLImageElement;
+                target.style.display = 'none';
+                target.parentElement!.innerHTML = `<div class="w-full h-full flex items-center justify-center">${target.parentElement!.lastElementChild!.outerHTML}</div>`;
+              }}
+            />
+          </div>
+        ) : (
+          <div className="w-14 h-14 rounded-full bg-gray-100 flex items-center justify-center">
+            {getResultIcon(result.type)}
+          </div>
+        )}
       </div>
       
       <div className="flex-1 min-w-0">
-        <h3 className="text-base font-semibold text-gray-900 mb-1">
+        <h3 className="text-lg font-semibold text-gray-900 mb-1">
           {result.title}
         </h3>
         {result.date && (

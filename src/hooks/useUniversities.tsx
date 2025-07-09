@@ -68,7 +68,6 @@ export const useUniversities = () => {
       if (editingUniversity) {
         console.log('Updating university with ID:', editingUniversity.id);
         
-        // Update the university without using .single() to avoid the error
         const { data, error } = await supabase
           .from('universities')
           .update(universityData)
@@ -80,7 +79,6 @@ export const useUniversities = () => {
           throw error;
         }
         
-        // Check if any rows were actually updated
         if (!data || data.length === 0) {
           throw new Error('University not found or no changes made');
         }
@@ -111,7 +109,6 @@ export const useUniversities = () => {
         });
       }
 
-      // Refresh the universities list
       await fetchUniversities();
     } catch (error: any) {
       console.error('Save university error:', error);

@@ -22,14 +22,23 @@ export const SearchDropdown: React.FC<SearchDropdownProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute top-full left-1 right-1 mt-1 bg-white rounded-xl shadow-lg border border-gray-200 z-50 overflow-hidden">
+    <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl border border-gray-100 z-50 overflow-hidden">
+      {searchQuery.length >= 2 && (
+        <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+          <span className="text-sm text-gray-600">{searchQuery}</span>
+          <button className="text-gray-400 hover:text-gray-600">
+            <Search className="h-4 w-4" />
+          </button>
+        </div>
+      )}
+      
       {isLoading ? (
         <div className="p-6 text-center text-gray-500">
           <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-red-600 mx-auto mb-2"></div>
           <p className="text-sm">Searching...</p>
         </div>
       ) : results.length > 0 ? (
-        <div className="max-h-80 overflow-y-auto py-2">
+        <div className="max-h-96 overflow-y-auto">
           {results.map((result, index) => (
             <SearchResultItem
               key={`${result.type}-${result.id}`}
