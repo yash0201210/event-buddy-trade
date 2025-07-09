@@ -2,11 +2,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { useEffect } from 'react';
 
 export interface Notification {
   id: string;
-  type: 'message' | 'offer' | 'ticket_alert' | 'system';
+  type: 'message' | 'offer' | 'offer_accepted' | 'offer_rejected' | 'ticket_alert' | 'system';
   title: string;
   description: string;
   is_read: boolean;
@@ -40,47 +39,8 @@ export const useNotifications = () => {
       return dbNotifications || [];
     },
     enabled: !!user,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    refetchInterval: 10000, // Refetch every 10 seconds instead of real-time
   });
-
-  // Set up real-time subscription for new notifications
-  useEffect(() => {
-    if (!user) return;
-
-    const channel = supabase
-      .channel('notifications-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log('New notification received:', payload);
-          refetch(); // Refetch notifications when a new one is inserted
-        }
-      )
-      .on(
-        'postgres_changes',
-        {
-          event: 'UPDATE',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user.id}`,
-        },
-        (payload) => {
-          console.log('Notification updated:', payload);
-          refetch(); // Refetch notifications when one is updated
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [user, refetch]);
 
   // Also listen for unread messages for the message icon
   const { data: unreadMessagesCount = 0 } = useQuery({
@@ -97,7 +57,7 @@ export const useNotifications = () => {
       return count || 0;
     },
     enabled: !!user,
-    refetchInterval: 30000,
+    refetchInterval: 10000, // Refetch every 10 seconds
   });
 
   const unreadCount = notifications.filter(n => !n.is_read).length;
