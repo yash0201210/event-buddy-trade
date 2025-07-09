@@ -167,7 +167,7 @@ const Messages = () => {
               currentUserId={user.id}
             />
 
-            <div className="lg:col-span-2 flex flex-col gap-4">
+            <div className="lg:col-span-2 h-full flex flex-col">
               {selectedConv && (
                 <OrderExpirationCard
                   conversation={selectedConv}
@@ -179,7 +179,7 @@ const Messages = () => {
                 />
               )}
 
-              <div className="flex-1">
+              <div className="flex-1 min-h-0">
                 <ChatArea
                   selectedConv={selectedConv}
                   currentUserId={user.id}
