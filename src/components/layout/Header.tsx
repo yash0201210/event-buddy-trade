@@ -41,11 +41,21 @@ export const Header = () => {
       
     } catch (error: any) {
       console.error('Sign out error:', error);
-      toast({
-        title: "Error signing out",
-        description: error.message || "Please try again",
-        variant: "destructive"
-      });
+      
+      // Don't show error for missing auth session - just clear state and continue
+      if (error?.message?.includes('session') || error?.message?.includes('Auth session missing')) {
+        console.log('Auth session already cleared, proceeding with sign out');
+        toast({
+          title: "Signed out successfully",
+        });
+        navigate('/', { replace: true });
+      } else {
+        toast({
+          title: "Error signing out",
+          description: error.message || "Please try again",
+          variant: "destructive"
+        });
+      }
     } finally {
       setIsSigningOut(false);
     }
