@@ -117,9 +117,9 @@ export const ChatArea = ({
         </div>
       </CardHeader>
 
-      <CardContent className="flex flex-col flex-1 p-0 min-h-0 overflow-hidden bg-white">
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50 max-h-0">
+      <CardContent className="flex flex-col flex-1 p-0 overflow-hidden bg-white">
+        {/* Messages - Scrollable area */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gray-50">
           {selectedConv.messages?.map((message) => (
             <MessageBubble
               key={message.id}
@@ -139,8 +139,8 @@ export const ChatArea = ({
           ))}
         </div>
 
-        {/* Transaction Instructions */}
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 p-3 mx-4 rounded-lg mb-3 flex-shrink-0">
+        {/* Transaction Instructions - Fixed */}
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-t border-blue-100 p-3 mx-4 rounded-lg flex-shrink-0">
           <h4 className="font-semibold text-sm text-blue-800 mb-1">Transaction Steps</h4>
           <div className="text-xs text-blue-700">
             {isUserBuyer ? (
@@ -151,7 +151,7 @@ export const ChatArea = ({
           </div>
         </div>
 
-        {/* Message Input */}
+        {/* Message Input - Fixed at bottom */}
         <div className="flex gap-3 p-4 border-t border-gray-100 flex-shrink-0 bg-white">
           <Input
             placeholder="Type your message..."
