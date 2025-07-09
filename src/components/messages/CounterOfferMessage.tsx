@@ -35,10 +35,7 @@ export const CounterOfferMessage = ({
     setShowCounterDialog(false);
   };
 
-  const canRespond = !isOwn && (
-    (isUserBuyer && message.content.includes('seller')) || 
-    (!isUserBuyer && message.content.includes('buyer'))
-  );
+  const canRespond = !isOwn;
 
   return (
     <>
