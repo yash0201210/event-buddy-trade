@@ -76,6 +76,16 @@ export const DiscoverMoreEvents = ({ selectedCity }: DiscoverMoreEventsProps) =>
         return (b.ticket_count || 0) - (a.ticket_count || 0);
       });
 
+      console.log('Total events found:', sortedEvents.length);
+      console.log('Events for discover more (6-14):', sortedEvents.slice(6, 14));
+
+      // If we have fewer than 6 events total, show some events anyway
+      if (sortedEvents.length <= 6) {
+        // Show last 2-4 events if we have them
+        const startIndex = Math.max(0, sortedEvents.length - 4);
+        return sortedEvents.slice(startIndex) as Event[];
+      }
+
       // Skip first 6 events (as they would be in suggested events) and take next 8
       return sortedEvents.slice(6, 14) as Event[];
     },
